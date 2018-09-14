@@ -14,8 +14,8 @@ api.get(new FacebookApiHttpRequest(
         login: "asd",
         password: "asd",
     })
-).then((el) => {
-    console.log(el.body)
-}).catch((el) => {
-    console.log(el)
+).then(res => res.json()).then(json => {
+    console.dir(json)
+}).catch(err => {
+    console.error(err)
 })
