@@ -37,7 +37,8 @@ export default class BaseFacebookHttpApi {
         ...extraHeaders
       },
       method: 'POST',
-      body: request.serializeParams()
+      body: request.serializeParams(),
+      compress: true
     });
     if (!resp.ok) {
       throw new Error("Facebook get error: " + (await resp.text()));
