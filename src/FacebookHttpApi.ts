@@ -1,4 +1,5 @@
 import BaseFacebookHttpApi from "./BaseFacebookHttpApi";
+import FacebookApiHttpRequest from "./FacebookApiHttpRequest";
 
 /**
  * This class will make specific requests to the facebook API utilizing their sick http logic implemented by BaseFacebookHttpApi.
@@ -6,12 +7,18 @@ import BaseFacebookHttpApi from "./BaseFacebookHttpApi";
 export default class FacebookHttpApi extends BaseFacebookHttpApi {
   /**
    * @see QFacebookHttpApi::auth
-   * @todo IMPLEMENT
-   * @param user
+   * @param email
    * @param password
    */
-  async auth(user: string, password: string) {
-    throw new Error("not yet");
+  async auth(email: string, password: string) {
+    const request = new FacebookApiHttpRequest(
+      "https://b-api.facebook.com/method/auth.login",
+      null,
+      "auth.login",
+      "authenticate",
+      { email, password }
+    )
+    return this.get(request);
   }
 
   /**
