@@ -16,10 +16,7 @@ export default class BaseFacebookHttpApi {
     request.params["format"] = "json";
     request.params["method"] = request.method;
     request.params["local"] = "pl_PL";
-    let dataToHash = "";
-    request.sortedKeys().forEach(k => {
-      dataToHash += k + "=" + request.params[k];
-    });
+    let dataToHash = request.sortedKeys().map(k => k + "=" + request.params[k]).join(""); // This isn't the same as request.serializeParams(), because no & sign and no escaping. Thanks ZUCC
     dataToHash += "374e60f8b9bb6b8cbb30f78030438895"; // ??? xDDDDDD wtf XD
     const sig = crypto
       .createHash("md5")
@@ -44,4 +41,6 @@ export default class BaseFacebookHttpApi {
     }
     return resp;
   }
+
+  
 }
