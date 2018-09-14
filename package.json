@@ -18,6 +18,10 @@
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.ts"
   },
-  "author": "alu & rlot",
+  "contributors": [
+    "alufers <alufers@wp.pl>",
+    "Filip Grzywok <rj23@protonmail.com>",
+    "Bjornskjald <github@bjorn.ml>"
+  ],
   "license": "MIT"
 }
