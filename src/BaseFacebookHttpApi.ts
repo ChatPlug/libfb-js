@@ -1,5 +1,6 @@
 import FacebookApiHttpRequest from "./FacebookApiHttpRequest";
 import crypto from "crypto";
+import fetch from "node-fetch";
 
 /**
  * This class wil implement making sick fucking http requests to facebook API by ZUCC.
@@ -8,7 +9,7 @@ import crypto from "crypto";
  */
 export default class BaseFacebookHttpApi {
   deviceId: string;
-  get(request: FacebookApiHttpRequest) {
+  async get(request: FacebookApiHttpRequest) {
     request.params["api_key"] = "256002347743983";
     request.params["device_id"] = this.deviceId;
     request.params["fb_api_req_friendly_name"] = request.friendlyName;
@@ -27,8 +28,20 @@ export default class BaseFacebookHttpApi {
     request.params["sig"] = sig;
 
     const resultingUrl = request.url + request.serializeParams();
-    
-
-    throw new Error("not yet");
+    let extraHeaders = {};
+    if (request.token) {
+      extraHeaders["Authorization"] = "OAuth " + request.token;
+    }
+    const resp = await fetch(resultingUrl, {
+      headers: {
+        "User-Agent":
+          "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/38.0.0.22.155;FBBV/14477681]",
+        ...extraHeaders
+      }
+    });
+    if (!resp.ok) {
+      throw new Error("Facebook get error: " + (await resp.text()));
+    }
+    return resp;
   }
 }
