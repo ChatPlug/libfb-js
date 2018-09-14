@@ -10,7 +10,6 @@ export interface RequestParams {
 export default class FacebookApiHttpRequest {
   constructor(
     public url: string,
-    public token: string,
     public method: string,
     public friendlyName: string,
     public params: RequestParams

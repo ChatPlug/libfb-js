@@ -11,60 +11,110 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
    * @param password
    */
   async auth(email: string, password: string) {
-    const request = new FacebookApiHttpRequest(
+    return this.get(new FacebookApiHttpRequest(
       "https://b-api.facebook.com/method/auth.login",
-      null,
       "auth.login",
       "authenticate",
       { email, password }
-    )
-    return this.get(request);
+    )).then(res => {
+      if (!res.access_token) throw new Error("Access token missing!");
+      this.token = res.access_token
+      return res
+    });
   }
 
   /**
    * @see QFacebookHttpApi::usersQuery
-   * @todo IMPLEMENT
-   * @param token
    */
-  async usersQuery(token: string) {
-    throw new Error("not yet");
+  async usersQuery() {
+    return this.get(new FacebookApiHttpRequest(
+      "https://graph.facebook.com/graphql",
+      "get",
+      "UsersQuery",
+      {
+        query_id: "10154444360806729",
+        query_params: JSON.stringify({
+          "0": ["user"],
+          "1": "50"
+        })
+      }
+    ))
   }
 
   /**
    * @see QFacebookHttpApi::usersQueryAfter
-   * @todo IMPLEMENT
-   * @param token
+   * @param cursor
    */
-  async usersQueryAfter(token: string, cursor: string) {
-    throw new Error("not yet");
+  async usersQueryAfter(cursor: string) {
+    return this.get(new FacebookApiHttpRequest(
+      "https://graph.facebook.com/graphql",
+      "get",
+      "FetchContactsFullWithAfterQuery",
+      {
+        query_id: "10154444360816729",
+        query_params: JSON.stringify({
+          "0": ["user"],
+          "1": cursor,
+          "2": "50"
+        })
+      }
+    ))
   }
 
   /**
    * @see QFacebookHttpApi::usersQueryDelta
-   * @todo IMPLEMENT
-   * @param token
+   * @param deltaCursor
    */
-  async usersQueryDelta(token: string, deltaCursor: string) {
-    throw new Error("not yet");
+  async usersQueryDelta(deltaCursor: string) {
+    return this.get(new FacebookApiHttpRequest(
+      "https://graph.facebook.com/graphql",
+      "get",
+      "FetchContactsDeltaQuery",
+      {
+        query_id: "10154444360801729",
+        query_params: JSON.stringify({
+          "0": deltaCursor,
+          "1": ["user"],
+          "2": "500"
+        })
+      }
+    ))
   }
 
   /**
    * @see QFacebookHttpApi::threadListQuery
-   * @todo IMPLEMENT
-   * @param token
    */
-  async threadListQuery(token: string) {
-    throw new Error("not yet");
+  async threadListQuery() {
+    return this.get(new FacebookApiHttpRequest(
+      "https://graph.facebook.com/graphql",
+      "get",
+      "ThreadListQuery",
+      {
+        query_id: "10155268192741729",
+        query_params: JSON.stringify({"1": "0"})
+      }
+    ))
   }
 
   /**
    * @see QFacebookHttpApi::unreadThreadListQuery
-   * @todo IMPLEMENT
-   * @param token
    * @param unreadCount
    */
-  async unreadThreadListQuery(token: string, unreadCount: number) {
-    throw new Error("not yet");
+  async unreadThreadListQuery(unreadCount: number) {
+    return this.get(new FacebookApiHttpRequest(
+      "https://graph.facebook.com/graphql",
+      "get",
+      "ThreadListQuery",
+      {
+        query_id: "10153919752026729",
+        query_params: JSON.stringify({
+          "1": unreadCount,
+          "2": true,
+          "12": true,
+          "13": false
+        })
+      }
+    ))
   }
 
   /**

@@ -9,6 +9,8 @@ import fetch from "node-fetch";
  */
 export default class BaseFacebookHttpApi {
   deviceId: string;
+  token: string;
+
   async get(request: FacebookApiHttpRequest) {
     request.params["api_key"] = "256002347743983";
     request.params["device_id"] = this.deviceId;
@@ -26,8 +28,8 @@ export default class BaseFacebookHttpApi {
 
     const resultingUrl = request.url
     let extraHeaders = {};
-    if (request.token) {
-      extraHeaders["Authorization"] = "OAuth " + request.token;
+    if (this.token) {
+      extraHeaders["Authorization"] = "OAuth " + this.token;
     }
     const resp = await fetch(resultingUrl, {
       headers: {
@@ -43,7 +45,7 @@ export default class BaseFacebookHttpApi {
     if (!resp.ok) {
       throw new Error("Facebook get error: " + (await resp.text()));
     }
-    return resp;
+    return resp.json();
   }
 
 
