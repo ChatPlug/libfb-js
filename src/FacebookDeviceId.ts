@@ -1,4 +1,4 @@
-type DeviceId = { clientId: string; deviceId: string; mqqtId: string }
+type DeviceId = { clientId: string; deviceId: string; mqttId: number }
 
 const makeUuidv4 = () => {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
@@ -8,4 +8,10 @@ const makeUuidv4 = () => {
   })
 }
 
-export default () => {}
+export default () => {
+  const uuid = makeUuidv4()
+  const deviceId = uuid;
+  const clientId = uuid.substring(0, 19)
+  const mqttId = Math.random() * 1000000
+  return { clientId, deviceId, mqttId } as DeviceId
+}

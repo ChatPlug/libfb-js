@@ -1,5 +1,5 @@
 import FacebookApiHttpRequest from "./FacebookApiHttpRequest";
-import crypto from "crypto";
+import * as crypto from "crypto";
 import fetch from "node-fetch";
 
 /**
@@ -24,7 +24,7 @@ export default class BaseFacebookHttpApi {
       .digest("hex");
     request.params["sig"] = sig;
 
-    const resultingUrl = request.url + request.serializeParams();
+    const resultingUrl = request.url
     let extraHeaders = {};
     if (request.token) {
       extraHeaders["Authorization"] = "OAuth " + request.token;
@@ -33,8 +33,11 @@ export default class BaseFacebookHttpApi {
       headers: {
         "User-Agent":
           "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/38.0.0.22.155;FBBV/14477681]",
+        "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
         ...extraHeaders
-      }
+      },
+      method: 'POST',
+      body: request.serializeParams()
     });
     if (!resp.ok) {
       throw new Error("Facebook get error: " + (await resp.text()));
