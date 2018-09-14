@@ -26,6 +26,6 @@ export default class FacebookApiHttpRequest {
         k => encodeURIComponent(k) + "=" + encodeURIComponent(this.params[k])
       )
       .join("&");
-    return "?" + data;
+    return data;
   }
 }
