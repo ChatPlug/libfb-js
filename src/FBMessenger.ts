@@ -8,10 +8,10 @@ api.deviceId = deviceId.deviceId
 api.get(new FacebookApiHttpRequest(
     "https://b-api.facebook.com/method/auth.login",
     null,
-    "authenticate",
     "auth.login",
+    "authenticate",
     {
-        login: "asd",
+        email: "asd",
         password: "asd",
     })
 ).then(res => res.json()).then(json => {
