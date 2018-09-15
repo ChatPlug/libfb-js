@@ -1,5 +1,6 @@
 import BaseFacebookHttpApi from "./BaseFacebookHttpApi";
 import FacebookApiHttpRequest from "./FacebookApiHttpRequest";
+import AuthTokens from './types/AuthTokens'
 
 /**
  * This class will make specific requests to the facebook API utilizing their sick http logic implemented by BaseFacebookHttpApi.
@@ -10,7 +11,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
    * @param email
    * @param password
    */
-  async auth(email: string, password: string) {
+  async auth(email: string, password: string): Promise<AuthTokens> {
     return this.get(new FacebookApiHttpRequest(
       "https://b-api.facebook.com/method/auth.login",
       "auth.login",
@@ -20,7 +21,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
       if (!res.access_token) throw new Error("Access token missing!");
       this.token = res.access_token
       return res
-    });
+    })
   }
 
   /**

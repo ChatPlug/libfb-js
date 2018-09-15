@@ -1,4 +1,4 @@
-type DeviceId = { clientId: string; deviceId: string; mqttId: number }
+import DeviceId from './types/DeviceId'
 
 const makeUuidv4 = () => {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
