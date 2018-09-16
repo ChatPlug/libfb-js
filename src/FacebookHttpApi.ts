@@ -18,7 +18,10 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
       "authenticate",
       { email, password }
     )).then(res => {
-      if (!res.access_token) throw new Error("Access token missing!");
+      if (!res.access_token) {
+        console.dir(res)
+        throw new Error("Access token missing!");
+      }
       this.token = res.access_token
       return res
     })
