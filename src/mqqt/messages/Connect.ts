@@ -3,6 +3,8 @@ import { TTransport, TCompactProtocol, Thrift, TBufferedTransport } from 'thrift
 import AuthTokens from '../../types/AuthTokens'
 import DeviceId from '../../types/DeviceId'
 import MqttMessage from '../MqttMessage';
+import { MqttConnectFlag } from '../MqttTypes'
+import * as zlib from 'zlib'
 
 const USER_AGENT = "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/38.0.0.22.155;FBBV/14477681"
 
@@ -13,7 +15,13 @@ export default class Connect implements Message {
             trans.onFlush =
                 d => {
                     const message = new MqttMessage()
-                    res(d)
+                    const flags = MqttConnectFlag.User | MqttConnectFlag.Pass | MqttConnectFlag.Clr | MqttConnectFlag.QoS1
+                    message.writeRawString("MQTToT")
+                    message.writeU8(3)
+                    message.writeU8(flags)
+                    message.writeU16(60) // KEEP ALIVE
+                    message.writeRaw(zlib.deflateSync(d))
+                    res(message.toSend)
                 }
 
             const proto = new TCompactProtocol(trans)

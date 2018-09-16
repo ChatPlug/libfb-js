@@ -1,4 +1,4 @@
-export enum QMqttConnectFlag {
+export enum MqttConnectFlag {
     Clr = 1 << 1,
     Wil = 1 << 2,
     Ret = 1 << 5,
@@ -9,7 +9,7 @@ export enum QMqttConnectFlag {
     QoS2 = 2 << 3
 }
 
-enum QMqttMessageFlag {
+enum MqttMessageFlag {
     Ret = 1 << 0,
     Dup = 1 << 3,
     QoS0 = 0 << 1,
