@@ -1,81 +1,91 @@
 import Message from './Message'
-import { TTransport, TCompactProtocol, Thrift } from 'thrift'
+import { TTransport, TCompactProtocol, Thrift, TBufferedTransport } from 'thrift'
+import AuthTokens from '../../types/AuthTokens'
+import DeviceId from '../../types/DeviceId'
+import MqttMessage from '../MqttMessage';
+
+const USER_AGENT = "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/38.0.0.22.155;FBBV/14477681"
 
 /**
  * Assembles a connect messages sent just after a TLS connection is established.
  */
 export default class Connect implements Message {
-    encode(trans: TTransport) {
-        const proto = new TCompactProtocol(trans)
-        // Write client id
-        proto.writeFieldBegin("none", Thrift.Type.STRING, 1)
-        proto.writeString("connId")
+    async encode(tokens: AuthTokens, deviceId: DeviceId): Promise<Buffer> {
+        return new Promise<Buffer>((res, rej) => {
+            const trans = new TBufferedTransport() as any
+            trans.onFlush =
+                d => {
+                    const message = new MqttMessage()
+                    res(d)
+                }
 
-        proto.writeFieldBegin("none", Thrift.Type.STRUCT, 4)
+            const proto = new TCompactProtocol(trans)
+            // Write client id
+            proto.writeFieldBegin("none", Thrift.Type.STRING, 1)
+            proto.writeString(deviceId.clientId)
 
-        // Write user id
-        proto.writeFieldBegin("none", Thrift.Type.I64, 1)
-        proto.writeI64(10)
+            proto.writeFieldBegin("none", Thrift.Type.STRUCT, 4)
 
-        // Write information
-        proto.writeFieldBegin("none", Thrift.Type.STRING, 2)
-        proto.writeString("MQTTAGENT")
+            // Write user id
+            proto.writeFieldBegin("none", Thrift.Type.I64, 1)
+            proto.writeI64(tokens.uid)
 
-        // Write some random int (?)
-        proto.writeFieldBegin("None", Thrift.Type.I64, 3)
-        proto.writeI64(23)
+            // Write information
+            proto.writeFieldBegin("none", Thrift.Type.STRING, 2)
+            proto.writeString(USER_AGENT)
 
-        // Write some random int (?)
-        proto.writeFieldBegin("None", Thrift.Type.I64, 4)
-        proto.writeI64(26)
+            // Write some random int (?)
+            proto.writeFieldBegin("None", Thrift.Type.I64, 3)
+            proto.writeI64(23)
 
-        // Write some random int (?)
-        proto.writeFieldBegin("None", Thrift.Type.I32, 5)
-        proto.writeI32(1)
+            // Write some random int (?)
+            proto.writeFieldBegin("None", Thrift.Type.I64, 4)
+            proto.writeI64(26)
 
-        // Write no_auto_fg boolean
-        proto.writeFieldBegin("none", Thrift.Type.BOOL, 6)
-        proto.writeBool(true)
+            // Write some random int (?)
+            proto.writeFieldBegin("None", Thrift.Type.I32, 5)
+            proto.writeI32(1)
 
-        // Write visibility state
-        proto.writeFieldBegin("none", Thrift.Type.BOOL, 7)
-        proto.writeBool(true)
+            // Write no_auto_fg boolean
+            proto.writeFieldBegin("none", Thrift.Type.BOOL, 6)
+            proto.writeBool(true)
 
-        // Write device id
-        proto.writeFieldBegin("none", Thrift.Type.STRING, 8)
-        proto.writeString("deviceId")
+            // Write visibility state
+            proto.writeFieldBegin("none", Thrift.Type.BOOL, 7)
+            proto.writeBool(true)
 
-        // Write fg boolean
-        proto.writeFieldBegin("none", Thrift.Type.BOOL, 9)
-        proto.writeBool(true)
+            // Write device id
+            proto.writeFieldBegin("none", Thrift.Type.STRING, 8)
+            proto.writeString(deviceId.deviceId)
 
-        // nwt int
-        proto.writeFieldBegin("none", Thrift.Type.I32, 10)
-        proto.writeI32(1)
+            // Write fg boolean
+            proto.writeFieldBegin("none", Thrift.Type.BOOL, 9)
+            proto.writeBool(true)
 
-        // nwst int
-        proto.writeFieldBegin("none", Thrift.Type.I32, 11)
-        proto.writeI32(0)
+            // nwt int
+            proto.writeFieldBegin("none", Thrift.Type.I32, 10)
+            proto.writeI32(1)
 
-        // write mqtt id
-        proto.writeFieldBegin("none", Thrift.Type.I64, 12)
-        proto.writeI64(123)
+            // nwst int
+            proto.writeFieldBegin("none", Thrift.Type.I32, 11)
+            proto.writeI32(0)
 
-        // write some random list
-        proto.writeFieldBegin("none", Thrift.Type.LIST, 14)
-        proto.writeListBegin(Thrift.Type.LIST, 0) // wtf(?)
-        proto.writeFieldStop()
+            // write mqtt id
+            proto.writeFieldBegin("none", Thrift.Type.I64, 12)
+            proto.writeI64(deviceId.mqttId)
 
-        // Write token
-        proto.writeFieldBegin("none", Thrift.Type.STRING, 15)
-        proto.writeString("token")
-        proto.writeFieldStop()
-        proto.writeStructEnd()
+            // write some random list
+            proto.writeFieldBegin("none", Thrift.Type.LIST, 14)
+            proto.writeListBegin(Thrift.Type.LIST, 0) // wtf(?)
+            proto.writeFieldStop()
 
-        proto.flush()
+            // Write token
+            proto.writeFieldBegin("none", Thrift.Type.STRING, 15)
+            proto.writeString(tokens.access_token)
+            proto.writeFieldStop()
+            proto.writeStructEnd()
 
-    }
-    decode() {
-
+            proto.flush()
+        })
     }
 }
