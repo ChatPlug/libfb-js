@@ -9,9 +9,8 @@ export default class MqttConnection {
   async connect() {
     await new Promise((res, rej) => {
       this.socket = TLSConnect({
-        host: "???", //TODO: add hosts/ports
-        port: 420
-        // ...
+        host: "mqtt.facebook.com",
+        port: 443
       });
       this.socket.on("secureConnect", res);
       this.socket.on("error", rej);
