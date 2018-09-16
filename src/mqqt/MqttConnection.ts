@@ -4,6 +4,7 @@ import { TLSSocket, connect as TLSConnect } from "tls";
  * This class encapsulates all logic which handles communication using the propietary MQTT-like protocol.
  */
 export default class MqttConnection {
+  toSend: Buffer
   socket: TLSSocket = null;
   async connect() {
     await new Promise((res, rej) => {
@@ -15,10 +16,12 @@ export default class MqttConnection {
       this.socket.on("error", rej);
     });
     console.log("Socket connected")
+    const buf = new Buffer(0)
+    buf.write
     // send CONNECT message
   }
-  sendMessage() {}
+  
+  writeString() {
 
-  write16() {}
-  write32() {}
+  }
 }
