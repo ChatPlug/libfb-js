@@ -1,6 +1,9 @@
 import Message from './Message'
 import { TTransport, TCompactProtocol, Thrift } from 'thrift'
 
+/**
+ * Assembles a connect messages sent just after a TLS connection is established.
+ */
 export default class Connect implements Message {
     encode(trans: TTransport) {
         const proto = new TCompactProtocol(trans)
