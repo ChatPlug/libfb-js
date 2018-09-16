@@ -17,11 +17,15 @@ export default class MqttConnection {
       this.socket.on("secureConnect", res);
       this.socket.on("error", rej);
     });
+
+    this.socket.on('data', (data) => {
+      console.log('elo')
+    })
     console.log("Socket connected")
-    this.writeMessage(this.connectMsg)
+    await this.writeMessage(this.connectMsg)
   }
   
-  writeMessage(message: MqttMessage) {
+  async writeMessage(message: MqttMessage) {
     let size = message.toSend.byteLength
     let result = Buffer.alloc(1)
     let byte = ((message.type) << 4) | (message.flags & 0x0F);
@@ -39,6 +43,12 @@ export default class MqttConnection {
         result = Buffer.concat([result, buf])
     } while (size > 0);
 
-    this.socket.write(Buffer.concat([result, message.toSend]))
+
+    return new Promise<void>((res, rej) => {
+      this.socket.write(Buffer.concat([result, message.toSend]), () => {
+        console.log('okok')
+        res()
+      })
+    })
   }
 }

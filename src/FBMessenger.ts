@@ -2,6 +2,7 @@ import makeDeviceId from "./FacebookDeviceId";
 import FacebookHttpApi from "./FacebookHttpApi";
 import PlainFileTokenStorage from "./PlainFileTokenStorage";
 import Connect from "./mqqt/messages/Connect";
+import MqttConnection from "./mqqt/MqttConnection";
 
 const login = async (email: string, password: string) => {
   const storage = new PlainFileTokenStorage();
@@ -16,11 +17,11 @@ const login = async (email: string, password: string) => {
   } else {
     api.token = tokens.access_token;
   }
-  //console.log(JSON.stringify(await api.usersQuery(), null, 4));
-  //console.log("done");
-  const connect = new Connect()
-  const result = await connect.encode(tokens, deviceId)
-  console.log(result)
+
+  const conenction = new MqttConnection();
+  conenction.connectMsg = await (new Connect()).encode(tokens, deviceId)
+  await conenction.connect()
+  while(1) {}
 };
 
 export default login;
