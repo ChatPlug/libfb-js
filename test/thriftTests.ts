@@ -15,7 +15,7 @@ describe("thriftTests", function() {
 
     inWriter(Buffer.from([0x11])); // data from socket
   });
-  it("ThriftHelper wokrs", function() {
-    
+  it("ThriftHelper works", function() {
+
   })
 });
