@@ -2,7 +2,7 @@ import makeDeviceId from "./FacebookDeviceId";
 import FacebookHttpApi from "./FacebookHttpApi";
 import PlainFileTokenStorage from "./PlainFileTokenStorage";
 
-const sample = async () => {
+const login = async (email: string, password: string) => {
   const storage = new PlainFileTokenStorage();
   const deviceId = makeDeviceId();
   const api = new FacebookHttpApi();
@@ -10,7 +10,7 @@ const sample = async () => {
 
   let tokens = await storage.readSession();
   if (!tokens) {
-    tokens = await api.auth("test", "test");
+    tokens = await api.auth(email, password);
     storage.writeSession(tokens);
   } else {
     api.token = tokens.access_token;
@@ -19,6 +19,4 @@ const sample = async () => {
   console.log("done");
 };
 
-sample()
-  .then()
-  .catch();
+export default login;
