@@ -5,6 +5,7 @@ import DeviceId from '../../types/DeviceId'
 import MqttMessage from '../MqttMessage';
 import { MqttConnectFlag } from '../MqttTypes'
 import * as zlib from 'zlib'
+import { FacebookMessageType } from './MessageTypes';
 
 const USER_AGENT = "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/38.0.0.22.155;FBBV/14477681"
 
@@ -12,8 +13,8 @@ const USER_AGENT = "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/38.0.0.
  * Assembles a connect messages sent just after a TLS connection is established.
  */
 export default class Connect implements Message {
-    async encode(tokens: AuthTokens, deviceId: DeviceId): Promise<Buffer> {
-        return new Promise<Buffer>((res, rej) => {
+    async encode(tokens: AuthTokens, deviceId: DeviceId): Promise<MqttMessage> {
+        return new Promise<MqttMessage>((res, rej) => {
             const trans = new TBufferedTransport() as any
             trans.onFlush =
                 d => {
@@ -24,7 +25,9 @@ export default class Connect implements Message {
                     message.writeU8(flags)
                     message.writeU16(60) // KEEP ALIVE
                     message.writeRaw(zlib.deflateSync(d))
-                    res(message.toSend)
+                    message.flags = 0
+                    message.type = FacebookMessageType.Connect
+                    res(message)
                 }
 
             const proto = new TCompactProtocol(trans)

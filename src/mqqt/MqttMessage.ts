@@ -1,5 +1,11 @@
+
+import { FacebookMessageType } from './messages/MessageTypes'
+
 export default class MqttMessage {
     toSend: Buffer
+    type: FacebookMessageType
+    flags: number
+
     constructor() {
         this.toSend = Buffer.alloc(0)
     }
