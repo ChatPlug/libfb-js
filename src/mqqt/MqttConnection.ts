@@ -18,4 +18,7 @@ export default class MqttConnection {
     // send CONNECT message
   }
   sendMessage() {}
+
+  write16() {}
+  write32() {}
 }
