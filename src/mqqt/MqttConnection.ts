@@ -1,5 +1,4 @@
 import { TLSSocket, connect as TLSConnect } from "tls";
-
 /**
  * Represents an encrypted real-time connection with facebook servers.
  * This class encapsulates all logic which handles communication using the propietary MQTT-like protocol.

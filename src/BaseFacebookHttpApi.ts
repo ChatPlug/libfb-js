@@ -18,7 +18,10 @@ export default class BaseFacebookHttpApi {
     request.params["format"] = "json";
     request.params["method"] = request.method;
     request.params["local"] = "pl_PL";
-    let dataToHash = request.sortedKeys().map(k => k + "=" + request.params[k]).join(""); // This isn't the same as request.serializeParams(), because no & sign and no escaping. Thanks ZUCC
+    let dataToHash = request
+      .sortedKeys()
+      .map(k => k + "=" + request.params[k])
+      .join(""); // This isn't the same as request.serializeParams(), because no & sign and no escaping. Thanks ZUCC
     dataToHash += "374e60f8b9bb6b8cbb30f78030438895"; // ??? xDDDDDD wtf XD
     const sig = crypto
       .createHash("md5")
@@ -26,7 +29,7 @@ export default class BaseFacebookHttpApi {
       .digest("hex");
     request.params["sig"] = sig;
 
-    const resultingUrl = request.url
+    const resultingUrl = request.url;
     let extraHeaders = {};
     if (this.token) {
       extraHeaders["Authorization"] = "OAuth " + this.token;
@@ -38,7 +41,7 @@ export default class BaseFacebookHttpApi {
         "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
         ...extraHeaders
       },
-      method: 'POST',
+      method: "POST",
       body: request.serializeParams(),
       compress: true
     });
@@ -47,6 +50,4 @@ export default class BaseFacebookHttpApi {
     }
     return resp.json();
   }
-
-
 }
