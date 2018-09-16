@@ -8,6 +8,9 @@ import * as zlib from 'zlib'
 
 const USER_AGENT = "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/38.0.0.22.155;FBBV/14477681"
 
+/**
+ * Assembles a connect messages sent just after a TLS connection is established.
+ */
 export default class Connect implements Message {
     async encode(tokens: AuthTokens, deviceId: DeviceId): Promise<Buffer> {
         return new Promise<Buffer>((res, rej) => {
