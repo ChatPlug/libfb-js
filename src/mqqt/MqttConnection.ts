@@ -19,7 +19,7 @@ export default class MqttConnection {
     });
 
     this.socket!!.on("data", data => {
-      console.log("data recieved", data);
+      console.log("data received", data);
     });
     this.socket!!.on("close", _ => {
       console.log("Socket closed");
