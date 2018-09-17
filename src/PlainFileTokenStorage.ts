@@ -5,7 +5,7 @@ import TokenStorage from './TokenStorage';
 const CONFIG_FILE_PATH = path.join(__dirname, '../session.json')
 
 export default class PlainFileTokenStorage implements TokenStorage {
-    async readSession()  {
+    async readSession(): Promise<AuthTokens|null> {
         const exists = fs.existsSync(CONFIG_FILE_PATH)
         if (!exists) {
             return null

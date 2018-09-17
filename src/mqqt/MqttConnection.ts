@@ -6,7 +6,7 @@ import MqttMessage from "./MqttMessage";
  */
 export default class MqttConnection {
   toSend: Buffer;
-  socket: TLSSocket = null;
+  socket: TLSSocket | null = null;
   connectMsg: any;
   async connect() {
     await new Promise((res, rej) => {
@@ -18,10 +18,10 @@ export default class MqttConnection {
       this.socket.on("error", rej);
     });
 
-    this.socket.on("data", data => {
+    this.socket!!.on("data", data => {
       console.log("data recieved", data);
     });
-    this.socket.on("close", _ => {
+    this.socket!!.on("close", _ => {
       console.log("Socket closed");
     });
     console.log("Socket connected");
@@ -45,7 +45,7 @@ export default class MqttConnection {
     } while (size > 0);
 
     return new Promise<void>((res, rej) => {
-      this.socket.write(Buffer.concat([result, message.toSend]), () => {
+      this.socket!!.write(Buffer.concat([result, message.toSend]), () => {
         console.log("okok");
         res();
       });
