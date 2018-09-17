@@ -20,7 +20,7 @@ export default class Connect implements Message {
                 d => {
                     const message = new MqttMessage()
                     const flags = MqttConnectFlag.User | MqttConnectFlag.Pass | MqttConnectFlag.Clr | MqttConnectFlag.QoS1
-                    message.writeRawString("MQTToT")
+                    message.writeString("MQTToT")
                     message.writeU8(3)
                     message.writeU8(flags)
                     message.writeU16(60) // KEEP ALIVE
