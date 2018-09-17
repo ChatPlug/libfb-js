@@ -103,7 +103,7 @@ export default class Connect implements Message {
             // write some random list
             proto.lastFieldId_ = 12
             proto.writeFieldBegin("none", Thrift.Type.LIST, 14)
-            proto.writeListBegin(Thrift.Type.LIST, 0) // wtf(?)
+            proto.writeListBegin(Thrift.Type.I32, 0) // wtf(?)
             proto.writeFieldStop()
 
             // Write token
