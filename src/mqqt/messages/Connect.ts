@@ -7,7 +7,7 @@ import { MqttConnectFlag } from '../MqttTypes'
 import * as zlib from 'zlib'
 import { FacebookMessageType } from './MessageTypes';
 
-const USER_AGENT = "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/38.0.0.22.155;FBBV/14477681"
+const USER_AGENT = "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/38.0.0.22.155;FBBV/14477681]"
 
 /**
  * Assembles a connect messages sent just after a TLS connection is established.
