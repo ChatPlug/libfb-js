@@ -21,7 +21,7 @@ const login = async (email: string, password: string) => {
   const conenction = new MqttConnection();
   conenction.connectMsg = await (new Connect()).encode(tokens, deviceId)
   await conenction.connect()
-  while(1) {}
+  
 };
 
 export default login;
