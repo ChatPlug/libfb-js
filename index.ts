@@ -1,3 +1,3 @@
 import login from './src/FBMessenger';
 
-login('test', 'test').then().catch()
+login('SSL_OP_NO_TLSv1_2', 'test').then().catch()

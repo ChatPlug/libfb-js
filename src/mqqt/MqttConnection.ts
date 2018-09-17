@@ -1,5 +1,6 @@
 import { TLSSocket, connect as TLSConnect } from "tls";
 import MqttMessage from "./MqttMessage";
+const dump = require('buffer-hexdump')
 /**
  * Represents an encrypted real-time connection with facebook servers.
  * This class encapsulates all logic which handles communication using the propietary MQTT-like protocol.
@@ -19,6 +20,7 @@ export default class MqttConnection {
     });
 
     this.socket!!.on("data", data => {
+      console.log(dump(data))
       console.log("data recieved", data);
     });
     this.socket!!.on("close", _ => {
