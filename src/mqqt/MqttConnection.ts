@@ -1,5 +1,6 @@
 import { TLSSocket, connect as TLSConnect } from "tls";
 import MqttMessage from "./MqttMessage";
+import MqttPacket, { MqttHeader } from './MqttPacket';
 const dump = require('buffer-hexdump')
 /**
  * Represents an encrypted real-time connection with facebook servers.
@@ -8,6 +9,8 @@ const dump = require('buffer-hexdump')
 export default class MqttConnection {
   toSend: Buffer;
   socket: TLSSocket | null = null;
+  lastHeader: MqttHeader | null = null
+  decodeBuffer: Buffer = Buffer.alloc(0)
   connectMsg: any;
   async connect() {
     await new Promise((res, rej) => {
@@ -20,14 +23,33 @@ export default class MqttConnection {
     });
 
     this.socket!!.on("data", data => {
-      console.log(dump(data))
-      console.log("data recieved", data);
-    });
+      if (!this.lastHeader) {
+        this.lastHeader = this.readHeader(data)
+      }
+      
+      this.decodeBuffer = Buffer.concat([this.decodeBuffer, data])
+      if ((this.lastHeader.i + this.lastHeader.size) > data.length) {
+      } else {
+        this.emitPacket()
+        this.lastHeader = null
+      }
+    })
     this.socket!!.on("close", _ => {
       console.log("Socket closed");
     });
     console.log("Socket connected");
     await this.writeMessage(this.connectMsg);
+  }
+
+  emitPacket() {
+    console.log("packet received")
+    const header = this.lastHeader
+    const packet = {
+      type: this.decodeBuffer[0] >> 4,
+      flag: this.decodeBuffer[0] & 0x0F,
+      content: this.decodeBuffer.slice(header.i, header.i + header.size)
+    } as MqttPacket
+    console.dir(packet)
   }
 
   async writeMessage(message: MqttMessage) {
@@ -48,9 +70,24 @@ export default class MqttConnection {
 
     return new Promise<void>((res, rej) => {
       this.socket!!.write(Buffer.concat([result, message.toSend]), () => {
-        console.log("okok");
         res();
       });
     });
+  }
+
+  readHeader(data: Buffer): MqttHeader {
+    let size = 0
+    let m = 1;
+    let i = 1;
+    let byte = 0;
+    do {
+      if (data.length < i + 1) throw new Error('Header couldn\'t be parsed.')
+      byte = data[i]
+      size += (byte & 0x7f) * m
+      m <<= 7
+      i++
+    } while ((byte & 0x80) !== 0)
+  
+    return { size, i } as MqttHeader
   }
 }

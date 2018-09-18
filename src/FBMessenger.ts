@@ -3,7 +3,7 @@ import FacebookHttpApi from "./FacebookHttpApi";
 import PlainFileTokenStorage from "./PlainFileTokenStorage";
 import Connect from "./mqqt/messages/Connect";
 import MqttConnection from "./mqqt/MqttConnection"
-
+import * as dump from 'hexdump-nodejs'
 
 const login = async (email: string, password: string) => {
   const storage = new PlainFileTokenStorage();

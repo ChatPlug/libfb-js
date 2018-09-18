@@ -9,7 +9,7 @@ export enum MqttConnectFlag {
     QoS2 = 2 << 3
 }
 
-enum MqttMessageFlag {
+export enum MqttMessageFlag {
     Ret = 1 << 0,
     Dup = 1 << 3,
     QoS0 = 0 << 1,
