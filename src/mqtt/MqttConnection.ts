@@ -30,6 +30,7 @@ export default class MqttConnection {
             this.readBuffer(data)
         })
         this.socket!!.on("close", _ => {
+            console.log("close")
             this.emitter.emit("close")
         });
     }
