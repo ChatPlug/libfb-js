@@ -1,4 +1,4 @@
-import MqttConnection from "../src/mqqt/MqttConnection";
+import MqttConnection from "../src/mqtt/MqttConnection";
 
 describe("MqttConnection", function() {
   it.skip("connects", async function() {

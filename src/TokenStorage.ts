@@ -1,7 +1,8 @@
 import AuthTokens from "./types/AuthTokens";
+import Session from './types/Session'
 
 interface TokenStorage {
-  readSession(): Promise<AuthTokens|null>;
-  writeSession(ses: AuthTokens): Promise<void>;
+  readSession(): Session|null;
+  writeSession(ses: Session);
 }
 export default TokenStorage;

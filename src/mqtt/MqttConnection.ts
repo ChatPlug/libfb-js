@@ -1,7 +1,9 @@
 import { TLSSocket, connect as TLSConnect } from "tls";
 import MqttMessage from "./MqttMessage";
 import MqttPacket, { MqttHeader } from './MqttPacket';
-const dump = require('buffer-hexdump')
+import { EventEmitter } from 'events';
+
+class MqttConnectionEmitter extends EventEmitter {}
 /**
  * Represents an encrypted real-time connection with facebook servers.
  * This class encapsulates all logic which handles communication using the propietary MQTT-like protocol.
@@ -10,6 +12,7 @@ export default class MqttConnection {
   toSend: Buffer;
   socket: TLSSocket | null = null;
   lastHeader: MqttHeader | null = null
+  emitter = new MqttConnectionEmitter()
   decodeBuffer: Buffer = Buffer.alloc(0)
   connectMsg: any;
   async connect() {
@@ -26,12 +29,14 @@ export default class MqttConnection {
       this.readBuffer(data)
     })
     this.socket!!.on("close", _ => {
-      console.log("Socket closed");
+      this.emitter.emit("close")
     });
-    console.log("Socket connected");
-    await this.writeMessage(this.connectMsg);
+    /*console.log("Socket connected");
+    this.emitter.emit("initialConnect")
+    await this.writeMessage(this.connectMsg);*/
   }
 
+  // 🥖
   readBuffer(data: Buffer) {
     if (!this.lastHeader) {
       this.lastHeader = this.readHeader(data)
@@ -53,6 +58,10 @@ export default class MqttConnection {
     }
   }
 
+  on (string, cb) {
+    this.emitter.on(string, cb)
+  }
+
   emitPacket() {
     console.log("packet received")
     const header = this.lastHeader
@@ -61,6 +70,7 @@ export default class MqttConnection {
       flag: this.decodeBuffer[0] & 0x0F,
       content: this.decodeBuffer.slice(header.i, header.i + header.size)
     } as MqttPacket
+    this.emitter.emit("packet", packet)
     console.dir(packet)
   }
 
