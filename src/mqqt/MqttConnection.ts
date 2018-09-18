@@ -23,22 +23,34 @@ export default class MqttConnection {
     });
 
     this.socket!!.on("data", data => {
-      if (!this.lastHeader) {
-        this.lastHeader = this.readHeader(data)
-      }
-      
-      this.decodeBuffer = Buffer.concat([this.decodeBuffer, data])
-      if ((this.lastHeader.i + this.lastHeader.size) > data.length) {
-      } else {
-        this.emitPacket()
-        this.lastHeader = null
-      }
+      this.readBuffer(data)
     })
     this.socket!!.on("close", _ => {
       console.log("Socket closed");
     });
     console.log("Socket connected");
     await this.writeMessage(this.connectMsg);
+  }
+
+  readBuffer(data: Buffer) {
+    if (!this.lastHeader) {
+      this.lastHeader = this.readHeader(data)
+    }
+    const packetSize = (this.lastHeader.i + this.lastHeader.size)
+    this.decodeBuffer = Buffer.concat([this.decodeBuffer, data.slice(0, packetSize)])
+    if (packetSize > data.length) {
+      Buffer.concat([this.decodeBuffer, data])
+      return
+    } else if (packetSize < data.length) {
+      this.decodeBuffer = Buffer.concat([this.decodeBuffer, data.slice(0, packetSize)])
+      this.emitPacket()
+      this.lastHeader = null
+      this.readBuffer(data.slice(packetSize, data.length))
+    } else {
+      this.decodeBuffer = Buffer.concat([this.decodeBuffer, data.slice(0, packetSize)])
+      this.emitPacket()
+      this.lastHeader = null
+    }
   }
 
   emitPacket() {
