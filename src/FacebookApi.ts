@@ -49,12 +49,16 @@ export default class FacebookApi {
             if (publish.topic == "/send_message_response") {
                 console.log(publish.content.toString('utf8'))
             }
+
+            if (publish.topic = "/inbox") {
+                console.log(publish.content.toString('utf8'))
+            }
         })
 
         this.mqttApi.on("connected", async () => {
-            const d = await this.httpApi.querySeqId();
-            await this.connectQueue(d.viewer.message_threads.sync_sequence_id)
-            const o = await this.mqttApi.sendMessage()
+            //const d = await this.httpApi.querySeqId();
+            //await this.connectQueue(d.viewer.message_threads.sync_sequence_id)
+            //const o = await this.mqttApi.sendMessage()
 
         })
 

@@ -70,16 +70,13 @@ export default class MqttApi {
           console.log("got subscribe ack")
           break;
         case FacebookMessageType.Publish:
-          console.log("dupa")
-          console.log(dump(packet.content))
           const publish = decodePublish(packet)
-          console.log(publish)
+          // console.log(publish)
           this.emitter.emit("publish", publish)
           this.sendPublishConfirmation(packet.flag, publish)
           break;
         default:
           console.log("unknown packet")
-          console.log(packet)
       }
     })
 

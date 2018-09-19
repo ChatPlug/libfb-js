@@ -5,7 +5,7 @@ import DeviceId from '../../types/DeviceId'
 import MqttMessage from '../MqttMessage';
 import { MqttConnectFlag } from '../MqttTypes'
 import { FacebookMessageType } from './MessageTypes';
-
+import dump from 'hexdump-nodejs'
 /**
  * Assembles a subscribe message sent just after mqtt connection that subscribes to given topics.
  */
@@ -15,7 +15,7 @@ export const encodeSubscribeMessage = (msgId): MqttMessage => {
     const message = new MqttMessage()
 
     message.writeU16(msgId)
-    for (const topic in topics) {
+    for (const topic of topics) {
         message.writeString(topic)
         message.writeU8(0)
     }
