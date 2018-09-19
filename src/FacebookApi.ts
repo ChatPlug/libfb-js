@@ -47,11 +47,13 @@ export default class FacebookApi {
 
         this.mqttApi.on("publish", async (publish) => {
             if (publish.topic == "/send_message_response") {
-                console.log(publish.content.toString('utf8'))
+                console.log("got msg resp")
+                // console.log(publish.content.toString('utf8'))
             }
 
             if (publish.topic = "/inbox") {
-                console.log(publish.content.toString('utf8'))
+                console.log("got inbox")
+                // console.log(publish.content.toString('utf8'))
             }
         })
 
