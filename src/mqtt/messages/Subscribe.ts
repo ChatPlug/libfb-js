@@ -11,7 +11,7 @@ import { FacebookMessageType } from './MessageTypes';
  */
 export const encodeSubscribeMessage = (msgId): MqttMessage => {
     const topics = ["/inbox", "/mercury", "/messaging_events", "/orca_presence", "/orca_typing_notifications",
-    "/orca_message_notifications", "/pp", "/t_ms", "/t_p", "/t_rtc", "/webrtc", "/webrtc_response"]
+    "/pp", "/t_ms", "/t_p", "/t_rtc", "/webrtc", "/webrtc_response"]
     const message = new MqttMessage()
 
     message.writeU16(msgId)

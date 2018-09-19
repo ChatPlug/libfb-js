@@ -1,7 +1,8 @@
 import { TLSSocket, connect as TLSConnect } from "tls";
 import MqttMessage from "./MqttMessage";
 import MqttPacket, { MqttHeader } from './MqttPacket';
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'events'
+import dump from 'hexdump-nodejs'
 
 class MqttConnectionEmitter extends EventEmitter { }
 /**
@@ -71,13 +72,12 @@ export default class MqttConnection {
         } as MqttPacket
         this.emitter.emit("packet", packet)
         this.decodeBuffer = Buffer.alloc(0)
-        console.dir(packet)
     }
 
     async writeMessage(message: MqttMessage) {
         let size = message.toSend.byteLength;
         let result = Buffer.alloc(1);
-        let byte = (message.type << 4) | (message.flags & 0x0f);
+        let byte = ((message.type & 0x0f) << 4) | (message.flags & 0x0f);
         result.writeUInt8(byte, 0);
 
         do {

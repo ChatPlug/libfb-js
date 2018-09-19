@@ -8,17 +8,17 @@ import { FacebookMessageType } from './MessageTypes'
 import zlib from 'zlib'
 import PacketReader from '../PacketReader'
 import MqttPacket from '../MqttPacket'
+import dump from 'hexdump-nodejs'
 
 /**
  * Assembles a subscribe message sent just after mqtt connection that subscribes to given topics.
  */
 export const encodePublish = (msgId, topic, content): MqttMessage => {
     const message = new MqttMessage()
-    console.log('encodePublish buf:')
     message.writeString(topic)
     message.writeU16(msgId)
     message.writeRaw(zlib.deflateSync(Buffer.from(content)))
-    message.flags = MqttConnectFlag.QoS1
+    message.flags = 2
     message.type = FacebookMessageType.Publish
     return (message)
 }

@@ -12,6 +12,6 @@ export default () => {
   const uuid = makeUuidv4()
   const deviceId = uuid;
   const clientId = uuid.substring(0, 19)
-  const mqttId = Math.random() * 1000000
+  const mqttId = Math.floor(Math.random() * (2^32))
   return { clientId, deviceId, mqttId } as DeviceId
 }
