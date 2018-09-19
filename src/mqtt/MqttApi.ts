@@ -12,7 +12,9 @@ import MqttMessage from './MqttMessage'
 import { MqttMessageFlag } from './MqttTypes';
 import { encodeUnsubscribe } from './messages/Unsubscribe';
 import { encodePing } from './messages/Ping';
+import { EventEmitter } from 'events';
 
+class MqttApiEmitter extends EventEmitter {}
 /**
  * Handles decoding and sending all sorts of messages used by Facebook Messenger.
  * It utilizes all network primitives defined in the MqttConnection class.
@@ -21,9 +23,14 @@ export default class MqttApi {
   connection: MqttConnection;
   _connected = false
   lastMsgId: number = 1
+  emitter = new MqttApiEmitter()
 
   constructor() {
     this.connection = new MqttConnection()
+  }
+
+  on(event, cb) {
+    this.emitter.on(event, cb)
   }
 
   async sendSubscribe(msg: MqttMessage) {
@@ -56,7 +63,8 @@ export default class MqttApi {
           await this.sendSubscribe(encodeUnsubscribe(this.lastMsgId))
           console.log("it worked.")
 
-          await this.sendMessage()
+          // await this.sendMessage()
+          this.emitter.emit("connected")
           break;
         case FacebookMessageType.SubscribeAck: 
           console.log("got subscribe ack")
@@ -66,6 +74,7 @@ export default class MqttApi {
           console.log(dump(packet.content))
           const publish = decodePublish(packet)
           console.log(publish)
+          this.emitter.emit("publish", publish)
           this.sendPublishConfirmation(packet.flag, publish)
           break;
         default:
@@ -91,10 +100,11 @@ export default class MqttApi {
     const msg = {
       body: "Ddd",
       msgid: msgId,
-      sender_fbid: 0,
-      to: 0
+      sender_fbid: 100009519229821,
+      to: 100002974638116
     }
-    await this.sendPublish("/send_message2", JSON.stringify(msg))
+    setTimeout(() => 
+    this.sendPublish("/send_message2", JSON.stringify(msg)), 5000)
   }
 
   getRandomInt(min, max) {

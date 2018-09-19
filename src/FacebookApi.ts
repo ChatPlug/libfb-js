@@ -9,6 +9,7 @@ export default class FacebookApi {
     mqttApi: MqttApi
     httpApi: FacebookHttpApi
     session: Session | null
+    
 
     constructor (options: any = {}) {
         this.mqttApi = new MqttApi()
@@ -44,7 +45,48 @@ export default class FacebookApi {
             storage.writeSession(this.session)
         }
 
+        this.mqttApi.on("publish", async (publish) => {
+            if (publish.topic == "/send_message_response") {
+                console.log(publish.content.toString('utf8'))
+            }
+        })
+
+        this.mqttApi.on("connected", async () => {
+            const d = await this.httpApi.querySeqId();
+            await this.connectQueue(d.viewer.message_threads.sync_sequence_id)
+            const o = await this.mqttApi.sendMessage()
+
+        })
+
         await this.mqttApi.connect()
         await this.mqttApi.sendConnectMessage(this.session.tokens, this.session.deviceId)
+    }
+
+    async connectQueue(seqId) {
+        const obj = {
+            delta_batch_size: 125,
+            max_deltas_able_to_process: 1250,
+            sync_api_version: 3,
+            encoding: 'JSON',
+            
+            initial_titan_sequence_id: Number(seqId),
+            device_id: this.session.deviceId.deviceId,
+            entity_fbid: this.session.tokens.uid,
+            
+            queue_params: {
+                buzz_on_deltas_enabled: "false",
+                graphql_query_hashes: {
+                    xma_query_id: "10153919431161729"
+                },
+
+                graphql_query_params: {
+                    "10153919431161729": {
+                        "xma_id": "<ID>",
+                    }
+                }
+            }
+        }
+
+        await this.mqttApi.sendPublish("/messenger_sync_get_diffs", JSON.stringify(obj))
     }
 }

@@ -21,7 +21,7 @@ export default class PacketReader {
 
     readData(): Buffer {
         const size = this.readU16()
-        const res = this.packet.content.slice(this.pos, size)
+        const res = this.packet.content.slice(this.pos, size + 2)
         this.pos += size
         return res
     }

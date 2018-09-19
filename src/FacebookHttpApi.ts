@@ -122,6 +122,23 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
   }
 
   /**
+   * @see QFacebookHttpApi::unreadThreadListQuery
+   * @param unreadCount
+   */
+  async querySeqId() {
+    return this.get(new FacebookApiHttpRequest(
+      "https://graph.facebook.com/graphql",
+      "get",
+      "",
+      {
+        query_id: "10155268192741729",
+        query_params: JSON.stringify({
+          "1": "0"
+        })
+      }
+    ))
+  }
+  /**
    * @todo implement unreadMessagesListQuery when we have QFacebookUid
    */
 }

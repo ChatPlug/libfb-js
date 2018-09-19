@@ -7,8 +7,21 @@ import { MqttConnectFlag } from '../MqttTypes'
 import * as zlib from 'zlib'
 import { FacebookMessageType } from './MessageTypes';
 
-const USER_AGENT = "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/38.0.0.22.155;FBBV/14477681]"
-
+const USER_AGENT = "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/64.0.0.5.83;FBPN/com.facebook.orca;FBLC/en_US;FBBV/26040814]"
+enum FacebookCapFlags {
+    FB_CP_ACKNOWLEDGED_DELIVERY = 1 << 0,
+    FB_CP_PROCESSING_LASTACTIVE_PRESENCEINFO = 1 << 1,
+    FB_CP_EXACT_KEEPALIVE = 1 << 2,
+    FB_CP_REQUIRES_JSON_UNICODE_ESCAPES = 1 << 3,
+    FB_CP_DELTA_SENT_MESSAGE_ENABLED = 1 << 4,
+    FB_CP_USE_ENUM_TOPIC = 1 << 5,
+    FB_CP_SUPPRESS_GETDIFF_IN_CONNECT = 1 << 6,
+    FB_CP_USE_THRIFT_FOR_INBOX = 1 << 7,
+    FB_CP_USE_SEND_PINGRESP = 1 << 8,
+    FB_CP_REQUIRE_REPLAY_PROTECTION = 1 << 9,
+    FB_CP_DATA_SAVING_MODE = 1 << 10,
+    FB_CP_TYPING_OFF_WHEN_SENDING_MESSAGE = 1 << 11
+}
 /**
  * Assembles a connect messages sent just after a TLS connection is established.
  */
@@ -51,7 +64,10 @@ export const encodeConnectMessage = (tokens: AuthTokens, deviceId: DeviceId): Pr
         // Write some random int (?)
         proto.lastFieldId_ = 2
         proto.writeFieldBegin("None", Thrift.Type.I64, 3)
-        proto.writeI64(23)
+        proto.writeI64(FacebookCapFlags.FB_CP_ACKNOWLEDGED_DELIVERY |
+                              FacebookCapFlags.FB_CP_PROCESSING_LASTACTIVE_PRESENCEINFO |
+                              FacebookCapFlags.FB_CP_EXACT_KEEPALIVE |
+                              FacebookCapFlags.FB_CP_DELTA_SENT_MESSAGE_ENABLED)
 
         // Write some random int (?)
         proto.lastFieldId_ = 3

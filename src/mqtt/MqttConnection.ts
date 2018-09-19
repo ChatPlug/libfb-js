@@ -75,6 +75,7 @@ export default class MqttConnection {
     }
 
     async writeMessage(message: MqttMessage) {
+        console.log("sending packet")
         let size = message.toSend.byteLength;
         let result = Buffer.alloc(1);
         let byte = ((message.type & 0x0f) << 4) | (message.flags & 0x0f);

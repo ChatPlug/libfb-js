@@ -37,7 +37,7 @@ export default class BaseFacebookHttpApi {
     const resp = await fetch(resultingUrl, {
       headers: {
         "User-Agent":
-          "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/38.0.0.22.155;FBBV/14477681]",
+          "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/64.0.0.5.83;FBPN/com.facebook.orca;FBLC/en_US;FBBV/26040814]",
         "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
         ...extraHeaders
       },
