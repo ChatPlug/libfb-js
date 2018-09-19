@@ -41,6 +41,8 @@ export default class MqttConnection {
         if (!this.lastHeader) {
             this.lastHeader = this.readHeader(data)
         }
+
+        console.log(this.lastHeader.size)
         const packetSize = (this.lastHeader.i + this.lastHeader.size)
         this.decodeBuffer = Buffer.concat([this.decodeBuffer, data.slice(0, packetSize)])
         if (packetSize > data.length) {

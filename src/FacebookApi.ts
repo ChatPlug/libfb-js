@@ -52,15 +52,12 @@ export default class FacebookApi {
             }
 
             if (publish.topic = "/inbox") {
-                console.log("got inbox")
-                // console.log(publish.content.toString('utf8'))
+                const inbox = JSON.parse(publish.content.toString('utf8'))
+                this.handleNewMsg(inbox.unread)
             }
         })
 
         this.mqttApi.on("connected", async () => {
-            //const d = await this.httpApi.querySeqId();
-            //await this.connectQueue(d.viewer.message_threads.sync_sequence_id)
-            //const o = await this.mqttApi.sendMessage()
 
         })
 
@@ -94,5 +91,14 @@ export default class FacebookApi {
         }
 
         await this.mqttApi.sendPublish("/messenger_sync_get_diffs", JSON.stringify(obj))
+    }
+
+    async handleNewMsg(count) {
+        if (count > 0) {
+            const unreadThreads = await this.httpApi.unreadThreadListQuery(count)
+            console.dir(unreadThreads.viewer.message_threads.nodes)
+            console.dir(unreadThreads.viewer.message_threads.nodes[0].last_message.message_sender)
+            console.dir(unreadThreads.viewer.message_threads.nodes[0].last_message)
+        }
     }
 }

@@ -72,6 +72,7 @@ export default class MqttApi {
         case FacebookMessageType.Publish:
           const publish = decodePublish(packet)
           // console.log(publish)
+          console.log(publish.topic)
           this.emitter.emit("publish", publish)
           this.sendPublishConfirmation(packet.flag, publish)
           break;

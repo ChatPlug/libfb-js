@@ -22,5 +22,5 @@ export default interface MqttPacket {
   header: MqttHeader,
   type: FacebookMessageType,
   content: Buffer,
-  flag: MqttMessageFlag // ?
+  flag: MqttMessageFlag
 }
