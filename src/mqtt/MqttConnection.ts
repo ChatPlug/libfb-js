@@ -26,7 +26,8 @@ export default class MqttConnection {
         })
 
         this.socket!!.on("data", data => {
-            console.log("got smth")
+            console.log("")
+            console.log("Data received!")
             this.readBuffer(data)
         })
         this.socket!!.on("close", _ => {
@@ -41,7 +42,7 @@ export default class MqttConnection {
             this.lastHeader = this.readHeader(data)
         }
 
-        console.log(this.lastHeader.size)
+        console.log('Last header size:', this.lastHeader.size)
         const packetSize = this.lastHeader.i + this.lastHeader.size
         this.decodeBuffer = Buffer.concat([
             this.decodeBuffer,
@@ -73,7 +74,6 @@ export default class MqttConnection {
     }
 
     emitPacket() {
-        console.log("packet received")
         const header = this.lastHeader
         const packet = {
             type: this.decodeBuffer[0] >> 4,
