@@ -1,10 +1,10 @@
-import MqttPacket from './MqttPacket'
+import MqttPacket from "./MqttPacket"
 
 export default class PacketReader {
     packet: MqttPacket
     pos: number = 0
     constructor(packet: MqttPacket) {
-        this.packet = packet   
+        this.packet = packet
     }
 
     readU8(): number {
@@ -27,7 +27,10 @@ export default class PacketReader {
     }
 
     readRaw(): Buffer {
-        const res = this.packet.content.slice(this.pos, this.packet.content.length)
+        const res = this.packet.content.slice(
+            this.pos,
+            this.packet.content.length
+        )
         this.pos = this.packet.content.length
         return res
     }

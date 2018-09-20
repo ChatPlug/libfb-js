@@ -1,8 +1,8 @@
-import AuthTokens from "./types/AuthTokens";
-import Session from './types/Session'
+import AuthTokens from "./types/AuthTokens"
+import Session from "./types/Session"
 
 interface TokenStorage {
-  readSession(): Session|null;
-  writeSession(ses: Session);
+    readSession(): Session | null
+    writeSession(ses: Session)
 }
-export default TokenStorage;
+export default TokenStorage

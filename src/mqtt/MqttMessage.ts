@@ -1,5 +1,4 @@
-
-import { FacebookMessageType } from './messages/MessageTypes'
+import { FacebookMessageType } from "./messages/MessageTypes"
 
 export default class MqttMessage {
     toSend: Buffer
@@ -30,12 +29,12 @@ export default class MqttMessage {
 
     writeString(strToAdd: string) {
         this.writeU16(strToAdd.length)
-        const newBuf = Buffer.from(strToAdd, 'utf8')
+        const newBuf = Buffer.from(strToAdd, "utf8")
         this.toSend = Buffer.concat([this.toSend, newBuf])
     }
 
     writeRawString(strToAdd: string) {
-        const newBuf = Buffer.from(strToAdd, 'utf8')
+        const newBuf = Buffer.from(strToAdd, "utf8")
         this.toSend = Buffer.concat([this.toSend, newBuf])
     }
     writeRaw(raw: Buffer) {

@@ -1,22 +1,21 @@
-import MqttApi from './mqtt/MqttApi';
-import FacebookHttpApi from './FacebookHttpApi';
-import PlainFileTokenStorage from './PlainFileTokenStorage';
-import Session from './types/Session'
-import makeDeviceId from './FacebookDeviceId'
+import MqttApi from "./mqtt/MqttApi"
+import FacebookHttpApi from "./FacebookHttpApi"
+import PlainFileTokenStorage from "./PlainFileTokenStorage"
+import Session from "./types/Session"
+import makeDeviceId from "./FacebookDeviceId"
 
 // 🥖
 export default class FacebookApi {
     mqttApi: MqttApi
     httpApi: FacebookHttpApi
     session: Session | null
-    
 
-    constructor (options: any = {}) {
+    constructor(options: any = {}) {
         this.mqttApi = new MqttApi()
         this.httpApi = new FacebookHttpApi()
 
         const storage = new PlainFileTokenStorage()
-        
+
         let session = storage.readSession()
         if (!session) {
             session = { tokens: null, deviceId: null }
@@ -45,24 +44,25 @@ export default class FacebookApi {
             storage.writeSession(this.session)
         }
 
-        this.mqttApi.on("publish", async (publish) => {
+        this.mqttApi.on("publish", async publish => {
             if (publish.topic == "/send_message_response") {
                 console.log("got msg resp")
                 // console.log(publish.content.toString('utf8'))
             }
 
-            if (publish.topic = "/inbox") {
-                const inbox = JSON.parse(publish.content.toString('utf8'))
+            if ((publish.topic = "/inbox")) {
+                const inbox = JSON.parse(publish.content.toString("utf8"))
                 this.handleNewMsg(inbox.unread)
             }
         })
 
-        this.mqttApi.on("connected", async () => {
-
-        })
+        this.mqttApi.on("connected", async () => {})
 
         await this.mqttApi.connect()
-        await this.mqttApi.sendConnectMessage(this.session.tokens, this.session.deviceId)
+        await this.mqttApi.sendConnectMessage(
+            this.session.tokens,
+            this.session.deviceId
+        )
     }
 
     async connectQueue(seqId) {
@@ -70,12 +70,12 @@ export default class FacebookApi {
             delta_batch_size: 125,
             max_deltas_able_to_process: 1250,
             sync_api_version: 3,
-            encoding: 'JSON',
-            
+            encoding: "JSON",
+
             initial_titan_sequence_id: Number(seqId),
             device_id: this.session.deviceId.deviceId,
             entity_fbid: this.session.tokens.uid,
-            
+
             queue_params: {
                 buzz_on_deltas_enabled: "false",
                 graphql_query_hashes: {
@@ -84,21 +84,31 @@ export default class FacebookApi {
 
                 graphql_query_params: {
                     "10153919431161729": {
-                        "xma_id": "<ID>",
+                        xma_id: "<ID>"
                     }
                 }
             }
         }
 
-        await this.mqttApi.sendPublish("/messenger_sync_get_diffs", JSON.stringify(obj))
+        await this.mqttApi.sendPublish(
+            "/messenger_sync_get_diffs",
+            JSON.stringify(obj)
+        )
     }
 
     async handleNewMsg(count) {
         if (count > 0) {
-            const unreadThreads = await this.httpApi.unreadThreadListQuery(count)
+            const unreadThreads = await this.httpApi.unreadThreadListQuery(
+                count
+            )
             console.dir(unreadThreads.viewer.message_threads.nodes)
-            console.dir(unreadThreads.viewer.message_threads.nodes[0].last_message.message_sender)
-            console.dir(unreadThreads.viewer.message_threads.nodes[0].last_message)
+            console.dir(
+                unreadThreads.viewer.message_threads.nodes[0].last_message
+                    .message_sender
+            )
+            console.dir(
+                unreadThreads.viewer.message_threads.nodes[0].last_message
+            )
         }
     }
 }

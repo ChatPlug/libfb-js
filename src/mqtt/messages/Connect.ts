@@ -1,13 +1,19 @@
-import Message from './Message'
-import { TTransport, TCompactProtocol, Thrift, TBufferedTransport } from 'thrift'
-import AuthTokens from '../../types/AuthTokens'
-import DeviceId from '../../types/DeviceId'
-import MqttMessage from '../MqttMessage';
-import { MqttConnectFlag } from '../MqttTypes'
-import * as zlib from 'zlib'
-import { FacebookMessageType } from './MessageTypes';
+import Message from "./Message"
+import {
+    TTransport,
+    TCompactProtocol,
+    Thrift,
+    TBufferedTransport
+} from "thrift"
+import AuthTokens from "../../types/AuthTokens"
+import DeviceId from "../../types/DeviceId"
+import MqttMessage from "../MqttMessage"
+import { MqttConnectFlag } from "../MqttTypes"
+import * as zlib from "zlib"
+import { FacebookMessageType } from "./MessageTypes"
 
-const USER_AGENT = "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/64.0.0.5.83;FBPN/com.facebook.orca;FBLC/en_US;FBBV/26040814]"
+const USER_AGENT =
+    "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/64.0.0.5.83;FBPN/com.facebook.orca;FBLC/en_US;FBBV/26040814]"
 enum FacebookCapFlags {
     FB_CP_ACKNOWLEDGED_DELIVERY = 1 << 0,
     FB_CP_PROCESSING_LASTACTIVE_PRESENCEINFO = 1 << 1,
@@ -25,22 +31,28 @@ enum FacebookCapFlags {
 /**
  * Assembles a connect messages sent just after a TLS connection is established.
  */
-export const encodeConnectMessage = (tokens: AuthTokens, deviceId: DeviceId): Promise<MqttMessage> => {
+export const encodeConnectMessage = (
+    tokens: AuthTokens,
+    deviceId: DeviceId
+): Promise<MqttMessage> => {
     return new Promise<MqttMessage>((res, rej) => {
         const trans = new TBufferedTransport() as any
-        trans.onFlush =
-            d => {
-                const message = new MqttMessage()
-                const flags = MqttConnectFlag.User | MqttConnectFlag.Pass | MqttConnectFlag.Clr | MqttConnectFlag.QoS1
-                message.writeString("MQTToT")
-                message.writeU8(3)
-                message.writeU8(flags)
-                message.writeU16(60) // KEEP ALIVE
-                message.writeRaw(zlib.deflateSync(d))
-                message.flags = 0
-                message.type = FacebookMessageType.Connect
-                res(message)
-            }
+        trans.onFlush = d => {
+            const message = new MqttMessage()
+            const flags =
+                MqttConnectFlag.User |
+                MqttConnectFlag.Pass |
+                MqttConnectFlag.Clr |
+                MqttConnectFlag.QoS1
+            message.writeString("MQTToT")
+            message.writeU8(3)
+            message.writeU8(flags)
+            message.writeU16(60) // KEEP ALIVE
+            message.writeRaw(zlib.deflateSync(d))
+            message.flags = 0
+            message.type = FacebookMessageType.Connect
+            res(message)
+        }
 
         const proto = new TCompactProtocol(trans) as any
         // Write client id
@@ -64,10 +76,12 @@ export const encodeConnectMessage = (tokens: AuthTokens, deviceId: DeviceId): Pr
         // Write some random int (?)
         proto.lastFieldId_ = 2
         proto.writeFieldBegin("None", Thrift.Type.I64, 3)
-        proto.writeI64(FacebookCapFlags.FB_CP_ACKNOWLEDGED_DELIVERY |
-                              FacebookCapFlags.FB_CP_PROCESSING_LASTACTIVE_PRESENCEINFO |
-                              FacebookCapFlags.FB_CP_EXACT_KEEPALIVE |
-                              FacebookCapFlags.FB_CP_DELTA_SENT_MESSAGE_ENABLED)
+        proto.writeI64(
+            FacebookCapFlags.FB_CP_ACKNOWLEDGED_DELIVERY |
+                FacebookCapFlags.FB_CP_PROCESSING_LASTACTIVE_PRESENCEINFO |
+                FacebookCapFlags.FB_CP_EXACT_KEEPALIVE |
+                FacebookCapFlags.FB_CP_DELTA_SENT_MESSAGE_ENABLED
+        )
 
         // Write some random int (?)
         proto.lastFieldId_ = 3
@@ -131,4 +145,3 @@ export const encodeConnectMessage = (tokens: AuthTokens, deviceId: DeviceId): Pr
         proto.flush()
     })
 }
-

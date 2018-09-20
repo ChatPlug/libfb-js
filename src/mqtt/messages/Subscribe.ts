@@ -1,16 +1,28 @@
-import Message from './Message'
-import { TTransport, TCompactProtocol, Thrift, TBufferedTransport } from 'thrift'
-import AuthTokens from '../../types/AuthTokens'
-import DeviceId from '../../types/DeviceId'
-import MqttMessage from '../MqttMessage';
-import { MqttConnectFlag } from '../MqttTypes'
-import { FacebookMessageType } from './MessageTypes';
-import dump from 'hexdump-nodejs'
+import Message from "./Message"
+import {
+    TTransport,
+    TCompactProtocol,
+    Thrift,
+    TBufferedTransport
+} from "thrift"
+import AuthTokens from "../../types/AuthTokens"
+import DeviceId from "../../types/DeviceId"
+import MqttMessage from "../MqttMessage"
+import { MqttConnectFlag } from "../MqttTypes"
+import { FacebookMessageType } from "./MessageTypes"
+
 /**
  * Assembles a subscribe message sent just after mqtt connection that subscribes to given topics.
  */
 export const encodeSubscribeMessage = (msgId): MqttMessage => {
-    const topics = ["/inbox", "/messaging_events", "/t_ms", "/t_rtc", "/webrtc", "/webrtc_response"]
+    const topics = [
+        "/inbox",
+        "/messaging_events",
+        "/t_ms",
+        "/t_rtc",
+        "/webrtc",
+        "/webrtc_response"
+    ]
     const message = new MqttMessage()
 
     message.writeU16(msgId)
@@ -20,6 +32,5 @@ export const encodeSubscribeMessage = (msgId): MqttMessage => {
     }
     message.flags = MqttConnectFlag.QoS1
     message.type = FacebookMessageType.Subscribe
-    return (message)
+    return message
 }
-
