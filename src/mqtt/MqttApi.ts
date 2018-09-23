@@ -34,9 +34,9 @@ export default class MqttApi {
         this.emitter.on(event, cb)
     }
 
-    async sendSubscribe(msg: MqttMessage) {
+    sendSubscribe(msg: MqttMessage) {
         this.lastMsgId = this.lastMsgId + 1
-        this.connection.writeMessage(msg)
+        return this.connection.writeMessage(msg)
     }
 
     async connect() {
@@ -44,15 +44,15 @@ export default class MqttApi {
         this._connected = true
     }
 
-    sendPing = async () => {
+    async sendPing () {
         await this.connection.writeMessage(encodePing())
         setTimeout(this.sendPing, 60 * 1000)
     }
 
     /**
      * Sends a CONNECT mqtt message and binds listeners for recieving messages.
-     * @param tokens 
-     * @param deviceId 
+     * @param tokens
+     * @param deviceId
      */
     async sendConnectMessage(tokens: AuthTokens, deviceId: DeviceId) {
         this.tokens = tokens
@@ -104,30 +104,26 @@ export default class MqttApi {
         await this.connection.writeMessage(connectMessage)
     }
 
-    async sendPublish(topic: string, data: string) {
+    sendPublish(topic: string, data: string) {
         const packet = encodePublish(this.lastMsgId, topic, data)
         this.lastMsgId += 1
-        this.connection.writeMessage(packet)
+        return this.connection.writeMessage(packet)
     }
 
     /**
      * Sends a facebook messenger message to someone.
-     * @todo Remove hardcoded reciever.
      */
-    async sendMessage(message: string, threadID: string) {
+    sendMessage(message: string, threadID: string) {
         const milliseconds = Math.floor(new Date().getTime() / 1000)
         const rand = this.getRandomInt(0, 2 ^ (32 - 1))
         const msgid = (rand & 0x3fffff) | (milliseconds << 22)
         const msg = {
             body: message,
             msgid,
-            sender_fbid: this.tokens.userId,
+            sender_fbid: this.tokens.uid,
             to: threadID
         }
-        setTimeout(
-            () => this.sendPublish("/send_message2", JSON.stringify(msg)),
-            5000
-        )
+        return this.sendPublish("/send_message2", JSON.stringify(msg))
     }
 
     getRandomInt(min, max) {
