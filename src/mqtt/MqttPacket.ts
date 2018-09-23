@@ -7,7 +7,7 @@ export enum FacebookMessageType {
     Publish = 3,
     PublishAck = 4,
     PublishRecorded = 5,
-    PublishRelelased = 6,
+    PublishReleased = 6,
     PubComp = 7,
     Subscribe = 8,
     SubscribeAck = 9,

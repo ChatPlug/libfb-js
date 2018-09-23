@@ -121,10 +121,6 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
     ))
   }
 
-  /**
-   * @see QFacebookHttpApi::unreadThreadListQuery
-   * @param unreadCount
-   */
   async querySeqId() {
     return this.get(new FacebookApiHttpRequest(
       "https://graph.facebook.com/graphql",
@@ -137,6 +133,22 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
         })
       }
     ))
+  }
+
+    /**
+   * @param mid Message ID
+   * @param aid Attachment ID
+   */
+  async getAttachment(mid: string, aid: string) {
+    return this.get(new FacebookApiHttpRequest(
+      "https://api.facebook.com/method/messaging.getAttachment",
+      "messaging.getAttachment",
+      "",
+      { mid, aid }
+    )).then(res => {
+      console.dir(res)
+      return res
+    })
   }
   /**
    * @todo implement unreadMessagesListQuery when we have QFacebookUid

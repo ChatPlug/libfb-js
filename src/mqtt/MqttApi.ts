@@ -7,7 +7,6 @@ import { encodeSubscribeMessage } from './messages/Subscribe'
 import { decodePublish, encodePublish } from './messages/Publish'
 import { encodePublishRecorded } from './messages/PublishRecorded'
 import { encodePublishAck } from './messages/PublishAck'
-import dump from 'hexdump-nodejs'
 import MqttMessage from './MqttMessage'
 import { MqttMessageFlag } from './MqttTypes';
 import { encodeUnsubscribe } from './messages/Unsubscribe';
@@ -44,6 +43,7 @@ export default class MqttApi {
   }
 
   sendPing = async () => {
+    console.log("SENT PINGGGGGGGGG")
     await this.connection.writeMessage(encodePing())
     setTimeout(this.sendPing, 60 * 1000)
   }
@@ -69,11 +69,18 @@ export default class MqttApi {
         case FacebookMessageType.SubscribeAck: 
           console.log("got subscribe ack")
           break;
+        case FacebookMessageType.Pong: 
+          console.log("GOT PONGED")
+          break;
+        case FacebookMessageType.PublishReleased:
+          console.log("pubrell")
+          break;
         case FacebookMessageType.Publish:
           const publish = decodePublish(packet)
           // console.log(publish)
           console.log(publish.topic)
           this.emitter.emit("publish", publish)
+          // if (publish.topic === "/t_ms") break;
           this.sendPublishConfirmation(packet.flag, publish)
           break;
         default:

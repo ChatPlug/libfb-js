@@ -9,6 +9,7 @@ export default class FacebookApi {
     mqttApi: MqttApi
     httpApi: FacebookHttpApi
     session: Session | null
+    syncToken = "GET IT FIRST WITH createQueue"
     
 
     constructor (options: any = {}) {
@@ -46,33 +47,40 @@ export default class FacebookApi {
         }
 
         this.mqttApi.on("publish", async (publish) => {
+            console.log(publish.topic)
             if (publish.topic == "/send_message_response") {
                 console.log("got msg resp")
                 // console.log(publish.content.toString('utf8'))
             }
 
-            if (publish.topic = "/inbox") {
-                const inbox = JSON.parse(publish.content.toString('utf8'))
-                this.handleNewMsg(inbox.unread)
+            if (publish.topic = "/t_ms") {
+                console.log(publish.content.toString('utf8'))
             }
         })
 
         this.mqttApi.on("connected", async () => {
+            const d = await this.httpApi.querySeqId();
+            console.log(d)
+            await this.connectQueue(d.viewer.message_threads.sync_sequence_id)
 
+            const e = await this.httpApi.getAttachment("mid.$cAAAAAWaLyv9sOUaI4lmCAE1tXJmL", '250360039157920')
+            console.log("---- dupa")
+            console.dir(e)
         })
 
         await this.mqttApi.connect()
         await this.mqttApi.sendConnectMessage(this.session.tokens, this.session.deviceId)
     }
 
-    async connectQueue(seqId) {
+    async createQueue(seqId) {
+        console.log(seqId)
         const obj = {
             delta_batch_size: 125,
             max_deltas_able_to_process: 1250,
             sync_api_version: 3,
             encoding: 'JSON',
             
-            initial_titan_sequence_id: Number(seqId),
+            initial_titan_sequence_id: seqId,
             device_id: this.session.deviceId.deviceId,
             entity_fbid: this.session.tokens.uid,
             
@@ -84,11 +92,28 @@ export default class FacebookApi {
 
                 graphql_query_params: {
                     "10153919431161729": {
-                        "xma_id": "<ID>",
+                        xma_id: "<ID>",
                     }
                 }
             }
         }
+
+        await this.mqttApi.sendPublish("/messenger_sync_create_queue", JSON.stringify(obj))
+    }
+
+    async connectQueue(seqId) {
+        console.log(seqId)
+        const obj = {
+            delta_batch_size: 125,
+            max_deltas_able_to_process: 1250,
+            sync_api_version: 3,
+            encoding: 'JSON',
+
+            last_seq_id: seqId,
+            sync_token: this.syncToken,
+        }
+
+        
 
         await this.mqttApi.sendPublish("/messenger_sync_get_diffs", JSON.stringify(obj))
     }
@@ -99,6 +124,7 @@ export default class FacebookApi {
             console.dir(unreadThreads.viewer.message_threads.nodes)
             console.dir(unreadThreads.viewer.message_threads.nodes[0].last_message.message_sender)
             console.dir(unreadThreads.viewer.message_threads.nodes[0].last_message)
+
         }
     }
 }

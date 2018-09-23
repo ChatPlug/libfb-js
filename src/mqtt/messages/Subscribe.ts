@@ -10,7 +10,7 @@ import dump from 'hexdump-nodejs'
  * Assembles a subscribe message sent just after mqtt connection that subscribes to given topics.
  */
 export const encodeSubscribeMessage = (msgId): MqttMessage => {
-    const topics = ["/inbox", "/messaging_events", "/t_ms", "/t_rtc", "/webrtc", "/webrtc_response"]
+    const topics = ["/inbox", "/mercury", "/messaging_events", "/pp", "/t_ms", "/t_rtc", "/webrtc", "/webrtc_response"]
     const message = new MqttMessage()
 
     message.writeU16(msgId)
