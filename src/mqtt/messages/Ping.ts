@@ -2,7 +2,7 @@ import MqttMessage from "../MqttMessage"
 import { FacebookMessageType } from "../MqttPacket"
 
 /**
- * Assembles a subscribe message sent just after mqtt connection that subscribes to given topics.
+ * Assembles a ping message.
  */
 export const encodePing = (): MqttMessage => {
     const message = new MqttMessage()
