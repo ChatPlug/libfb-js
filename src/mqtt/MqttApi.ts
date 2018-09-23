@@ -23,6 +23,7 @@ export default class MqttApi {
     connection: MqttConnection
     _connected = false
     lastMsgId: number = 1
+    tokens: AuthTokens
     emitter = new MqttApiEmitter()
 
     constructor() {
@@ -54,6 +55,7 @@ export default class MqttApi {
      * @param deviceId 
      */
     async sendConnectMessage(tokens: AuthTokens, deviceId: DeviceId) {
+        this.tokens = tokens
         setTimeout(this.sendPing, 60 * 1000)
         if (!this._connected) {
             return
@@ -112,15 +114,15 @@ export default class MqttApi {
      * Sends a facebook messenger message to someone.
      * @todo Remove hardcoded reciever.
      */
-    async sendMessage() {
+    async sendMessage(message: string, threadID: string) {
         const milliseconds = Math.floor(new Date().getTime() / 1000)
         const rand = this.getRandomInt(0, 2 ^ (32 - 1))
-        const msgId = (rand & 0x3fffff) | (milliseconds << 22)
+        const msgid = (rand & 0x3fffff) | (milliseconds << 22)
         const msg = {
-            body: "Ddd",
-            msgid: msgId,
-            sender_fbid: 100009519229821,
-            to: 100002974638116
+            body: message,
+            msgid,
+            sender_fbid: this.tokens.userId,
+            to: threadID
         }
         setTimeout(
             () => this.sendPublish("/send_message2", JSON.stringify(msg)),
