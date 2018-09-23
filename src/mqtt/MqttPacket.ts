@@ -1,5 +1,9 @@
 import { MqttMessageFlag } from "./MqttTypes"
-export type MqttHeader = { size; i }
+
+export interface MqttHeader {
+    size: number
+    i: number
+}
 
 export enum FacebookMessageType {
     Connect = 1,

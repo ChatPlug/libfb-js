@@ -1,5 +1,8 @@
 import { FacebookMessageType } from "./messages/MessageTypes"
 
+/**
+ * Represents an outgoing message. This class allows to buffer different kinds of binary data so that messages can be assembled.
+ */
 export default class MqttMessage {
     toSend: Buffer
     type: FacebookMessageType

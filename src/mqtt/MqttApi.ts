@@ -48,6 +48,11 @@ export default class MqttApi {
         setTimeout(this.sendPing, 60 * 1000)
     }
 
+    /**
+     * Sends a CONNECT mqtt message and binds listeners for recieving messages.
+     * @param tokens 
+     * @param deviceId 
+     */
     async sendConnectMessage(tokens: AuthTokens, deviceId: DeviceId) {
         setTimeout(this.sendPing, 60 * 1000)
         if (!this._connected) {
@@ -103,6 +108,10 @@ export default class MqttApi {
         this.connection.writeMessage(packet)
     }
 
+    /**
+     * Sends a facebook messenger message to someone.
+     * @todo Remove hardcoded reciever.
+     */
     async sendMessage() {
         const milliseconds = Math.floor(new Date().getTime() / 1000)
         const rand = this.getRandomInt(0, 2 ^ (32 - 1))

@@ -15,6 +15,9 @@ export default class MqttConnection {
     emitter = new MqttConnectionEmitter()
     decodeBuffer: Buffer = Buffer.alloc(0)
     connectMsg: any
+    /**
+     * Connects to Facebook mqtt servers. The promise is resolved when a secure TLS handshake is established. No CONNECT message is sent yet.
+     */
     async connect() {
         await new Promise((res, rej) => {
             this.socket = TLSConnect({
@@ -107,6 +110,10 @@ export default class MqttConnection {
         })
     }
 
+    /**
+     * Parses a MQTT header.
+     * @param data The binary data representing the header.
+     */
     readHeader(data: Buffer): MqttHeader {
         let size = 0
         let m = 1

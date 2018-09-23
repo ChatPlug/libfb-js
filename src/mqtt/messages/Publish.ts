@@ -15,7 +15,7 @@ import PacketReader from "../PacketReader"
 import MqttPacket from "../MqttPacket"
 
 /**
- * Assembles a subscribe message sent just after mqtt connection that subscribes to given topics.
+ * Assembles a mqtt publish message.
  */
 export const encodePublish = (msgId, topic, content): MqttMessage => {
     const message = new MqttMessage()
