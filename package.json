@@ -6,6 +6,7 @@
   "dependencies": {
     "buffer-hexdump": "^1.0.0",
     "chai": "^4.1.2",
+    "console-stamp": "^0.2.6",
     "mocha": "^5.2.0",
     "node-fetch": "^2.2.0",
     "node-int64": "^0.4.0",

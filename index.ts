@@ -1,4 +1,5 @@
-import login from "./src/FBMessenger"
+import login from './src/FBMessenger'
+require('console-stamp')(console, '[HH:MM:ss.l]')
 
 let config
 try {

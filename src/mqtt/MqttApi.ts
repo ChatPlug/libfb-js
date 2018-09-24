@@ -1,17 +1,17 @@
 import MqttConnection from "./MqttConnection"
-import MqttPacket, { FacebookMessageType } from "./MqttPacket"
-import AuthTokens from "../types/AuthTokens"
-import DeviceId from "../types/DeviceId"
-import { encodeConnectMessage } from "./messages/Connect"
-import { encodeSubscribeMessage } from "./messages/Subscribe"
-import { decodePublish, encodePublish } from "./messages/Publish"
-import { encodePublishRecorded } from "./messages/PublishRecorded"
-import { encodePublishAck } from "./messages/PublishAck"
-import MqttMessage from "./MqttMessage"
-import { MqttMessageFlag } from "./MqttTypes"
-import { encodeUnsubscribe } from "./messages/Unsubscribe"
-import { encodePing } from "./messages/Ping"
-import { EventEmitter } from "events"
+import MqttPacket, { FacebookMessageType } from './MqttPacket'
+import AuthTokens from '../types/AuthTokens'
+import DeviceId from '../types/DeviceId'
+import { encodeConnectMessage } from './messages/Connect'
+import { encodeSubscribeMessage } from './messages/Subscribe'
+import { decodePublish, encodePublish } from './messages/Publish'
+import { encodePublishRecorded } from './messages/PublishRecorded'
+import { encodePublishAck } from './messages/PublishAck'
+import MqttMessage from './MqttMessage'
+import { MqttMessageFlag } from './MqttTypes';
+import { encodeUnsubscribe } from './messages/Unsubscribe';
+import { encodePing } from './messages/Ping';
+import { EventEmitter } from 'events';
 import hexdump from "buffer-hexdump"
 
 class MqttApiEmitter extends EventEmitter {}
