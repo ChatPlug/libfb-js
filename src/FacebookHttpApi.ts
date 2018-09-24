@@ -134,8 +134,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
     }
 
     /**
-     * @see QFacebookHttpApi::unreadThreadListQuery
-     * @param unreadCount
+     * 
      */
     async querySeqId() {
         return this.get(
