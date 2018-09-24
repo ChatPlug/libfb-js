@@ -1,6 +1,8 @@
+import { FacebookMessageType } from "./messages/MessageTypes"
 
-import { FacebookMessageType } from './messages/MessageTypes'
-
+/**
+ * Represents an outgoing message. This class allows to buffer different kinds of binary data so that messages can be assembled.
+ */
 export default class MqttMessage {
     toSend: Buffer
     type: FacebookMessageType
@@ -30,12 +32,12 @@ export default class MqttMessage {
 
     writeString(strToAdd: string) {
         this.writeU16(strToAdd.length)
-        const newBuf = Buffer.from(strToAdd, 'utf8')
+        const newBuf = Buffer.from(strToAdd, "utf8")
         this.toSend = Buffer.concat([this.toSend, newBuf])
     }
 
     writeRawString(strToAdd: string) {
-        const newBuf = Buffer.from(strToAdd, 'utf8')
+        const newBuf = Buffer.from(strToAdd, "utf8")
         this.toSend = Buffer.concat([this.toSend, newBuf])
     }
     writeRaw(raw: Buffer) {

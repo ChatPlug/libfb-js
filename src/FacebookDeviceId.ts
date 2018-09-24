@@ -1,17 +1,17 @@
-import DeviceId from './types/DeviceId'
+import DeviceId from "./types/DeviceId"
 
 const makeUuidv4 = () => {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
-    var r = (Math.random() * 16) | 0,
-      v = c == "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  })
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+        var r = (Math.random() * 16) | 0,
+            v = c == "x" ? r : (r & 0x3) | 0x8
+        return v.toString(16)
+    })
 }
 
 export default () => {
-  const uuid = makeUuidv4()
-  const deviceId = uuid;
-  const clientId = uuid.substring(0, 19)
-  const mqttId = Math.floor(Math.random() * (2^32))
-  return { clientId, deviceId, mqttId } as DeviceId
+    const uuid = makeUuidv4()
+    const deviceId = uuid
+    const clientId = uuid.substring(0, 19)
+    const mqttId = Math.floor(Math.random() * (2 ^ 32))
+    return { clientId, deviceId, mqttId } as DeviceId
 }

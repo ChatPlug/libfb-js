@@ -1,8 +1,8 @@
-import MqttApi from './mqtt/MqttApi';
-import FacebookHttpApi from './FacebookHttpApi';
-import PlainFileTokenStorage from './PlainFileTokenStorage';
-import Session from './types/Session'
-import makeDeviceId from './FacebookDeviceId'
+import MqttApi from "./mqtt/MqttApi"
+import FacebookHttpApi from "./FacebookHttpApi"
+import PlainFileTokenStorage from "./PlainFileTokenStorage"
+import Session from "./types/Session"
+import makeDeviceId from "./FacebookDeviceId"
 
 // 🥖
 export default class FacebookApi {
@@ -12,12 +12,12 @@ export default class FacebookApi {
     syncToken = "GET IT FIRST WITH createQueue"
     
 
-    constructor (options: any = {}) {
+    constructor(options: any = {}) {
         this.mqttApi = new MqttApi()
         this.httpApi = new FacebookHttpApi()
 
         const storage = new PlainFileTokenStorage()
-        
+
         let session = storage.readSession()
         if (!session) {
             session = { tokens: null, deviceId: null }
@@ -46,7 +46,7 @@ export default class FacebookApi {
             storage.writeSession(this.session)
         }
 
-        this.mqttApi.on("publish", async (publish) => {
+        this.mqttApi.on("publish", async publish => {
             console.log(publish.topic)
             if (publish.topic == "/send_message_response") {
                 console.log("got msg resp")
@@ -69,7 +69,10 @@ export default class FacebookApi {
         })
 
         await this.mqttApi.connect()
-        await this.mqttApi.sendConnectMessage(this.session.tokens, this.session.deviceId)
+        await this.mqttApi.sendConnectMessage(
+            this.session.tokens,
+            this.session.deviceId
+        )
     }
 
     async createQueue(seqId) {
@@ -83,7 +86,7 @@ export default class FacebookApi {
             initial_titan_sequence_id: seqId,
             device_id: this.session.deviceId.deviceId,
             entity_fbid: this.session.tokens.uid,
-            
+
             queue_params: {
                 buzz_on_deltas_enabled: "false",
                 graphql_query_hashes: {
@@ -92,7 +95,7 @@ export default class FacebookApi {
 
                 graphql_query_params: {
                     "10153919431161729": {
-                        xma_id: "<ID>",
+                        xma_id: "<ID>"
                     }
                 }
             }
@@ -120,11 +123,12 @@ export default class FacebookApi {
 
     async handleNewMsg(count) {
         if (count > 0) {
-            const unreadThreads = await this.httpApi.unreadThreadListQuery(count)
+            const unreadThreads = await this.httpApi.unreadThreadListQuery(
+                count
+            )
             console.dir(unreadThreads.viewer.message_threads.nodes)
             console.dir(unreadThreads.viewer.message_threads.nodes[0].last_message.message_sender)
             console.dir(unreadThreads.viewer.message_threads.nodes[0].last_message)
-
         }
     }
 }

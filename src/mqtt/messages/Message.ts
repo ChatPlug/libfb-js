@@ -1,5 +1,3 @@
 import { TTransport } from "thrift"
 
-export default interface Message {
-
-}
+export default interface Message {}
