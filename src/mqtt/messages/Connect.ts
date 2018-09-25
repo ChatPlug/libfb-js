@@ -13,7 +13,7 @@ import * as zlib from "zlib"
 import { FacebookMessageType } from "./MessageTypes"
 
 const USER_AGENT =
-    "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/64.0.0.5.83;FBPN/com.facebook.orca;FBLC/en_US;FBBV/26040814]"
+    "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.5.83;FBPN/com.facebook.orca;FBLC/en_US;FBBV/26040814]"
 enum FacebookCapFlags {
     FB_CP_ACKNOWLEDGED_DELIVERY = 1 << 0,
     FB_CP_PROCESSING_LASTACTIVE_PRESENCEINFO = 1 << 1,

@@ -44,7 +44,7 @@ export default class MqttApi {
         this._connected = true
     }
 
-    async sendPing () {
+    sendPing = async () => {
         await this.connection.writeMessage(encodePing())
         setTimeout(this.sendPing, 60 * 1000)
     }

@@ -9,7 +9,7 @@ export default class FacebookApi {
     mqttApi: MqttApi
     httpApi: FacebookHttpApi
     session: Session | null
-    syncToken = "GET IT FIRST WITH createQueue"
+    syncToken = "101284231"
     
 
     constructor(options: any = {}) {

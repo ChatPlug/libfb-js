@@ -7,6 +7,9 @@ import fetch from "node-fetch"
  * Plz kill me
  * @todo https://github.com/chyla/Kadu/blob/master/plugins/facebook_protocol/qfacebook/http/qfacebook-http-api.cpp#L107
  */
+
+ const USER_AGENT = "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.5.83;FBPN/com.facebook.orca;FBLC/en_US;FBBV/256002347743983]"
+
 export default class BaseFacebookHttpApi {
     deviceId: string
     token: string
@@ -36,8 +39,7 @@ export default class BaseFacebookHttpApi {
         }
         const resp = await fetch(resultingUrl, {
             headers: {
-                "User-Agent":
-                    "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/64.0.0.5.83;FBPN/com.facebook.orca;FBLC/en_US;FBBV/26040814]",
+                "User-Agent": USER_AGENT,
                 "Content-Type":
                     "application/x-www-form-urlencoded; charset=utf-8",
                 ...extraHeaders
@@ -45,6 +47,52 @@ export default class BaseFacebookHttpApi {
             method: "POST",
             body: request.serializeParams(),
             compress: true
+        })
+        if (!resp.ok) {
+            throw new Error("Facebook get error: " + (await resp.text()))
+        }
+        return resp.json()
+    }
+
+    async sendImage(file, from, to) {
+        let randId = "";
+        const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+          
+        for (let i = 0; i < 51; i++) {
+            randId += possible.charAt(Math.floor(Math.random() * possible.length))
+        }
+
+        return randId
+          
+          
+        const resp = await fetch("https://rupload.facebook.com/messenger_image/" + randId, {
+            headers: {
+                "User-Agent":
+                    "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.5.83;FBPN/com.facebook.orca;FBLC/en_US;FBBV/26040814]",
+                "Authorization":
+                    "OAuth " + this.token,
+                "device_id":
+                    this.deviceId,
+                "X-Entity-Name": "mediaUpload.png", // @TODO
+                "is_preview": "1",
+                "attempt_id": "ddd",
+                "send_message_by_server": "1",
+                "app_id": "26040814", // @TODO
+                "Content-Type": "application/octet-stream",
+                "image_type": "FILE_ATTACHMENT",
+                "offline_threading_id": "", // @TODO
+                "X-FB-Connection-Quality": "EXCELLENT", // kek
+                "X-Entity-Type": "image/png", // @TODO
+                "ttl": "0",
+                "Offset": "0",
+                "X-FB-Friendly-Name": "post_resumable_upload_session",
+                "sender_fbid": from, // UID
+                "to": to, // RECEIVER
+                "X-FB-HTTP-Engine": "Liger",
+
+            },
+            method: "POST",
+            body: file,
         })
         if (!resp.ok) {
             throw new Error("Facebook get error: " + (await resp.text()))
