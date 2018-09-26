@@ -13,6 +13,9 @@ import MqttConnection from "./MqttConnection"
 import MqttMessage from "./MqttMessage"
 import MqttPacket, { FacebookMessageType } from "./MqttPacket"
 import { MqttMessageFlag } from "./MqttTypes"
+import  debug from "debug"
+
+const debugLog = debug("fblib")
 
 class MqttApiEmitter extends EventEmitter {}
 /**
@@ -63,7 +66,7 @@ export default class MqttApi {
         this.connection.emitter.on("packet", async (packet: MqttPacket) => {
             switch (packet.type) {
                 case FacebookMessageType.ConnectAck:
-                    console.log("Packet type: ConnectAck")
+                    debugLog("Packet type: ConnectAck")
                     await this.sendPublish(
                         "/foreground_state",
                         '{"foreground":true,"keepalive_timeout":60}'
@@ -72,29 +75,29 @@ export default class MqttApi {
                         encodeSubscribeMessage(this.lastMsgId)
                     )
                     await this.sendSubscribe(encodeUnsubscribe(this.lastMsgId))
-                    console.log("Connected.")
+                    debugLog("Connected.")
 
                     // await this.sendMessage()
                     this.emitter.emit("connected")
                     break
                 case FacebookMessageType.Publish:
-                    console.log("Packet type: Publish")
+                    debugLog("Packet type: Publish")
                     const publish = decodePublish(packet)
                     this.emitter.emit("publish", publish)
                     this.sendPublishConfirmation(packet.flag, publish)
                     break
                 case FacebookMessageType.SubscribeAck:
-                    console.log("Packet type: SubscribeAck")
+                    debugLog("Packet type: SubscribeAck")
                     break
                 case FacebookMessageType.PublishAck:
-                    console.log("Packet type: PublishAck")
+                    debugLog("Packet type: PublishAck")
                     break
                 case FacebookMessageType.UnsubscribeAck:
-                    console.log("Packet type: UnsubscribeAck")
+                    debugLog("Packet type: UnsubscribeAck")
                     break
                 default:
-                    console.log("Packet type:", packet.type)
-                    console.log(hexdump(packet.content))
+                    debugLog("Packet type:", packet.type)
+                    debugLog(hexdump(packet.content))
             }
         })
 

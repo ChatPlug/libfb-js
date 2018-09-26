@@ -1,8 +1,10 @@
+import debug from "debug"
 import { EventEmitter } from "events"
 import { connect as TLSConnect, TLSSocket } from "tls"
 import MqttMessage from "./MqttMessage"
 import MqttPacket, { MqttHeader } from "./MqttPacket"
 
+const debugLog = debug("fblib")
 class MqttConnectionEmitter extends EventEmitter {}
 /**
  * Represents an encrypted real-time connection with facebook servers.
@@ -29,12 +31,12 @@ export default class MqttConnection {
         })
 
         this.socket!!.on("data", data => {
-            console.log("")
-            console.log("Data received!")
+            debugLog("")
+            debugLog("Data received!")
             this.readBuffer(data)
         })
         this.socket!!.on("close", _ => {
-            console.log("close")
+            debugLog("close")
             this.emitter.emit("close")
         })
     }
@@ -45,7 +47,7 @@ export default class MqttConnection {
             this.lastHeader = this.readHeader(data)
         }
 
-        console.log("Last header size:", this.lastHeader.size)
+        debugLog("Last header size:", this.lastHeader.size)
         const packetSize = this.lastHeader.i + this.lastHeader.size
         this.decodeBuffer = Buffer.concat([
             this.decodeBuffer,

@@ -11,11 +11,12 @@
         "outDir": "dist",
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "lib": ["es2017"],
+        "lib": ["es2017", "dom"],
         "baseUrl": ".",
         "paths": {
             "*": ["node_modules/*"]
-        }
+        },
+        "declaration": true
     },
     "include": ["src/**/*"]
 }

@@ -5,7 +5,9 @@ import MqttApi from "./mqtt/MqttApi"
 import PlainFileTokenStorage from "./PlainFileTokenStorage"
 import Message from "./types/Message"
 import Session from "./types/Session"
+import debug from "debug"
 
+const debugLog = debug("fblib")
 class ApiEmitter extends EventEmitter {}
 
 // 🥖
@@ -75,7 +77,7 @@ export default class FacebookApi {
             await this.httpApi.sendImage(stream, ".png", "100009519229821", "100025541190735")
 */
             /*const e = await this.httpApi.getAttachment("mid.$cAAAAAWaLyv9sOUaI4lmCAE1tXJmL", '250360039157920')
-            console.log("---- dupa")
+            debugLog("---- dupa")
             console.dir(e)*/
         })
 
@@ -185,7 +187,7 @@ export default class FacebookApi {
                 return //@TODO
             }
 
-            console.log(event)
+            debugLog(event)
         }
     }
 }
