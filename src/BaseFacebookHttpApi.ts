@@ -1,6 +1,9 @@
 import FacebookApiHttpRequest from "./FacebookApiHttpRequest"
 import * as crypto from "crypto"
 import fetch from "node-fetch"
+import mime from 'mime-types'
+import streamLength from 'stream-length'
+import { Readable } from 'stream'
 
 /**
  * This class wil implement making sick fucking http requests to facebook API by ZUCC.
@@ -54,17 +57,15 @@ export default class BaseFacebookHttpApi {
         return resp.json()
     }
 
-    async sendImage(file, from, to) {
-        let randId = "";
+    async sendImage(readStream: Readable, extension: string, from: string, to: string) {
+        let randId = ""
         const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-          
+
         for (let i = 0; i < 51; i++) {
             randId += possible.charAt(Math.floor(Math.random() * possible.length))
         }
-
-        return randId
           
-          
+        const len = await streamLength(readStream)
         const resp = await fetch("https://rupload.facebook.com/messenger_image/" + randId, {
             headers: {
                 "User-Agent":
@@ -73,30 +74,38 @@ export default class BaseFacebookHttpApi {
                     "OAuth " + this.token,
                 "device_id":
                     this.deviceId,
-                "X-Entity-Name": "mediaUpload.png", // @TODO
+                "X-Entity-Name": "mediaUpload" + extension,
                 "is_preview": "1",
-                "attempt_id": "ddd",
+                "attempt_id": this.getRandomInt(0, (2^64) - 1),
                 "send_message_by_server": "1",
-                "app_id": "26040814", // @TODO
+                "app_id": "26040814",
                 "Content-Type": "application/octet-stream",
                 "image_type": "FILE_ATTACHMENT",
-                "offline_threading_id": "", // @TODO
+                "offline_threading_id": this.getRandomInt(0, (2^64) - 1),
                 "X-FB-Connection-Quality": "EXCELLENT", // kek
-                "X-Entity-Type": "image/png", // @TODO
+                "X-Entity-Type": mime.lookup(extension),
                 "ttl": "0",
                 "Offset": "0",
                 "X-FB-Friendly-Name": "post_resumable_upload_session",
                 "sender_fbid": from, // UID
                 "to": to, // RECEIVER
                 "X-FB-HTTP-Engine": "Liger",
-
+                "original_timestamp": '' + Date.now(),
+                "Content-Length": len,
+                "X-Entity-Length": len,
+                "client_tags": "{\"trigger\": \"2:thread_view_messages_fragment_unknown\"}",
             },
             method: "POST",
-            body: file,
+            body: readStream,
         })
         if (!resp.ok) {
-            throw new Error("Facebook get error: " + (await resp.text()))
+            throw new Error("Got Facebook error: " + (await resp.text()))
         }
+
         return resp.json()
+    }
+
+    getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min
     }
 }

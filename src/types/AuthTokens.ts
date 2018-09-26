@@ -9,6 +9,5 @@ export default interface AuthTokens {
     machine_id: string
     identifier: string
     user_storage_key: string
-    deviceId: string | null
-    userId: string | null
+    syncToken: string | null
 }

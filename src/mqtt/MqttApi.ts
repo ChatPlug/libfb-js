@@ -80,8 +80,6 @@ export default class MqttApi {
                 case FacebookMessageType.Publish:
                     console.log("Packet type: Publish")
                     const publish = decodePublish(packet)
-                    // console.log(publish)
-                    console.log(publish.topic)
                     this.emitter.emit("publish", publish)
                     this.sendPublishConfirmation(packet.flag, publish)
                     break                
@@ -136,7 +134,7 @@ export default class MqttApi {
         }
 
         const qos1 = (flags & MqttMessageFlag.QoS1) == MqttMessageFlag.QoS1
-        const qos2 = (flags & MqttMessageFlag.QoS1) == MqttMessageFlag.QoS1
+        const qos2 = (flags & MqttMessageFlag.QoS2) == MqttMessageFlag.QoS2
         if (qos1) {
             this.connection.writeMessage(encodePublishAck(publish.msgId))
         }
