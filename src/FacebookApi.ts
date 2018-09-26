@@ -5,13 +5,18 @@ import Session from "./types/Session"
 import makeDeviceId from "./FacebookDeviceId"
 import fs from 'fs'
 import MqttPacket from './mqtt/MqttPacket';
+import Message from './types/Message';
+import { EventEmitter } from 'events';
+
+class ApiEmitter extends EventEmitter {}
+
 // 🥖
 export default class FacebookApi {
     mqttApi: MqttApi
     httpApi: FacebookHttpApi
+    emitter = new ApiEmitter()
     session: Session | null
     seqId = ''
-    
 
     constructor(options: any = {}) {
         this.mqttApi = new MqttApi()
@@ -36,6 +41,10 @@ export default class FacebookApi {
         }
 
         this.session = session
+    }
+
+    on(event, callback) {
+        this.emitter.on(event, callback)
     }
 
     async doLogin(login: string, password: string) {
@@ -80,8 +89,7 @@ export default class FacebookApi {
         )
     }
 
-    async createQueue(seqId) {
-        console.log(seqId)
+    private async createQueue(seqId) {
         const obj = {
             delta_batch_size: 125,
             max_deltas_able_to_process: 1250,
@@ -109,7 +117,7 @@ export default class FacebookApi {
         await this.mqttApi.sendPublish("/messenger_sync_create_queue", JSON.stringify(obj))
     }
 
-    async connectQueue(seqId) {
+    private async connectQueue(seqId) {
         const obj = {
             delta_batch_size: 125,
             max_deltas_able_to_process: 1250,
@@ -135,5 +143,44 @@ export default class FacebookApi {
             return
         }
 
+        if (data["deltas"] != null) {
+            const event = data.deltas[0]
+            if (event["deltaNewMessage"] != null) {
+                const delta = event["deltaNewMessage"]
+                let threadId = 0
+                let isGroup = false
+
+                if (delta.messageMetadata.threadKey.threadFbId != null) {
+                    isGroup = true
+                    threadId = delta.messageMetadata.threadKey.threadFbId
+                } else if (delta.messageMetadata.threadKey.otherUserFbId != null) {
+                    isGroup = false
+                    threadId = delta.messageMetadata.threadKey.otherUserFbId
+                }
+
+                const message = {
+                    isGroup,
+                    threadId,
+                    attachments: [],
+                    authorId: delta.messageMetadata.actorFbId,
+                    id: delta.messageMetadata.messageId,
+                    timestamp: delta.messageMetadata.timestamp,
+                    message: delta["body"] || ''
+                } as Message
+
+                this.emitter.emit("message", message)
+                return
+            }
+
+            if (event["deltaDeliveryReceipt"] != null) {
+                return // @TODO
+            }
+
+            if (event["deltaReadReceipt"] != null) {
+                return //@TODO
+            }
+
+            console.log(event)
+        }
     }
 }
