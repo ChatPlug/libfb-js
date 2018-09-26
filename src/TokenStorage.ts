@@ -1,4 +1,3 @@
-import AuthTokens from "./types/AuthTokens"
 import Session from "./types/Session"
 
 interface TokenStorage {

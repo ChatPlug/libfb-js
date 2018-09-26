@@ -1,12 +1,3 @@
-import Message from "./Message"
-import {
-    TTransport,
-    TCompactProtocol,
-    Thrift,
-    TBufferedTransport
-} from "thrift"
-import AuthTokens from "../../types/AuthTokens"
-import DeviceId from "../../types/DeviceId"
 import MqttMessage from "../MqttMessage"
 import { MqttConnectFlag } from "../MqttTypes"
 import { FacebookMessageType } from "./MessageTypes"

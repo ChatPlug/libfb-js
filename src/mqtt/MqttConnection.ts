@@ -1,7 +1,7 @@
-import { TLSSocket, connect as TLSConnect } from "tls"
+import { EventEmitter } from "events"
+import { connect as TLSConnect, TLSSocket } from "tls"
 import MqttMessage from "./MqttMessage"
 import MqttPacket, { MqttHeader } from "./MqttPacket"
-import { EventEmitter } from "events"
 
 class MqttConnectionEmitter extends EventEmitter {}
 /**
@@ -45,7 +45,7 @@ export default class MqttConnection {
             this.lastHeader = this.readHeader(data)
         }
 
-        console.log('Last header size:', this.lastHeader.size)
+        console.log("Last header size:", this.lastHeader.size)
         const packetSize = this.lastHeader.i + this.lastHeader.size
         this.decodeBuffer = Buffer.concat([
             this.decodeBuffer,

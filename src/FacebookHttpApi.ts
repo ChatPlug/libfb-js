@@ -148,7 +148,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
             )
         )
     }
-    
+
     /**
      * @param mid Message ID
      * @param aid Attachment ID

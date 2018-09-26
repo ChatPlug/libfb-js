@@ -1,18 +1,9 @@
-import Message from "./Message"
-import {
-    TTransport,
-    TCompactProtocol,
-    Thrift,
-    TBufferedTransport
-} from "thrift"
-import AuthTokens from "../../types/AuthTokens"
-import DeviceId from "../../types/DeviceId"
-import MqttMessage from "../MqttMessage"
-import { MqttConnectFlag, MqttMessageFlag } from "../MqttTypes"
-import { FacebookMessageType } from "./MessageTypes"
 import zlib from "zlib"
-import PacketReader from "../PacketReader"
+import MqttMessage from "../MqttMessage"
 import MqttPacket from "../MqttPacket"
+import { MqttMessageFlag } from "../MqttTypes"
+import PacketReader from "../PacketReader"
+import { FacebookMessageType } from "./MessageTypes"
 
 /**
  * Assembles a mqtt publish message.

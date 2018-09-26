@@ -1,15 +1,9 @@
-import Message from "./Message"
-import {
-    TTransport,
-    TCompactProtocol,
-    Thrift,
-    TBufferedTransport
-} from "thrift"
+import { TBufferedTransport, TCompactProtocol, Thrift } from "thrift"
+import * as zlib from "zlib"
 import AuthTokens from "../../types/AuthTokens"
 import DeviceId from "../../types/DeviceId"
 import MqttMessage from "../MqttMessage"
 import { MqttConnectFlag } from "../MqttTypes"
-import * as zlib from "zlib"
 import { FacebookMessageType } from "./MessageTypes"
 
 const USER_AGENT =

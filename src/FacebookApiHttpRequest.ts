@@ -1,5 +1,3 @@
-import {} from "url"
-
 export interface RequestParams {
     [x: string]: string
 }

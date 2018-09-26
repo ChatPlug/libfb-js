@@ -1,12 +1,10 @@
-import MqttApi from "./mqtt/MqttApi"
-import FacebookHttpApi from "./FacebookHttpApi"
-import PlainFileTokenStorage from "./PlainFileTokenStorage"
-import Session from "./types/Session"
+import { EventEmitter } from "events"
 import makeDeviceId from "./FacebookDeviceId"
-import fs from 'fs'
-import MqttPacket from './mqtt/MqttPacket';
-import Message from './types/Message';
-import { EventEmitter } from 'events';
+import FacebookHttpApi from "./FacebookHttpApi"
+import MqttApi from "./mqtt/MqttApi"
+import PlainFileTokenStorage from "./PlainFileTokenStorage"
+import Message from "./types/Message"
+import Session from "./types/Session"
 
 class ApiEmitter extends EventEmitter {}
 
@@ -16,12 +14,11 @@ export default class FacebookApi {
     httpApi: FacebookHttpApi
     emitter = new ApiEmitter()
     session: Session | null
-    seqId = ''
+    seqId = ""
 
     constructor(options: any = {}) {
         this.mqttApi = new MqttApi()
         this.httpApi = new FacebookHttpApi()
-
 
         const storage = new PlainFileTokenStorage()
 
@@ -58,8 +55,8 @@ export default class FacebookApi {
         }
 
         this.mqttApi.on("publish", async publish => {
-            if (publish.topic = "/t_ms") {
-                await this.handleMS(publish.content.toString('utf8'))
+            if ((publish.topic = "/t_ms")) {
+                await this.handleMS(publish.content.toString("utf8"))
             }
         })
 
@@ -94,8 +91,8 @@ export default class FacebookApi {
             delta_batch_size: 125,
             max_deltas_able_to_process: 1250,
             sync_api_version: 3,
-            encoding: 'JSON',
-            
+            encoding: "JSON",
+
             initial_titan_sequence_id: seqId,
             device_id: this.session.deviceId.deviceId,
             entity_fbid: this.session.tokens.uid,
@@ -114,7 +111,10 @@ export default class FacebookApi {
             }
         }
 
-        await this.mqttApi.sendPublish("/messenger_sync_create_queue", JSON.stringify(obj))
+        await this.mqttApi.sendPublish(
+            "/messenger_sync_create_queue",
+            JSON.stringify(obj)
+        )
     }
 
     private async connectQueue(seqId) {
@@ -122,17 +122,20 @@ export default class FacebookApi {
             delta_batch_size: 125,
             max_deltas_able_to_process: 1250,
             sync_api_version: 3,
-            encoding: 'JSON',
+            encoding: "JSON",
 
             last_seq_id: seqId,
-            sync_token: this.session.tokens.syncToken,
+            sync_token: this.session.tokens.syncToken
         }
 
-        await this.mqttApi.sendPublish("/messenger_sync_get_diffs", JSON.stringify(obj))
+        await this.mqttApi.sendPublish(
+            "/messenger_sync_get_diffs",
+            JSON.stringify(obj)
+        )
     }
 
     async handleMS(ms: string) {
-        const data = JSON.parse(ms.replace('\u0000', ''))
+        const data = JSON.parse(ms.replace("\u0000", ""))
 
         // Handled on queue creation
         if (data.syncToken) {
@@ -153,7 +156,9 @@ export default class FacebookApi {
                 if (delta.messageMetadata.threadKey.threadFbId != null) {
                     isGroup = true
                     threadId = delta.messageMetadata.threadKey.threadFbId
-                } else if (delta.messageMetadata.threadKey.otherUserFbId != null) {
+                } else if (
+                    delta.messageMetadata.threadKey.otherUserFbId != null
+                ) {
                     isGroup = false
                     threadId = delta.messageMetadata.threadKey.otherUserFbId
                 }
@@ -165,7 +170,7 @@ export default class FacebookApi {
                     authorId: delta.messageMetadata.actorFbId,
                     id: delta.messageMetadata.messageId,
                     timestamp: delta.messageMetadata.timestamp,
-                    message: delta["body"] || ''
+                    message: delta["body"] || ""
                 } as Message
 
                 this.emitter.emit("message", message)

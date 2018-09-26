@@ -1,8 +1,8 @@
 import * as fs from "fs"
 import * as path from "path"
-import AuthTokens from "./types/AuthTokens"
 import TokenStorage from "./TokenStorage"
 import Session from "./types/Session"
+
 const CONFIG_FILE_PATH = path.join(__dirname, "../session.json")
 
 export default class PlainFileTokenStorage implements TokenStorage {

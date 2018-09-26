@@ -1,18 +1,18 @@
-import MqttConnection from "./MqttConnection"
-import MqttPacket, { FacebookMessageType } from './MqttPacket'
-import AuthTokens from '../types/AuthTokens'
-import DeviceId from '../types/DeviceId'
-import { encodeConnectMessage } from './messages/Connect'
-import { encodeSubscribeMessage } from './messages/Subscribe'
-import { decodePublish, encodePublish } from './messages/Publish'
-import { encodePublishRecorded } from './messages/PublishRecorded'
-import { encodePublishAck } from './messages/PublishAck'
-import MqttMessage from './MqttMessage'
-import { MqttMessageFlag } from './MqttTypes';
-import { encodeUnsubscribe } from './messages/Unsubscribe';
-import { encodePing } from './messages/Ping';
-import { EventEmitter } from 'events';
 import hexdump from "buffer-hexdump"
+import { EventEmitter } from "events"
+import AuthTokens from "../types/AuthTokens"
+import DeviceId from "../types/DeviceId"
+import { encodeConnectMessage } from "./messages/Connect"
+import { encodePing } from "./messages/Ping"
+import { decodePublish, encodePublish } from "./messages/Publish"
+import { encodePublishAck } from "./messages/PublishAck"
+import { encodePublishRecorded } from "./messages/PublishRecorded"
+import { encodeSubscribeMessage } from "./messages/Subscribe"
+import { encodeUnsubscribe } from "./messages/Unsubscribe"
+import MqttConnection from "./MqttConnection"
+import MqttMessage from "./MqttMessage"
+import MqttPacket, { FacebookMessageType } from "./MqttPacket"
+import { MqttMessageFlag } from "./MqttTypes"
 
 class MqttApiEmitter extends EventEmitter {}
 /**
@@ -82,7 +82,7 @@ export default class MqttApi {
                     const publish = decodePublish(packet)
                     this.emitter.emit("publish", publish)
                     this.sendPublishConfirmation(packet.flag, publish)
-                    break                
+                    break
                 case FacebookMessageType.SubscribeAck:
                     console.log("Packet type: SubscribeAck")
                     break
