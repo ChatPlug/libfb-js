@@ -10,6 +10,10 @@ import debug from "debug"
 const debugLog = debug("fblib")
 class ApiEmitter extends EventEmitter {}
 
+interface FacebookApiOptions {
+    selfListen: boolean
+}
+
 // 🥖
 export default class FacebookApi {
     mqttApi: MqttApi
@@ -17,10 +21,12 @@ export default class FacebookApi {
     emitter = new ApiEmitter()
     session: Session | null
     seqId = ""
+    options: FacebookApiOptions
 
-    constructor(options: any = {}) {
+    constructor(options: FacebookApiOptions = { selfListen: false }) {
         this.mqttApi = new MqttApi()
         this.httpApi = new FacebookHttpApi()
+        this.options = options
 
         const storage = new PlainFileTokenStorage()
 
@@ -169,6 +175,7 @@ export default class FacebookApi {
                 message: delta.body || ""
             } as Message
 
+            if (message.authorId === this.session.tokens.uid && !this.options.selfListen) return
             this.emitter.emit("message", message)
             return
         }
