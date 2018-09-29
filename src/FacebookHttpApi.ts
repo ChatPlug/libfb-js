@@ -32,17 +32,37 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
     /**
      * @see QFacebookHttpApi::usersQuery
      */
-    async usersQuery(userId: string) {
+    async userQuery(userId: string) {
         return this.get(
             new FacebookApiHttpRequest(
                 "https://graph.facebook.com/graphql",
                 "get",
                 "UsersQuery",
                 {
+                    query_id: "10153915107411729",
+                    query_params: JSON.stringify({
+                        "0": [ userId ],
+                        "1": true
+                    })
+                }
+            )
+        )
+    }
+
+    /**
+     * @see QFacebookHttpApi::usersQuery
+     */
+    async usersQuery(userId: string, count: number) {
+        return this.get(
+            new FacebookApiHttpRequest(
+                "https://graph.facebook.com/graphql",
+                "get",
+                "FetchContactsFullQuery",
+                {
                     query_id: "10154444360806729",
                     query_params: JSON.stringify({
                         "0": [ userId ],
-                        "1": "50"
+                        "1": count
                     })
                 }
             )
@@ -53,7 +73,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
      * @see QFacebookHttpApi::usersQueryAfter
      * @param cursor
      */
-    async usersQueryAfter(userId: string, cursor: string) {
+    async usersQueryAfter(userId: string, count: number, cursor: string) {
         return this.get(
             new FacebookApiHttpRequest(
                 "https://graph.facebook.com/graphql",
@@ -64,7 +84,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
                     query_params: JSON.stringify({
                         "0": [ userId ],
                         "1": cursor,
-                        "2": "50"
+                        "2": count
                     })
                 }
             )

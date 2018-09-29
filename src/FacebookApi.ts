@@ -102,7 +102,7 @@ export default class FacebookApi {
     }
 
     getUserInfo(userId: string) {
-        return this.httpApi.usersQuery(userId)
+        return this.httpApi.userQuery(userId)
     }
 
     private async createQueue(seqId) {
