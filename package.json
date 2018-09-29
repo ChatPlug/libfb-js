@@ -2,7 +2,7 @@
   "name": "libfb",
   "version": "1.0.0",
   "description": "",
-  "main": "src/FBMessenger.js",
+  "main": "dist/FBMessenger.js",
   "dependencies": {
     "buffer-hexdump": "^1.0.0",
     "chai": "^4.1.2",
