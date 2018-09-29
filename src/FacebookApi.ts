@@ -8,6 +8,7 @@ import Session from "./types/Session"
 import Thread from "./types/Thread"
 import User from "./types/User"
 import debug from "debug"
+import { ThreadNameEvent, DeliveryReceiptEvent, ReadReceiptEvent, ChangeThreadNicknameEvent } from './types/Events';
 
 const debugLog = debug("fblib")
 class ApiEmitter extends EventEmitter {}
@@ -99,16 +100,17 @@ export default class FacebookApi {
         return this.mqttApi.sendMessage(threadId, message)
     }
 
-    async getThreadInfo(threadId: string): Promise<Thread> {
-        const thread = (await this.httpApi.threadQuery(threadId))[threadId]
+    async getThreadInfo(threadId: string) {
+        const res = await this.httpApi.threadQuery(threadId)
+        const thread = res[threadId]
         const customizations = thread.customization_info
         return {
             id: thread.thread_key.thread_fbid || thread.thread_key.other_user_id,
             name: thread.name,
             isGroup: thread.is_group_thread,
             participants: thread.all_participants.nodes
-            .map(user => user.messaging_actor)
-            .map(this.parseUser),
+                .map(user => user.messaging_actor)
+                .map(this.parseUser),
             image: thread.image,
             unreadCount: thread.unread_count,
             canReply: thread.can_viewer_reply,
@@ -208,13 +210,9 @@ export default class FacebookApi {
 
         if (event.deltaNewMessage) {
             const delta = event.deltaNewMessage
-            let { threadKey } = delta.messageMetadata
-            let threadId = threadKey.threadFbId || threadKey.otherUserFbId
-            let isGroup = Boolean(threadKey.threadFbId)
 
             const message = {
-                isGroup,
-                threadId,
+                threadId: this.getThreadId(delta),
                 attachments: [],
                 authorId: delta.messageMetadata.actorFbId,
                 id: delta.messageMetadata.messageId,
@@ -227,12 +225,64 @@ export default class FacebookApi {
             return
         }
 
+        if (event.deltaThreadName) {
+            const delta = event.deltaThreadName
+
+            const threadNameEvent = {
+                id: delta.messageMetadata.messageId,
+                threadId: this.getThreadId(delta),
+                authorId: delta.messageMetadata.actorFbId,
+                message: delta.messageMetadata.adminText,
+                name: delta.name
+            } as ThreadNameEvent
+
+            this.emitter.emit("threadNameEvent", threadNameEvent)
+            return
+        }
+
         if (event.deltaDeliveryReceipt) {
-            return // @TODO
+            const delta = event.deltaDeliveryReceipt
+            
+            const deliveryReceiptEvent = {
+                threadId: this.getThreadId(delta),
+                receiverId: delta.actorFbId || this.getThreadId(delta)
+            } as DeliveryReceiptEvent
+
+            this.emitter.emit("deliveryReceiptEvent", deliveryReceiptEvent)
         }
 
         if (event.deltaReadReceipt) {
-            return //@TODO
+            const delta = event.deltaReadReceipt
+            
+            const readReceiptEvent = {
+                threadId: this.getThreadId(delta),
+                receiverId: delta.actorFbId || this.getThreadId(delta)
+            } as ReadReceiptEvent
+            
+            this.emitter.emit("readReceiptEvent", readReceiptEvent)
         }
+
+        if (event.deltaAdminTextMessage) {
+            const delta = event.deltaAdminTextMessage
+
+            switch (delta.type) {
+                case 'change_thread_nickname':
+                    const changeThreadNicknameEvent = {
+                        id: delta.messageMetadata.messageId,
+                        threadId: this.getThreadId(delta),
+                        authorId: delta.messageMetadata.actorFbId,
+                        message: delta.messageMetadata.adminText,
+                        participantId: delta.untypedData.participant_id,
+                        nickname: delta.untypedData.nickname
+                    } as ChangeThreadNicknameEvent
+                    this.emitter.emit('changeThreadNicknameEvent', changeThreadNicknameEvent)
+                    break
+            }
+        }
+    }
+
+    private getThreadId (delta: any) {
+        const { threadKey } = delta.messageMetadata || delta
+        return threadKey.threadFbId || threadKey.otherUserFbId
     }
 }
