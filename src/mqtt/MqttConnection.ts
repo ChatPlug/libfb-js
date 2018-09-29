@@ -38,6 +38,7 @@ export default class MqttConnection {
         this.socket!!.on("close", _ => {
             debugLog("close")
             this.emitter.emit("close")
+            throw new Error('Connection closed.')
         })
     }
 
