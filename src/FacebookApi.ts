@@ -50,46 +50,41 @@ export default class FacebookApi {
         this.emitter.once(event, callback)
     }
 
-    async doLogin(login: string, password: string) {
-        if (!this.session.tokens) {
-            const tokens = await this.httpApi.auth(login, password)
-            this.httpApi.token = tokens.access_token
-            this.session.tokens = tokens
-
-            const storage = new PlainFileTokenStorage()
-            storage.writeSession(this.session)
-        }
-
-        this.mqttApi.on("publish", async publish => {
-            if (publish.topic === "/t_ms") {
-                await this.handleMS(publish.content.toString("utf8"))
+    doLogin(login: string, password: string) {
+        return new Promise(async (resolve, reject) => {
+            if (!this.session.tokens) {
+                const tokens = await this.httpApi.auth(login, password)
+                this.httpApi.token = tokens.access_token
+                this.session.tokens = tokens
+    
+                const storage = new PlainFileTokenStorage()
+                storage.writeSession(this.session)
             }
-        })
-
-        this.mqttApi.on("connected", async () => {
-            const { viewer } = await this.httpApi.querySeqId()
-            const seqId = viewer.message_threads.sync_sequence_id
-            this.seqId = seqId
-            if (!this.session.tokens.syncToken) {
+    
+            this.mqttApi.on("publish", async publish => {
+                debugLog(publish.topic)
+                if (publish.topic === "/t_ms") this.handleMS(publish.content.toString("utf8"))
+            })
+    
+            this.mqttApi.on("connected", async () => {
+                const { viewer } = await this.httpApi.querySeqId()
+                const seqId = viewer.message_threads.sync_sequence_id
+                this.seqId = seqId
+                resolve()
+                if (!this.session.tokens.syncToken) {
+                    await this.createQueue(seqId)
+                    return
+                }
+    
                 await this.createQueue(seqId)
-                return
-            }
-
-            await this.createQueue(seqId)
-            /*
-            const stream = fs.createReadStream('dupa.png');
-            await this.httpApi.sendImage(stream, ".png", "100009519229821", "100025541190735")
-*/
-            /*const e = await this.httpApi.getAttachment("mid.$cAAAAAWaLyv9sOUaI4lmCAE1tXJmL", '250360039157920')
-            debugLog("---- dupa")
-            console.dir(e)*/
+            })
+    
+            await this.mqttApi.connect()
+            await this.mqttApi.sendConnectMessage(
+                this.session.tokens,
+                this.session.deviceId
+            )
         })
-
-        await this.mqttApi.connect()
-        await this.mqttApi.sendConnectMessage(
-            this.session.tokens,
-            this.session.deviceId
-        )
     }
 
     async sendMessage(threadId: string, message: string) {
