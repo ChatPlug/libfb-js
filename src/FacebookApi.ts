@@ -5,6 +5,8 @@ import MqttApi from "./mqtt/MqttApi"
 import PlainFileTokenStorage from "./PlainFileTokenStorage"
 import Message from "./types/Message"
 import Session from "./types/Session"
+import Thread from "./types/Thread"
+import User from "./types/User"
 import debug from "debug"
 
 const debugLog = debug("fblib")
@@ -97,12 +99,47 @@ export default class FacebookApi {
         return this.mqttApi.sendMessage(threadId, message)
     }
 
-    async getThreadInfo(threadId: string) {
-        return (await this.httpApi.threadQuery(threadId))[threadId]
+    async getThreadInfo(threadId: string): Promise<Thread> {
+        const thread = (await this.httpApi.threadQuery(threadId))[threadId]
+        const customizations = thread.customization_info
+        return {
+            id: thread.thread_key.thread_fbid || thread.thread_key.other_user_id,
+            name: thread.name,
+            isGroup: thread.is_group_thread,
+            participants: thread.all_participants.nodes
+            .map(user => user.messaging_actor)
+            .map(this.parseUser),
+            image: thread.image,
+            unreadCount: thread.unread_count,
+            canReply: thread.can_viewer_reply,
+            cannotReplyReason: thread.cannot_reply_reason,
+            isArchived: thread.has_viewer_archived,
+            color: customizations && customizations.outgoing_bubble_color ?
+                '#' + customizations.outgoing_bubble_color.substr(2).toLowerCase() : null,
+            emoji: customizations ? customizations.custom_like_emoji : null,
+            // nicknames: customizations ? customizations.participant_customizations : null
+            // TODO: get nicknames
+        } as Thread
     }
 
-    async getUserInfo(userId: string) {
-        return (await this.httpApi.userQuery(userId))[userId]
+    async getUserInfo(userId: string): Promise<User> {
+        return this.parseUser((await this.httpApi.userQuery(userId))[userId])
+    }
+
+    private parseUser(user): User {
+        return {
+            id: user.id,
+            name: user.name,
+            type: user.__type__.name,
+            canMessage: user.can_viewer_message,
+            emailAddresses: user.email_addresses,
+            isBlocked: user.is_blocked_by_viewer,
+            isMessengerUser: user.is_messenger_user,
+            isPage: user.is_commerce,
+            profilePicLarge: user.profile_pic_large ? user.profile_pic_large.uri : null,
+            profilePicMedium: user.profile_pic_medium ? user.profile_pic_medium.uri : null,
+            profilePicSmall: user.profile_pic_small ? user.profile_pic_small.uri : null
+        } as User
     }
 
     private async createQueue(seqId) {

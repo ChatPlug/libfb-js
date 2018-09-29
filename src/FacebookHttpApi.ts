@@ -144,9 +144,9 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
                     query_id: "10153919752036729",
                     query_params: JSON.stringify({
                         "0": [ threadId ],
-                        "10": false,
-                        "11": false,
-                        "13": false
+                        "10": false, // show only IDs for messaging actors
+                        "11": false, // show messages
+                        "13": true // show more details for messaging actors
                     })
                 }
             )
