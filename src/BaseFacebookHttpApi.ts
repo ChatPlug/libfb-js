@@ -12,7 +12,7 @@ import FacebookApiHttpRequest from "./FacebookApiHttpRequest"
  */
 
 const USER_AGENT =
-    "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.5.83;FBPN/com.facebook.orca;FBLC/en_US;FBBV/256002347743983]"
+    "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.20.381;FBPN/com.facebook.orca;FBLC/en_US;FBBV/256002347743983]"
 
 export default class BaseFacebookHttpApi {
     deviceId: string
@@ -80,14 +80,14 @@ export default class BaseFacebookHttpApi {
             {
                 headers: {
                     "User-Agent":
-                        "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.5.83;FBPN/com.facebook.orca;FBLC/en_US;FBBV/26040814]",
+                        "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.20.381;FBPN/com.facebook.orca;FBLC/en_US;FBBV/256002347743983]",
                     Authorization: "OAuth " + this.token,
                     device_id: this.deviceId,
                     "X-Entity-Name": "mediaUpload" + extension,
                     is_preview: "1",
                     attempt_id: this.getRandomInt(0, (2 ^ 64) - 1),
                     send_message_by_server: "1",
-                    app_id: "26040814",
+                    app_id: "256002347743983",
                     "Content-Type": "application/octet-stream",
                     image_type: "FILE_ATTACHMENT",
                     offline_threading_id: this.getRandomInt(0, (2 ^ 64) - 1),
