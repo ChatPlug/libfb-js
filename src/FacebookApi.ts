@@ -151,46 +151,36 @@ export default class FacebookApi {
             return
         }
 
-        if (data["deltas"] != null) {
-            const event = data.deltas[0]
-            if (event["deltaNewMessage"] != null) {
-                const delta = event["deltaNewMessage"]
-                let threadId = 0
-                let isGroup = false
+        if (!data.deltas || !data.deltas.length) return
+        const event = data.deltas[0]
+        if (event.deltaNewMessage) {
+            const delta = event.deltaNewMessage
+            let { threadKey } = delta.messageMetadata
+            let threadId = threadKey.threadFbId || threadKey.otherUserFbId
+            let isGroup = Boolean(threadKey.threadFbId)
 
-                if (delta.messageMetadata.threadKey.threadFbId != null) {
-                    isGroup = true
-                    threadId = delta.messageMetadata.threadKey.threadFbId
-                } else if (
-                    delta.messageMetadata.threadKey.otherUserFbId != null
-                ) {
-                    isGroup = false
-                    threadId = delta.messageMetadata.threadKey.otherUserFbId
-                }
+            const message = {
+                isGroup,
+                threadId,
+                attachments: [],
+                authorId: delta.messageMetadata.actorFbId,
+                id: delta.messageMetadata.messageId,
+                timestamp: delta.messageMetadata.timestamp,
+                message: delta.body || ""
+            } as Message
 
-                const message = {
-                    isGroup,
-                    threadId,
-                    attachments: [],
-                    authorId: delta.messageMetadata.actorFbId,
-                    id: delta.messageMetadata.messageId,
-                    timestamp: delta.messageMetadata.timestamp,
-                    message: delta["body"] || ""
-                } as Message
-
-                this.emitter.emit("message", message)
-                return
-            }
-
-            if (event["deltaDeliveryReceipt"] != null) {
-                return // @TODO
-            }
-
-            if (event["deltaReadReceipt"] != null) {
-                return //@TODO
-            }
-
-            debugLog(event)
+            this.emitter.emit("message", message)
+            return
         }
+
+        if (event.deltaDeliveryReceipt) {
+            return // @TODO
+        }
+
+        if (event.deltaReadReceipt) {
+            return //@TODO
+        }
+
+        debugLog(event)
     }
 }
