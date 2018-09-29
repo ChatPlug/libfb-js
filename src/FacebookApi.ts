@@ -46,6 +46,10 @@ export default class FacebookApi {
         this.emitter.on(event, callback)
     }
 
+    once(event, callback) {
+        this.emitter.once(event, callback)
+    }
+
     async doLogin(login: string, password: string) {
         if (!this.session.tokens) {
             const tokens = await this.httpApi.auth(login, password)
@@ -86,6 +90,10 @@ export default class FacebookApi {
             this.session.tokens,
             this.session.deviceId
         )
+    }
+
+    async sendMessage(threadId: string, message: string) {
+        this.mqttApi.sendMessage(threadId, message)
     }
 
     private async createQueue(seqId) {
@@ -136,7 +144,7 @@ export default class FacebookApi {
         )
     }
 
-    async handleMS(ms: string) {
+    private async handleMS(ms: string) {
         const data = JSON.parse(ms.replace("\u0000", ""))
 
         // Handled on queue creation

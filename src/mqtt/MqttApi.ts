@@ -114,7 +114,7 @@ export default class MqttApi {
     /**
      * Sends a facebook messenger message to someone.
      */
-    sendMessage(message: string, threadID: string) {
+    sendMessage(threadId: string, message: string) {
         const milliseconds = Math.floor(new Date().getTime() / 1000)
         const rand = this.getRandomInt(0, 2 ^ (32 - 1))
         const msgid = (rand & 0x3fffff) | (milliseconds << 22)
@@ -122,7 +122,7 @@ export default class MqttApi {
             body: message,
             msgid,
             sender_fbid: this.tokens.uid,
-            to: threadID
+            to: threadId
         }
         return this.sendPublish("/send_message2", JSON.stringify(msg))
     }
