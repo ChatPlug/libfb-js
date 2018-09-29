@@ -13,7 +13,7 @@ import MqttConnection from "./MqttConnection"
 import MqttMessage from "./MqttMessage"
 import MqttPacket, { FacebookMessageType } from "./MqttPacket"
 import { MqttMessageFlag } from "./MqttTypes"
-import  debug from "debug"
+import debug from "debug"
 
 const debugLog = debug("fblib")
 
