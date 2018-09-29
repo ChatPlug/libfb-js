@@ -116,7 +116,7 @@ export default class MqttApi {
      */
     sendMessage(threadId: string, message: string) {
         const milliseconds = Math.floor(new Date().getTime() / 1000)
-        const rand = this.getRandomInt(0, 2 ^ (32 - 1))
+        const rand = Math.floor(Math.random() * (Math.pow(2, 32) - 1))
         const msgid = (rand & 0x3fffff) | (milliseconds << 22)
         const msg = {
             body: message,
@@ -125,10 +125,6 @@ export default class MqttApi {
             to: threadId
         }
         return this.sendPublish("/send_message2", JSON.stringify(msg))
-    }
-
-    getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min
     }
 
     async sendPublishConfirmation(flags: number, publish) {
