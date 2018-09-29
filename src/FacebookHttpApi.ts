@@ -110,6 +110,29 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
         )
     }
 
+    /**
+     * @param threadId
+     * @see facebook-api.c:3317
+     */
+    async threadQuery(threadId: string) {
+        return this.get(
+            new FacebookApiHttpRequest(
+                "https://graph.facebook.com/graphql",
+                "get",
+                "ThreadQuery",
+                {
+                    query_id: "10153919752036729",
+                    query_params: JSON.stringify({
+                        "0": [ threadId ],
+                        "10": false,
+                        "11": false,
+                        "13": false
+                    })
+                }
+            )
+        )
+    }
+
     async querySeqId() {
         return this.get(
             new FacebookApiHttpRequest(
@@ -118,9 +141,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
                 "",
                 {
                     query_id: "10155268192741729",
-                    query_params: JSON.stringify({
-                        "1": "0"
-                    })
+                    query_params: JSON.stringify({ "1": "0" })
                 }
             )
         )

@@ -97,6 +97,10 @@ export default class FacebookApi {
         return this.mqttApi.sendMessage(threadId, message)
     }
 
+    getThreadInfo(threadId: string) {
+        return this.httpApi.threadQuery(threadId)
+    }
+
     private async createQueue(seqId) {
         const obj = {
             delta_batch_size: 125,
