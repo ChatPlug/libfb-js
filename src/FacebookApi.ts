@@ -1,19 +1,16 @@
-import { EventEmitter } from "events"
+import ApiEmitter from "./ApiEmitter"
 import makeDeviceId from "./FacebookDeviceId"
 import FacebookHttpApi from "./FacebookHttpApi"
 import MqttApi from "./mqtt/MqttApi"
 import PlainFileTokenStorage from "./PlainFileTokenStorage"
-import Message from "./types/Message"
 import Session from "./types/Session"
 import Thread from "./types/Thread"
 import User from "./types/User"
 import debug from "debug"
-import { ThreadNameEvent, DeliveryReceiptEvent, ReadReceiptEvent, ChangeThreadNicknameEvent } from './types/Events';
 
 const debugLog = debug("fblib")
-class ApiEmitter extends EventEmitter {}
 
-interface FacebookApiOptions {
+export interface FacebookApiOptions {
     selfListen: boolean
 }
 
@@ -21,7 +18,7 @@ interface FacebookApiOptions {
 export default class FacebookApi {
     mqttApi: MqttApi
     httpApi: FacebookHttpApi
-    emitter = new ApiEmitter()
+    emitter: ApiEmitter
     session: Session | null
     seqId = ""
     options: FacebookApiOptions
@@ -29,7 +26,6 @@ export default class FacebookApi {
     constructor(options: FacebookApiOptions = { selfListen: false }) {
         this.mqttApi = new MqttApi()
         this.httpApi = new FacebookHttpApi()
-        this.options = options
 
         const storage = new PlainFileTokenStorage()
 
@@ -49,6 +45,7 @@ export default class FacebookApi {
         }
 
         this.session = session
+        this.emitter = new ApiEmitter(options, session)
     }
 
     on(event, callback) {
@@ -208,81 +205,6 @@ export default class FacebookApi {
         const event = data.deltas[0]
         debugLog(event)
 
-        if (event.deltaNewMessage) {
-            const delta = event.deltaNewMessage
-
-            const message = {
-                threadId: this.getThreadId(delta),
-                attachments: [],
-                authorId: delta.messageMetadata.actorFbId,
-                id: delta.messageMetadata.messageId,
-                timestamp: delta.messageMetadata.timestamp,
-                message: delta.body || ""
-            } as Message
-
-            if (message.authorId === this.session.tokens.uid && !this.options.selfListen) return
-            this.emitter.emit("message", message)
-            return
-        }
-
-        if (event.deltaThreadName) {
-            const delta = event.deltaThreadName
-
-            const threadNameEvent = {
-                id: delta.messageMetadata.messageId,
-                threadId: this.getThreadId(delta),
-                authorId: delta.messageMetadata.actorFbId,
-                message: delta.messageMetadata.adminText,
-                name: delta.name
-            } as ThreadNameEvent
-
-            this.emitter.emit("threadNameEvent", threadNameEvent)
-            return
-        }
-
-        if (event.deltaDeliveryReceipt) {
-            const delta = event.deltaDeliveryReceipt
-            
-            const deliveryReceiptEvent = {
-                threadId: this.getThreadId(delta),
-                receiverId: delta.actorFbId || this.getThreadId(delta)
-            } as DeliveryReceiptEvent
-
-            this.emitter.emit("deliveryReceiptEvent", deliveryReceiptEvent)
-        }
-
-        if (event.deltaReadReceipt) {
-            const delta = event.deltaReadReceipt
-            
-            const readReceiptEvent = {
-                threadId: this.getThreadId(delta),
-                receiverId: delta.actorFbId || this.getThreadId(delta)
-            } as ReadReceiptEvent
-            
-            this.emitter.emit("readReceiptEvent", readReceiptEvent)
-        }
-
-        if (event.deltaAdminTextMessage) {
-            const delta = event.deltaAdminTextMessage
-
-            switch (delta.type) {
-                case 'change_thread_nickname':
-                    const changeThreadNicknameEvent = {
-                        id: delta.messageMetadata.messageId,
-                        threadId: this.getThreadId(delta),
-                        authorId: delta.messageMetadata.actorFbId,
-                        message: delta.messageMetadata.adminText,
-                        participantId: delta.untypedData.participant_id,
-                        nickname: delta.untypedData.nickname
-                    } as ChangeThreadNicknameEvent
-                    this.emitter.emit('changeThreadNicknameEvent', changeThreadNicknameEvent)
-                    break
-            }
-        }
-    }
-
-    private getThreadId (delta: any) {
-        const { threadKey } = delta.messageMetadata || delta
-        return threadKey.threadFbId || threadKey.otherUserFbId
+        this.emitter.handleMessage(event)
     }
 }
