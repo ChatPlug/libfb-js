@@ -32,7 +32,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
     /**
      * @see QFacebookHttpApi::usersQuery
      */
-    async usersQuery() {
+    async usersQuery(userId: string) {
         return this.get(
             new FacebookApiHttpRequest(
                 "https://graph.facebook.com/graphql",
@@ -41,7 +41,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
                 {
                     query_id: "10154444360806729",
                     query_params: JSON.stringify({
-                        "0": ["user"],
+                        "0": [ userId ],
                         "1": "50"
                     })
                 }
@@ -53,7 +53,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
      * @see QFacebookHttpApi::usersQueryAfter
      * @param cursor
      */
-    async usersQueryAfter(cursor: string) {
+    async usersQueryAfter(userId: string, cursor: string) {
         return this.get(
             new FacebookApiHttpRequest(
                 "https://graph.facebook.com/graphql",
@@ -62,7 +62,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
                 {
                     query_id: "10154444360816729",
                     query_params: JSON.stringify({
-                        "0": ["user"],
+                        "0": [ userId ],
                         "1": cursor,
                         "2": "50"
                     })
@@ -75,7 +75,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
      * @see QFacebookHttpApi::usersQueryDelta
      * @param deltaCursor
      */
-    async usersQueryDelta(deltaCursor: string) {
+    async usersQueryDelta(userId: string, deltaCursor: string) {
         return this.get(
             new FacebookApiHttpRequest(
                 "https://graph.facebook.com/graphql",
@@ -85,7 +85,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
                     query_id: "10154444360801729",
                     query_params: JSON.stringify({
                         "0": deltaCursor,
-                        "1": ["user"],
+                        "1": [ userId ],
                         "2": "500"
                     })
                 }
