@@ -93,8 +93,8 @@ export default class FacebookApi {
         })
     }
 
-    async sendMessage(threadId: string, message: string) {
-        this.mqttApi.sendMessage(threadId, message)
+    sendMessage(threadId: string, message: string) {
+        return this.mqttApi.sendMessage(threadId, message)
     }
 
     private async createQueue(seqId) {
