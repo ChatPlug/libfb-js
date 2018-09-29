@@ -1,4 +1,4 @@
-import { TBufferedTransport, TCompactProtocol, Thrift } from "thrift"
+import { TBufferedTransport, TCompactProtocol, Thrift } from "../../thrift"
 import * as zlib from "zlib"
 import AuthTokens from "../../types/AuthTokens"
 import DeviceId from "../../types/DeviceId"
