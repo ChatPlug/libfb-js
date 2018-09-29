@@ -101,6 +101,10 @@ export default class FacebookApi {
         return this.httpApi.threadQuery(threadId)
     }
 
+    getUserInfo(userId: string) {
+        return this.httpApi.usersQuery(userId)
+    }
+
     private async createQueue(seqId) {
         const obj = {
             delta_batch_size: 125,
