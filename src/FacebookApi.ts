@@ -61,7 +61,7 @@ export default class FacebookApi {
         }
 
         this.mqttApi.on("publish", async publish => {
-            if ((publish.topic = "/t_ms")) {
+            if (publish.topic === "/t_ms") {
                 await this.handleMS(publish.content.toString("utf8"))
             }
         })
