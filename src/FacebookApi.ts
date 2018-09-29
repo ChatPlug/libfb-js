@@ -97,12 +97,12 @@ export default class FacebookApi {
         return this.mqttApi.sendMessage(threadId, message)
     }
 
-    getThreadInfo(threadId: string) {
-        return this.httpApi.threadQuery(threadId)
+    async getThreadInfo(threadId: string) {
+        return (await this.httpApi.threadQuery(threadId))[threadId]
     }
 
-    getUserInfo(userId: string) {
-        return this.httpApi.userQuery(userId)
+    async getUserInfo(userId: string) {
+        return (await this.httpApi.userQuery(userId))[userId]
     }
 
     private async createQueue(seqId) {
