@@ -2,3 +2,4 @@ node_modules
 session.json
 config.json
 .vscode
+dist
