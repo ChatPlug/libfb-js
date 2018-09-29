@@ -159,6 +159,8 @@ export default class FacebookApi {
 
         if (!data.deltas || !data.deltas.length) return
         const event = data.deltas[0]
+        debugLog(event)
+
         if (event.deltaNewMessage) {
             const delta = event.deltaNewMessage
             let { threadKey } = delta.messageMetadata
@@ -187,7 +189,5 @@ export default class FacebookApi {
         if (event.deltaReadReceipt) {
             return //@TODO
         }
-
-        debugLog(event)
     }
 }
