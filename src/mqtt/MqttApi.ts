@@ -95,6 +95,9 @@ export default class MqttApi {
                 case FacebookMessageType.UnsubscribeAck:
                     debugLog("Packet type: UnsubscribeAck")
                     break
+                case FacebookMessageType.Pong:
+                    debugLog("Packet type: Pong")
+                    break
                 default:
                     debugLog("Packet type:", packet.type)
                     debugLog(hexdump(packet.content))
