@@ -131,9 +131,11 @@ export default class MqttApi {
             await this.sendPublish("/send_message2", JSON.stringify(msg))
             const sentMessageInfoListener = async publish => {
                 if (publish.topic !== "/t_ms") return
-                const content = JSON.parse(publish.content.toString("utf8").replace("\u0000", "")).deltas[0]
-                if (!content || !content.deltaSentMessage) return
-                resolve(content.deltaSentMessage)
+                const content = JSON.parse(publish.content.toString("utf8").replace("\u0000", ""))
+                if (!content.deltas || !content.deltas.length) return
+                const [ delta ] = content.deltas
+                if (!delta.deltaSentMessage) return
+                resolve(delta.deltaSentMessage)
                 this.emitter.removeListener("publish", sentMessageInfoListener)
             }
             this.on("publish", sentMessageInfoListener)
