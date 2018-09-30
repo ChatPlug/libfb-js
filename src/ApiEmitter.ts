@@ -16,7 +16,6 @@ export default class ApiEmitter extends EventEmitter {
   handleMessage(event: any) {
     if (event.deltaNewMessage) {
       const delta = event.deltaNewMessage
-
       const message = {
         threadId: this.getThreadId(delta),
         attachments: [],
@@ -25,7 +24,6 @@ export default class ApiEmitter extends EventEmitter {
         timestamp: delta.messageMetadata.timestamp,
         message: delta.body || ""
       } as Message
-
       if (message.authorId === this.session.tokens.uid && !this.options.selfListen) return
       this.emit("message", message)
       return
@@ -33,7 +31,6 @@ export default class ApiEmitter extends EventEmitter {
 
     if (event.deltaThreadName) {
       const delta = event.deltaThreadName
-
       const threadNameEvent = {
         id: delta.messageMetadata.messageId,
         threadId: this.getThreadId(delta),
@@ -41,37 +38,37 @@ export default class ApiEmitter extends EventEmitter {
         message: delta.messageMetadata.adminText,
         name: delta.name
       } as ThreadNameEvent
-
       this.emit("threadNameEvent", threadNameEvent)
       return
     }
 
     if (event.deltaDeliveryReceipt) {
       const delta = event.deltaDeliveryReceipt
-
       const deliveryReceiptEvent = {
         threadId: this.getThreadId(delta),
         receiverId: delta.actorFbId || this.getThreadId(delta)
       } as DeliveryReceiptEvent
-
       this.emit("deliveryReceiptEvent", deliveryReceiptEvent)
+      return
     }
 
     if (event.deltaReadReceipt) {
       const delta = event.deltaReadReceipt
-
       const readReceiptEvent = {
         threadId: this.getThreadId(delta),
         receiverId: delta.actorFbId || this.getThreadId(delta)
       } as ReadReceiptEvent
-
       this.emit("readReceiptEvent", readReceiptEvent)
+      return
+    }
+
+      return
     }
 
     if (event.deltaAdminTextMessage) {
       const delta = event.deltaAdminTextMessage
-
       switch (delta.type) {
+
         case 'change_thread_nickname':
           const changeThreadNicknameEvent = {
             id: delta.messageMetadata.messageId,
@@ -83,6 +80,7 @@ export default class ApiEmitter extends EventEmitter {
           } as ChangeThreadNicknameEvent
           this.emit('changeThreadNicknameEvent', changeThreadNicknameEvent)
           break
+
       }
     }
   }
