@@ -8,4 +8,4 @@ const login = async (email: string, password: string, options: FacebookApiOption
     return api
 }
 
-export default login
+export { login }
