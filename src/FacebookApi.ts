@@ -100,10 +100,9 @@ export default class FacebookApi {
         return this.mqttApi.sendMessage(threadId, message)
     }
 
-    async getThreadList() {
-        const threads = await this.httpApi.threadListQuery()
+    async getThreadList(count: number) {
+        const threads = await this.httpApi.threadListQuery(count)
         return threads.viewer.message_threads.nodes.map(this.parseThread)
-        // return threads
     }
 
     async sendAttachmentFile(to: number, attachmentPath: string) {
