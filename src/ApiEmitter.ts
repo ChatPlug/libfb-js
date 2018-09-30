@@ -36,6 +36,7 @@ export default class ApiEmitter extends EventEmitter {
         name: delta.name
       } as ThreadNameEvent
       this.emit("threadNameEvent", threadNameEvent)
+      this.emit("event", { event: threadNameEvent, type: "threadNameEvent" })
       return
     }
 
@@ -46,6 +47,7 @@ export default class ApiEmitter extends EventEmitter {
         receiverId: delta.actorFbId || this.getThreadId(delta)
       } as DeliveryReceiptEvent
       this.emit("deliveryReceiptEvent", deliveryReceiptEvent)
+      this.emit("event", { event: deliveryReceiptEvent, type: "deliveryReceiptEvent" })
       return
     }
 
@@ -56,6 +58,7 @@ export default class ApiEmitter extends EventEmitter {
         receiverId: delta.actorFbId || this.getThreadId(delta)
       } as ReadReceiptEvent
       this.emit("readReceiptEvent", readReceiptEvent)
+      this.emit("event", { event: readReceiptEvent, type: "readReceiptEvent" })
       return
     }
 
@@ -66,6 +69,7 @@ export default class ApiEmitter extends EventEmitter {
         participantIds: delta.addedParticipants.map(user => user.userFbId)
       } as ParticipantsAddedToGroupThreadEvent
       this.emit('participantsAddedToGroupThreadEvent', participantsAddedToGroupThreadEvent)
+      this.emit("event", { event: participantsAddedToGroupThreadEvent, type: "participantsAddedToGroupThreadEvent" })
       return
     }
 
@@ -76,6 +80,7 @@ export default class ApiEmitter extends EventEmitter {
         participantId: delta.leftParticipantFbId
       } as ParticipantLeftGroupThreadEvent
       this.emit('participantLeftGroupThreadEvent', participantLeftGroupThreadEvent)
+      this.emit("event", { event: participantLeftGroupThreadEvent, type: "participantLeftGroupThreadEvent" })
       return
     }
 
@@ -90,6 +95,7 @@ export default class ApiEmitter extends EventEmitter {
             nickname: delta.untypedData.nickname
           } as ChangeThreadNicknameEvent
           this.emit('changeThreadNicknameEvent', changeThreadNicknameEvent)
+          this.emit("event", { event: changeThreadNicknameEvent, type: "changeThreadNicknameEvent" })
           break
 
         case 'change_thread_admins':
@@ -98,6 +104,7 @@ export default class ApiEmitter extends EventEmitter {
             participantId: delta.untypedData.TARGET_ID
           } as AddThreadAdminsEvent
           this.emit('addThreadAdminsEvent', addThreadAdminsEvent)
+          this.emit("event", { event: addThreadAdminsEvent, type: "addThreadAdminsEvent" })
           break
 
       }
