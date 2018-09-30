@@ -1,4 +1,4 @@
-import * as crypto from "crypto"
+import { createHash } from "crypto"
 import mime from "mime-types"
 import fetch from "node-fetch"
 import { Readable } from "stream"
@@ -30,8 +30,7 @@ export default class BaseFacebookHttpApi {
             .map(k => k + "=" + request.params[k])
             .join("") // This isn't the same as request.serializeParams(), because no & sign and no escaping. Thanks ZUCC
         dataToHash += "374e60f8b9bb6b8cbb30f78030438895" // ??? xDDDDDD wtf XD
-        const sig = crypto
-            .createHash("md5")
+        const sig = createHash("md5")
             .update(dataToHash)
             .digest("hex")
         request.params["sig"] = sig
