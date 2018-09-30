@@ -4,7 +4,6 @@ import ApiEmitter from "./ApiEmitter"
 import makeDeviceId from "./FacebookDeviceId"
 import FacebookHttpApi from "./FacebookHttpApi"
 import MqttApi from "./mqtt/MqttApi"
-import PlainFileTokenStorage from "./PlainFileTokenStorage"
 import Session from "./types/Session"
 import Thread from "./types/Thread"
 import User from "./types/User"
@@ -15,6 +14,7 @@ const debugLog = debug("fblib")
 
 export interface FacebookApiOptions {
     selfListen: boolean
+    session: Session
 }
 
 // 🥖
@@ -26,21 +26,19 @@ export default class FacebookApi {
     seqId = ""
     options: FacebookApiOptions
 
-    constructor(options: FacebookApiOptions = { selfListen: false }) {
+    constructor(options: FacebookApiOptions = { selfListen: false, session: null }) {
         this.mqttApi = new MqttApi()
         this.httpApi = new FacebookHttpApi()
 
-        const storage = new PlainFileTokenStorage()
-
-        let session = storage.readSession()
-        if (!session) {
+        let session
+        if (!options.session) {
             session = { tokens: null, deviceId: null }
         }
 
         if (!session.deviceId) {
             const deviceId = makeDeviceId()
             session.deviceId = deviceId
-            storage.writeSession({ deviceId, tokens: null })
+            session = { deviceId, tokens: null }
         }
 
         if (session.tokens) {
@@ -65,9 +63,6 @@ export default class FacebookApi {
                 const tokens = await this.httpApi.auth(login, password)
                 this.httpApi.token = tokens.access_token
                 this.session.tokens = tokens
-    
-                const storage = new PlainFileTokenStorage()
-                storage.writeSession(this.session)
             }
     
             this.mqttApi.on("publish", async publish => {
@@ -94,6 +89,10 @@ export default class FacebookApi {
                 this.session.deviceId
             )
         })
+    }
+
+    getSession() {
+        return this.session
     }
 
     sendMessage(threadId: string, message: string) {
@@ -219,8 +218,6 @@ export default class FacebookApi {
         // Handled on queue creation
         if (data.syncToken) {
             this.session.tokens.syncToken = data.syncToken
-            const storage = new PlainFileTokenStorage()
-            await storage.writeSession(this.session)
             await this.connectQueue(this.seqId)
             return
         }
