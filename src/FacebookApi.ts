@@ -13,8 +13,8 @@ import { Readable } from 'stream';
 const debugLog = debug("fblib")
 
 export interface FacebookApiOptions {
-    selfListen: boolean
-    session: Session
+    selfListen?: boolean
+    session?: Session
 }
 
 // 🥖
@@ -30,8 +30,8 @@ export default class FacebookApi {
         this.mqttApi = new MqttApi()
         this.httpApi = new FacebookHttpApi()
 
-        let session
-        if (!options.session) {
+        let session = options.session
+        if (!session) {
             session = { tokens: null, deviceId: null }
         }
 
