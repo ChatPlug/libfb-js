@@ -18,7 +18,7 @@ export default class ApiEmitter extends EventEmitter {
       const delta = event.deltaNewMessage
       const message = {
         threadId: this.getThreadId(delta),
-        attachments: [],
+        attachments: delta.attachments,
         authorId: delta.messageMetadata.actorFbId,
         id: delta.messageMetadata.messageId,
         timestamp: delta.messageMetadata.timestamp,
