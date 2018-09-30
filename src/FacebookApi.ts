@@ -13,8 +13,8 @@ import { Readable } from 'stream';
 const debugLog = debug("fblib")
 
 export interface FacebookApiOptions {
-    selfListen: boolean
-    session: Session
+    selfListen?: boolean
+    session?: Session
 }
 
 // 🥖
