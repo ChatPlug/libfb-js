@@ -60,8 +60,8 @@ export default class BaseFacebookHttpApi {
     async sendImage(
         readStream: Readable,
         extension: string,
-        from: string,
-        to: string
+        from: number,
+        to: number
     ) {
         let randId = ""
         const possible =
@@ -95,8 +95,8 @@ export default class BaseFacebookHttpApi {
                     ttl: "0",
                     Offset: "0",
                     "X-FB-Friendly-Name": "post_resumable_upload_session",
-                    sender_fbid: from, // UID
-                    to: to, // RECEIVER
+                    sender_fbid: from.toString(), // UID
+                    to: to.toString(), // RECEIVER
                     "X-FB-HTTP-Engine": "Liger",
                     original_timestamp: "" + Date.now(),
                     "Content-Length": len,

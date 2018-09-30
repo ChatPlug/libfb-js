@@ -1,3 +1,5 @@
+import fs from "fs"
+import path from "path"
 import ApiEmitter from "./ApiEmitter"
 import makeDeviceId from "./FacebookDeviceId"
 import FacebookHttpApi from "./FacebookHttpApi"
@@ -7,6 +9,7 @@ import Session from "./types/Session"
 import Thread from "./types/Thread"
 import User from "./types/User"
 import debug from "debug"
+import { Readable } from 'stream';
 
 const debugLog = debug("fblib")
 
@@ -95,6 +98,17 @@ export default class FacebookApi {
 
     sendMessage(threadId: string, message: string) {
         return this.mqttApi.sendMessage(threadId, message)
+    }
+
+    async sendAttachmentFile(to: number, attachmentPath: string) {
+        if (!fs.existsSync(attachmentPath)) throw new Error('Attachment missing!')
+        const stream = fs.createReadStream(attachmentPath)
+        const extension = path.parse(attachmentPath).ext
+        this.httpApi.sendImage(stream, extension, this.session.tokens.uid, to)
+    }
+
+    async sendAttachmentStream(to: number, extension: string, attachment: Readable) {
+        this.httpApi.sendImage(attachment, extension, this.session.tokens.uid, to)
     }
 
     async getThreadInfo(threadId: string) {
