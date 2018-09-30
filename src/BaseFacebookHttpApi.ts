@@ -1,4 +1,4 @@
-import * as crypto from "crypto"
+import { createHash } from "crypto"
 import mime from "mime-types"
 import fetch from "node-fetch"
 import { Readable } from "stream"
@@ -12,7 +12,7 @@ import FacebookApiHttpRequest from "./FacebookApiHttpRequest"
  */
 
 const USER_AGENT =
-    "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.5.83;FBPN/com.facebook.orca;FBLC/en_US;FBBV/256002347743983]"
+    "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.20.381;FBPN/com.facebook.orca;FBLC/en_US;FBBV/256002347743983]"
 
 export default class BaseFacebookHttpApi {
     deviceId: string
@@ -30,8 +30,7 @@ export default class BaseFacebookHttpApi {
             .map(k => k + "=" + request.params[k])
             .join("") // This isn't the same as request.serializeParams(), because no & sign and no escaping. Thanks ZUCC
         dataToHash += "374e60f8b9bb6b8cbb30f78030438895" // ??? xDDDDDD wtf XD
-        const sig = crypto
-            .createHash("md5")
+        const sig = createHash("md5")
             .update(dataToHash)
             .digest("hex")
         request.params["sig"] = sig
@@ -61,8 +60,8 @@ export default class BaseFacebookHttpApi {
     async sendImage(
         readStream: Readable,
         extension: string,
-        from: string,
-        to: string
+        from: number,
+        to: number
     ) {
         let randId = ""
         const possible =
@@ -80,14 +79,14 @@ export default class BaseFacebookHttpApi {
             {
                 headers: {
                     "User-Agent":
-                        "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.5.83;FBPN/com.facebook.orca;FBLC/en_US;FBBV/26040814]",
+                        "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.20.381;FBPN/com.facebook.orca;FBLC/en_US;FBBV/256002347743983]",
                     Authorization: "OAuth " + this.token,
                     device_id: this.deviceId,
                     "X-Entity-Name": "mediaUpload" + extension,
                     is_preview: "1",
                     attempt_id: this.getRandomInt(0, (2 ^ 64) - 1),
                     send_message_by_server: "1",
-                    app_id: "26040814",
+                    app_id: "256002347743983",
                     "Content-Type": "application/octet-stream",
                     image_type: "FILE_ATTACHMENT",
                     offline_threading_id: this.getRandomInt(0, (2 ^ 64) - 1),
@@ -96,8 +95,8 @@ export default class BaseFacebookHttpApi {
                     ttl: "0",
                     Offset: "0",
                     "X-FB-Friendly-Name": "post_resumable_upload_session",
-                    sender_fbid: from, // UID
-                    to: to, // RECEIVER
+                    sender_fbid: from.toString(), // UID
+                    to: to.toString(), // RECEIVER
                     "X-FB-HTTP-Engine": "Liger",
                     original_timestamp: "" + Date.now(),
                     "Content-Length": len,

@@ -38,6 +38,7 @@ export default class MqttConnection {
         this.socket!!.on("close", _ => {
             debugLog("close")
             this.emitter.emit("close")
+            throw new Error('Connection closed.')
         })
     }
 
@@ -106,9 +107,7 @@ export default class MqttConnection {
         } while (size > 0)
 
         return new Promise<void>((res, rej) => {
-            this.socket!!.write(Buffer.concat([result, message.toSend]), () => {
-                res()
-            })
+            this.socket!!.write(Buffer.concat([result, message.toSend]), res)
         })
     }
 

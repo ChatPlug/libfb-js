@@ -1,24 +1,32 @@
-import { EventEmitter } from "events"
+import fs from "fs"
+import path from "path"
+import ApiEmitter from "./ApiEmitter"
 import makeDeviceId from "./FacebookDeviceId"
 import FacebookHttpApi from "./FacebookHttpApi"
 import MqttApi from "./mqtt/MqttApi"
 import PlainFileTokenStorage from "./PlainFileTokenStorage"
-import Message from "./types/Message"
 import Session from "./types/Session"
+import Thread from "./types/Thread"
+import User from "./types/User"
 import debug from "debug"
+import { Readable } from 'stream';
 
 const debugLog = debug("fblib")
-class ApiEmitter extends EventEmitter {}
+
+export interface FacebookApiOptions {
+    selfListen: boolean
+}
 
 // 🥖
 export default class FacebookApi {
     mqttApi: MqttApi
     httpApi: FacebookHttpApi
-    emitter = new ApiEmitter()
+    emitter: ApiEmitter
     session: Session | null
     seqId = ""
+    options: FacebookApiOptions
 
-    constructor(options: any = {}) {
+    constructor(options: FacebookApiOptions = { selfListen: false }) {
         this.mqttApi = new MqttApi()
         this.httpApi = new FacebookHttpApi()
 
@@ -40,52 +48,111 @@ export default class FacebookApi {
         }
 
         this.session = session
+        this.emitter = new ApiEmitter(options, session)
     }
 
     on(event, callback) {
         this.emitter.on(event, callback)
     }
 
-    async doLogin(login: string, password: string) {
-        if (!this.session.tokens) {
-            const tokens = await this.httpApi.auth(login, password)
-            this.httpApi.token = tokens.access_token
-            this.session.tokens = tokens
+    once(event, callback) {
+        this.emitter.once(event, callback)
+    }
 
-            const storage = new PlainFileTokenStorage()
-            storage.writeSession(this.session)
-        }
-
-        this.mqttApi.on("publish", async publish => {
-            if ((publish.topic = "/t_ms")) {
-                await this.handleMS(publish.content.toString("utf8"))
+    doLogin(login: string, password: string) {
+        return new Promise(async (resolve, reject) => {
+            if (!this.session.tokens) {
+                const tokens = await this.httpApi.auth(login, password)
+                this.httpApi.token = tokens.access_token
+                this.session.tokens = tokens
+    
+                const storage = new PlainFileTokenStorage()
+                storage.writeSession(this.session)
             }
-        })
-
-        this.mqttApi.on("connected", async () => {
-            const { viewer } = await this.httpApi.querySeqId()
-            const seqId = viewer.message_threads.sync_sequence_id
-            this.seqId = seqId
-            if (!this.session.tokens.syncToken) {
+    
+            this.mqttApi.on("publish", async publish => {
+                debugLog(publish.topic)
+                if (publish.topic === "/t_ms") this.handleMS(publish.content.toString("utf8"))
+            })
+    
+            this.mqttApi.on("connected", async () => {
+                const { viewer } = await this.httpApi.querySeqId()
+                const seqId = viewer.message_threads.sync_sequence_id
+                this.seqId = seqId
+                resolve()
+                if (!this.session.tokens.syncToken) {
+                    await this.createQueue(seqId)
+                    return
+                }
+    
                 await this.createQueue(seqId)
-                return
-            }
-
-            await this.createQueue(seqId)
-            /*
-            const stream = fs.createReadStream('dupa.png');
-            await this.httpApi.sendImage(stream, ".png", "100009519229821", "100025541190735")
-*/
-            /*const e = await this.httpApi.getAttachment("mid.$cAAAAAWaLyv9sOUaI4lmCAE1tXJmL", '250360039157920')
-            debugLog("---- dupa")
-            console.dir(e)*/
+            })
+    
+            await this.mqttApi.connect()
+            await this.mqttApi.sendConnectMessage(
+                this.session.tokens,
+                this.session.deviceId
+            )
         })
+    }
 
-        await this.mqttApi.connect()
-        await this.mqttApi.sendConnectMessage(
-            this.session.tokens,
-            this.session.deviceId
-        )
+    sendMessage(threadId: string, message: string) {
+        return this.mqttApi.sendMessage(threadId, message)
+    }
+
+    async sendAttachmentFile(to: number, attachmentPath: string) {
+        if (!fs.existsSync(attachmentPath)) throw new Error('Attachment missing!')
+        const stream = fs.createReadStream(attachmentPath)
+        const extension = path.parse(attachmentPath).ext
+        this.httpApi.sendImage(stream, extension, this.session.tokens.uid, to)
+    }
+
+    async sendAttachmentStream(to: number, extension: string, attachment: Readable) {
+        this.httpApi.sendImage(attachment, extension, this.session.tokens.uid, to)
+    }
+
+    async getThreadInfo(threadId: string) {
+        const res = await this.httpApi.threadQuery(threadId)
+        const thread = res[threadId]
+        const customizations = thread.customization_info
+        return {
+            id: thread.thread_key.thread_fbid || thread.thread_key.other_user_id,
+            name: thread.name,
+            isGroup: thread.is_group_thread,
+            participants: thread.all_participants.nodes
+                .map(user => user.messaging_actor)
+                .map(this.parseUser),
+            image: thread.image,
+            unreadCount: thread.unread_count,
+            canReply: thread.can_viewer_reply,
+            cannotReplyReason: thread.cannot_reply_reason,
+            isArchived: thread.has_viewer_archived,
+            color: customizations && customizations.outgoing_bubble_color ?
+                '#' + customizations.outgoing_bubble_color.substr(2).toLowerCase() : null,
+            emoji: customizations ? customizations.custom_like_emoji : null,
+            // nicknames: customizations ? customizations.participant_customizations : null
+            // TODO: get nicknames
+        } as Thread
+    }
+
+    async getUserInfo(userId: string): Promise<User> {
+        return this.parseUser((await this.httpApi.userQuery(userId))[userId])
+    }
+
+    private parseUser(user): User {
+        return {
+            id: user.id,
+            name: user.name,
+            type: user.__type__.name,
+            canMessage: user.can_viewer_message,
+            emailAddresses: user.email_addresses,
+            isBlocked: user.is_blocked_by_viewer,
+            isMessengerUser: user.is_messenger_user,
+            isPage: user.is_commerce,
+            profilePicLarge: user.profile_pic_large ? user.profile_pic_large.uri : null,
+            profilePicMedium: user.profile_pic_medium ? user.profile_pic_medium.uri : null,
+            profilePicSmall: user.profile_pic_small ? user.profile_pic_small.uri : null
+        } as User
     }
 
     private async createQueue(seqId) {
@@ -136,7 +203,7 @@ export default class FacebookApi {
         )
     }
 
-    async handleMS(ms: string) {
+    private async handleMS(ms: string) {
         const data = JSON.parse(ms.replace("\u0000", ""))
 
         // Handled on queue creation
@@ -148,46 +215,10 @@ export default class FacebookApi {
             return
         }
 
-        if (data["deltas"] != null) {
-            const event = data.deltas[0]
-            if (event["deltaNewMessage"] != null) {
-                const delta = event["deltaNewMessage"]
-                let threadId = 0
-                let isGroup = false
+        if (!data.deltas || !data.deltas.length) return
+        const event = data.deltas[0]
+        debugLog(event)
 
-                if (delta.messageMetadata.threadKey.threadFbId != null) {
-                    isGroup = true
-                    threadId = delta.messageMetadata.threadKey.threadFbId
-                } else if (
-                    delta.messageMetadata.threadKey.otherUserFbId != null
-                ) {
-                    isGroup = false
-                    threadId = delta.messageMetadata.threadKey.otherUserFbId
-                }
-
-                const message = {
-                    isGroup,
-                    threadId,
-                    attachments: [],
-                    authorId: delta.messageMetadata.actorFbId,
-                    id: delta.messageMetadata.messageId,
-                    timestamp: delta.messageMetadata.timestamp,
-                    message: delta["body"] || ""
-                } as Message
-
-                this.emitter.emit("message", message)
-                return
-            }
-
-            if (event["deltaDeliveryReceipt"] != null) {
-                return // @TODO
-            }
-
-            if (event["deltaReadReceipt"] != null) {
-                return //@TODO
-            }
-
-            debugLog(event)
-        }
+        this.emitter.handleMessage(event)
     }
 }

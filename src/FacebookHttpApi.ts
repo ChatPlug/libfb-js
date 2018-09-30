@@ -32,17 +32,37 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
     /**
      * @see QFacebookHttpApi::usersQuery
      */
-    async usersQuery() {
+    async userQuery(userId: string) {
         return this.get(
             new FacebookApiHttpRequest(
                 "https://graph.facebook.com/graphql",
                 "get",
                 "UsersQuery",
                 {
+                    query_id: "10153915107411729",
+                    query_params: JSON.stringify({
+                        "0": [ userId ],
+                        "1": true
+                    })
+                }
+            )
+        )
+    }
+
+    /**
+     * @see QFacebookHttpApi::usersQuery
+     */
+    async usersQuery(userId: string, count: number) {
+        return this.get(
+            new FacebookApiHttpRequest(
+                "https://graph.facebook.com/graphql",
+                "get",
+                "FetchContactsFullQuery",
+                {
                     query_id: "10154444360806729",
                     query_params: JSON.stringify({
-                        "0": ["user"],
-                        "1": "50"
+                        "0": [ userId ],
+                        "1": count
                     })
                 }
             )
@@ -53,7 +73,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
      * @see QFacebookHttpApi::usersQueryAfter
      * @param cursor
      */
-    async usersQueryAfter(cursor: string) {
+    async usersQueryAfter(userId: string, count: number, cursor: string) {
         return this.get(
             new FacebookApiHttpRequest(
                 "https://graph.facebook.com/graphql",
@@ -62,9 +82,9 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
                 {
                     query_id: "10154444360816729",
                     query_params: JSON.stringify({
-                        "0": ["user"],
+                        "0": [ userId ],
                         "1": cursor,
-                        "2": "50"
+                        "2": count
                     })
                 }
             )
@@ -75,7 +95,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
      * @see QFacebookHttpApi::usersQueryDelta
      * @param deltaCursor
      */
-    async usersQueryDelta(deltaCursor: string) {
+    async usersQueryDelta(userId: string, deltaCursor: string) {
         return this.get(
             new FacebookApiHttpRequest(
                 "https://graph.facebook.com/graphql",
@@ -85,7 +105,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
                     query_id: "10154444360801729",
                     query_params: JSON.stringify({
                         "0": deltaCursor,
-                        "1": ["user"],
+                        "1": [ userId ],
                         "2": "500"
                     })
                 }
@@ -110,6 +130,29 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
         )
     }
 
+    /**
+     * @param threadId
+     * @see facebook-api.c:3317
+     */
+    async threadQuery(threadId: string) {
+        return this.get(
+            new FacebookApiHttpRequest(
+                "https://graph.facebook.com/graphql",
+                "get",
+                "ThreadQuery",
+                {
+                    query_id: "10153919752036729",
+                    query_params: JSON.stringify({
+                        "0": [ threadId ],
+                        "10": false, // show only IDs for messaging actors
+                        "11": false, // show messages
+                        "13": true // show more details for messaging actors
+                    })
+                }
+            )
+        )
+    }
+
     async querySeqId() {
         return this.get(
             new FacebookApiHttpRequest(
@@ -118,9 +161,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
                 "",
                 {
                     query_id: "10155268192741729",
-                    query_params: JSON.stringify({
-                        "1": "0"
-                    })
+                    query_params: JSON.stringify({ "1": "0" })
                 }
             )
         )

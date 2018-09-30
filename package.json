@@ -1,7 +1,7 @@
 {
   "name": "libfb",
   "version": "1.0.0",
-  "description": "",
+  "description": "Facebook MQTT library for Node.js",
   "main": "dist/FBMessenger.js",
   "dependencies": {
     "buffer-hexdump": "^1.0.0",
