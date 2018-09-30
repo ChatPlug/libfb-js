@@ -1,6 +1,6 @@
 import { EventEmitter } from "events"
 import Message from "./types/Message"
-import { ThreadNameEvent, DeliveryReceiptEvent, ReadReceiptEvent, ChangeThreadNicknameEvent } from "./types/Events"
+import { ThreadNameEvent, DeliveryReceiptEvent, ReadReceiptEvent, ChangeThreadNicknameEvent, AddThreadAdminsEvent, ParticipantsAddedToGroupThreadEvent, ParticipantLeftGroupThreadEvent } from "./types/Events"
 import { FacebookApiOptions } from './FacebookApi'
 import Session from './types/Session'
 export default class ApiEmitter extends EventEmitter {
@@ -32,10 +32,7 @@ export default class ApiEmitter extends EventEmitter {
     if (event.deltaThreadName) {
       const delta = event.deltaThreadName
       const threadNameEvent = {
-        id: delta.messageMetadata.messageId,
-        threadId: this.getThreadId(delta),
-        authorId: delta.messageMetadata.actorFbId,
-        message: delta.messageMetadata.adminText,
+        ...this.getEventMetadata(delta),
         name: delta.name
       } as ThreadNameEvent
       this.emit("threadNameEvent", threadNameEvent)
@@ -62,6 +59,23 @@ export default class ApiEmitter extends EventEmitter {
       return
     }
 
+    if (event.deltaParticipantsAddedToGroupThread) {
+      const delta = event.deltaParticipantsAddedToGroupThread
+      const participantsAddedToGroupThreadEvent = {
+        ...this.getEventMetadata(delta),
+        participantIds: delta.addedParticipants.map(user => user.userFbId)
+      } as ParticipantsAddedToGroupThreadEvent
+      this.emit('participantsAddedToGroupThreadEvent', participantsAddedToGroupThreadEvent)
+      return
+    }
+
+    if (event.deltaParticipantLeftGroupThread) {
+      const delta = event.deltaParticipantLeftGroupThread
+      const participantLeftGroupThreadEvent = {
+        ...this.getEventMetadata(delta),
+        participantId: delta.leftParticipantFbId
+      } as ParticipantLeftGroupThreadEvent
+      this.emit('participantLeftGroupThreadEvent', participantLeftGroupThreadEvent)
       return
     }
 
@@ -71,17 +85,31 @@ export default class ApiEmitter extends EventEmitter {
 
         case 'change_thread_nickname':
           const changeThreadNicknameEvent = {
-            id: delta.messageMetadata.messageId,
-            threadId: this.getThreadId(delta),
-            authorId: delta.messageMetadata.actorFbId,
-            message: delta.messageMetadata.adminText,
+            ...this.getEventMetadata(delta),
             participantId: delta.untypedData.participant_id,
             nickname: delta.untypedData.nickname
           } as ChangeThreadNicknameEvent
           this.emit('changeThreadNicknameEvent', changeThreadNicknameEvent)
           break
 
+        case 'change_thread_admins':
+          const addThreadAdminsEvent = {
+            ...this.getEventMetadata(delta),
+            participantId: delta.untypedData.TARGET_ID
+          } as AddThreadAdminsEvent
+          this.emit('addThreadAdminsEvent', addThreadAdminsEvent)
+          break
+
       }
+    }
+  }
+
+  private getEventMetadata (delta: any) {
+    return {
+      id: delta.messageMetadata.messageId,
+      threadId: this.getThreadId(delta),
+      authorId: delta.messageMetadata.actorFbId,
+      message: delta.messageMetadata.adminText
     }
   }
 
