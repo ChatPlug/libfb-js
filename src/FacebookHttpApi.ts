@@ -116,15 +116,27 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
     /**
      * @see QFacebookHttpApi::threadListQuery
      */
-    async threadListQuery() {
+    async threadListQuery(count: number) {
         return this.get(
             new FacebookApiHttpRequest(
                 "https://graph.facebook.com/graphql",
                 "get",
                 "ThreadListQuery",
                 {
-                    query_id: "10155268192741729",
-                    query_params: JSON.stringify({ "1": "0" })
+                    query_id: "2000270246651497",
+                    query_params: JSON.stringify({ 
+                        "11": "true",
+                        "23": count, // how many threads to get
+                        "3": "false", // show only IDs for messaging actors
+                        "27": "false", // show booking requests
+                        "5": "false",
+                        "10": "false", // show messages
+                        "17": 20,
+                        "18": 880,
+                        "19": 220,
+                        "20": 138,
+                        "31": "3"
+                    })
                 }
             )
         )

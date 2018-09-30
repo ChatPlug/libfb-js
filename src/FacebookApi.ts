@@ -100,6 +100,11 @@ export default class FacebookApi {
         return this.mqttApi.sendMessage(threadId, message)
     }
 
+    async getThreadList(count: number) {
+        const threads = await this.httpApi.threadListQuery(count)
+        return threads.viewer.message_threads.nodes.map(this.parseThread)
+    }
+
     async sendAttachmentFile(to: number, attachmentPath: string) {
         if (!fs.existsSync(attachmentPath)) throw new Error('Attachment missing!')
         const stream = fs.createReadStream(attachmentPath)
@@ -114,25 +119,7 @@ export default class FacebookApi {
     async getThreadInfo(threadId: string) {
         const res = await this.httpApi.threadQuery(threadId)
         const thread = res[threadId]
-        const customizations = thread.customization_info
-        return {
-            id: thread.thread_key.thread_fbid || thread.thread_key.other_user_id,
-            name: thread.name,
-            isGroup: thread.is_group_thread,
-            participants: thread.all_participants.nodes
-                .map(user => user.messaging_actor)
-                .map(this.parseUser),
-            image: thread.image,
-            unreadCount: thread.unread_count,
-            canReply: thread.can_viewer_reply,
-            cannotReplyReason: thread.cannot_reply_reason,
-            isArchived: thread.has_viewer_archived,
-            color: customizations && customizations.outgoing_bubble_color ?
-                '#' + customizations.outgoing_bubble_color.substr(2).toLowerCase() : null,
-            emoji: customizations ? customizations.custom_like_emoji : null,
-            // nicknames: customizations ? customizations.participant_customizations : null
-            // TODO: get nicknames
-        } as Thread
+        return this.parseThread(thread)
     }
 
     async getUserInfo(userId: string): Promise<User> {
@@ -153,6 +140,29 @@ export default class FacebookApi {
             profilePicMedium: user.profile_pic_medium ? user.profile_pic_medium.uri : null,
             profilePicSmall: user.profile_pic_small ? user.profile_pic_small.uri : null
         } as User
+    }
+
+    private parseThread = thread => {
+        const customizations = thread.customization_info
+        return {
+            id: thread.thread_key.thread_fbid || thread.thread_key.other_user_id,
+            name: thread.name,
+            isGroup: thread.is_group_thread,
+            participants: thread.all_participants ?
+                thread.all_participants.nodes
+                    .map(user => user.messaging_actor || user)
+                    .map(this.parseUser) :
+                null,
+            image: thread.image,
+            unreadCount: thread.unread_count,
+            canReply: thread.can_viewer_reply,
+            cannotReplyReason: thread.cannot_reply_reason,
+            isArchived: thread.has_viewer_archived,
+            color: customizations && customizations.outgoing_bubble_color ?
+                '#' + customizations.outgoing_bubble_color.substr(2).toLowerCase() : null,
+            emoji: customizations ? customizations.custom_like_emoji : null,
+            nicknames: customizations ? customizations.participant_customizations : null
+        } as Thread
     }
 
     private async createQueue(seqId) {
