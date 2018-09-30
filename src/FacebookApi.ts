@@ -30,8 +30,8 @@ export default class FacebookApi {
         this.mqttApi = new MqttApi()
         this.httpApi = new FacebookHttpApi()
 
-        let session
-        if (!options.session) {
+        let session = options.session
+        if (!session) {
             session = { tokens: null, deviceId: null }
         }
 
