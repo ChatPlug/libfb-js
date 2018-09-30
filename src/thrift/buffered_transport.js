@@ -20,12 +20,18 @@
 var binary = require('./binary');
 var InputBufferUnderrunError = require('./input_buffer_underrun_error');
 
-module.exports = TBufferedTransport;
+class BufferedTransport {
+  constructor(buffer, callback) {
+    return new TBufferedTransport(buffer, callback)
+  }
+}
+
+module.exports = BufferedTransport;
 
 function TBufferedTransport(buffer, callback) {
   this.defaultReadBufferSize = 1024;
   this.writeBufferSize = 512; // Soft Limit
-  this.inBuf = new Buffer(this.defaultReadBufferSize);
+  this.inBuf = Buffer.alloc(this.defaultReadBufferSize);
   this.readCursor = 0;
   this.writeCursor = 0; // for input buffer
   this.outBuffers = [];
@@ -34,7 +40,7 @@ function TBufferedTransport(buffer, callback) {
 };
 
 TBufferedTransport.prototype.reset = function() {
-  this.inBuf = new Buffer(this.defaultReadBufferSize);
+  this.inBuf = Buffer.alloc(this.defaultReadBufferSize);
   this.readCursor = 0;
   this.writeCursor = 0;
   this.outBuffers = [];
@@ -46,7 +52,7 @@ TBufferedTransport.receiver = function(callback, seqid) {
 
   return function(data) {
     if (reader.writeCursor + data.length > reader.inBuf.length) {
-      var buf = new Buffer(reader.writeCursor + data.length);
+      var buf = Buffer.alloc(reader.writeCursor + data.length);
       reader.inBuf.copy(buf, 0, 0, reader.writeCursor);
       reader.inBuf = buf;
     }
@@ -62,7 +68,7 @@ TBufferedTransport.prototype.commitPosition = function(){
   var unreadSize = this.writeCursor - this.readCursor;
   var bufSize = (unreadSize * 2 > this.defaultReadBufferSize) ?
     unreadSize * 2 : this.defaultReadBufferSize;
-  var buf = new Buffer(bufSize);
+  var buf = Buffer.alloc(bufSize);
   if (unreadSize > 0) {
     this.inBuf.copy(buf, 0, this.readCursor, this.writeCursor);
   }
@@ -100,7 +106,7 @@ TBufferedTransport.prototype.ensureAvailable = function(len) {
 
 TBufferedTransport.prototype.read = function(len) {
   this.ensureAvailable(len);
-  var buf = new Buffer(len);
+  var buf = Buffer.alloc(len);
   this.inBuf.copy(buf, 0, this.readCursor, this.readCursor + len);
   this.readCursor += len;
   return buf;
@@ -150,7 +156,7 @@ TBufferedTransport.prototype.consume = function(bytesConsumed) {
 
 TBufferedTransport.prototype.write = function(buf) {
   if (typeof(buf) === "string") {
-    buf = new Buffer(buf, 'utf8');
+    buf = Buffer.from(buf, 'utf8');
   }
   this.outBuffers.push(buf);
   this.outCount += buf.length;
@@ -166,7 +172,7 @@ TBufferedTransport.prototype.flush = function() {
     return;
   }
 
-  var msg = new Buffer(this.outCount),
+  var msg = Buffer.alloc(this.outCount),
       pos = 0;
   this.outBuffers.forEach(function(buf) {
     buf.copy(msg, pos, 0);

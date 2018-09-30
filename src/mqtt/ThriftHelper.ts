@@ -1,4 +1,4 @@
-import { TBufferedTransport, TCompactProtocol } from "thrift"
+import { TBufferedTransport, TCompactProtocol } from "../thrift"
 
 /**
  * Wraps around the messy thrift API to provide an easy to use API for interacting with TCompactProtocol.

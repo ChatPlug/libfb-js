@@ -1,4 +1,4 @@
-import { TCompactProtocol, TBufferedTransport, Thrift } from "thrift"
+import { TCompactProtocol, TBufferedTransport, Thrift } from "../src/thrift"
 
 describe("thriftTests", function() {
     it.skip("raw api works", function() {
