@@ -117,29 +117,17 @@ export default class MqttApi {
     /**
      * Sends a facebook messenger message to someone.
      */
-    sendMessage(threadId: string, message: string) {
-        return new Promise(async (resolve, reject) => {
-            const milliseconds = Math.floor(new Date().getTime() / 1000)
-            const rand = Math.floor(Math.random() * (Math.pow(2, 32) - 1))
-            const msgid = (rand & 0x3fffff) | (milliseconds << 22)
-            const msg = {
-                body: message,
-                msgid,
-                sender_fbid: this.tokens.uid,
-                to: threadId
-            }
-            await this.sendPublish("/send_message2", JSON.stringify(msg))
-            const sentMessageInfoListener = async publish => {
-                if (publish.topic !== "/t_ms") return
-                const content = JSON.parse(publish.content.toString("utf8").replace("\u0000", ""))
-                if (!content.deltas || !content.deltas.length) return
-                const [ delta ] = content.deltas
-                if (!delta.deltaSentMessage) return
-                resolve(delta.deltaSentMessage)
-                this.emitter.removeListener("publish", sentMessageInfoListener)
-            }
-            this.on("publish", sentMessageInfoListener)
-        })
+    async sendMessage(threadId: string, message: string) {
+        const milliseconds = Math.floor(new Date().getTime() / 1000)
+        const rand = Math.floor(Math.random() * (Math.pow(2, 32) - 1))
+        const msgid = (rand & 0x3fffff) | (milliseconds << 22)
+        const msg = {
+            body: message,
+            msgid,
+            sender_fbid: this.tokens.uid,
+            to: threadId
+        }
+        await this.sendPublish("/send_message2", JSON.stringify(msg))
     }
 
     async sendPublishConfirmation(flags: number, publish) {
