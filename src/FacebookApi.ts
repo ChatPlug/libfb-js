@@ -157,7 +157,7 @@ export default class FacebookApi {
                     .map(user => user.messaging_actor || user)
                     .map(this.parseUser) :
                 null,
-            image: thread.image,
+            image: thread.image ? thread.image.uri : null,
             unreadCount: thread.unread_count,
             canReply: thread.can_viewer_reply,
             cannotReplyReason: thread.cannot_reply_reason,
