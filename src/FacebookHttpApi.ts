@@ -216,6 +216,26 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
             )
         )
     }
+
+    /**
+     * @param stickerId
+     */
+    getSticker(stickerId: number) {
+        return this.get(
+            new FacebookApiHttpRequest(
+                "https://graph.facebook.com/graphql",
+                "get",
+                "FetchStickersWithPreviewsQuery",
+                {
+                    query_id: "10152877994321729",
+                    query_params: JSON.stringify({
+                        "0": [ stickerId ]
+                    })
+                }
+            )
+        )
+    }
+
     /**
      * @todo implement unreadMessagesListQuery when we have QFacebookUid
      */

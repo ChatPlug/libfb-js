@@ -22,7 +22,8 @@ export default class ApiEmitter extends EventEmitter {
         authorId: delta.messageMetadata.actorFbId,
         id: delta.messageMetadata.messageId,
         timestamp: delta.messageMetadata.timestamp,
-        message: delta.body || ""
+        message: delta.body || "",
+        stickerId: delta.stickerId
       } as Message
       if (message.authorId === this.session.tokens.uid && !this.options.selfListen) return
       this.emit("message", message)
