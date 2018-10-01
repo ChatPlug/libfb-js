@@ -114,6 +114,11 @@ export default class FacebookApi {
     sendAttachmentStream = (threadId: number, extension: string, attachment: Readable) => {
         return this.httpApi.sendImage(attachment, extension, this.session.tokens.uid, threadId)
     }
+    
+    getAttachmentURL = async (messageId: string, attachmentId: string) => {
+        const attachment = await this.httpApi.getAttachment(messageId, attachmentId)
+        return attachment.redirect_uri
+    }
 
     getThreadInfo = async (threadId: number): Promise<Thread> => {
         const res = await this.httpApi.threadQuery(threadId.toString())
