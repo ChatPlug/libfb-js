@@ -95,39 +95,44 @@ export default class FacebookApi {
         return this.session
     }
 
-    sendMessage(threadId: string, message: string) {
-        return this.mqttApi.sendMessage(threadId, message)
+    sendMessage = (threadId: number, message: string) => {
+        return this.mqttApi.sendMessage(threadId.toString(), message)
     }
 
-    async getThreadList(count: number) {
+    getThreadList = async (count: number) => {
         const threads = await this.httpApi.threadListQuery(count)
         return threads.viewer.message_threads.nodes.map(this.parseThread)
     }
 
-    async sendAttachmentFile(to: number, attachmentPath: string) {
+    sendAttachmentFile = (threadId: number, attachmentPath: string) => {
         if (!fs.existsSync(attachmentPath)) throw new Error('Attachment missing!')
         const stream = fs.createReadStream(attachmentPath)
         const extension = path.parse(attachmentPath).ext
-        this.httpApi.sendImage(stream, extension, this.session.tokens.uid, to)
+        return this.httpApi.sendImage(stream, extension, this.session.tokens.uid, threadId)
     }
 
-    async sendAttachmentStream(to: number, extension: string, attachment: Readable) {
-        this.httpApi.sendImage(attachment, extension, this.session.tokens.uid, to)
+    sendAttachmentStream = (threadId: number, extension: string, attachment: Readable) => {
+        return this.httpApi.sendImage(attachment, extension, this.session.tokens.uid, threadId)
+    }
+    
+    getAttachmentURL = async (messageId: string, attachmentId: string) => {
+        const attachment = await this.httpApi.getAttachment(messageId, attachmentId)
+        return attachment.redirect_uri
     }
 
-    async getThreadInfo(threadId: string) {
-        const res = await this.httpApi.threadQuery(threadId)
+    getThreadInfo = async (threadId: number): Promise<Thread> => {
+        const res = await this.httpApi.threadQuery(threadId.toString())
         const thread = res[threadId]
         return this.parseThread(thread)
     }
 
-    async getUserInfo(userId: string): Promise<User> {
-        return this.parseUser((await this.httpApi.userQuery(userId))[userId])
+    getUserInfo = async (userId: number): Promise<User> => {
+        return this.parseUser((await this.httpApi.userQuery(userId.toString()))[userId.toString()])
     }
 
     private parseUser(user): User {
         return {
-            id: user.id,
+            id: Number(user.id),
             name: user.name,
             type: user.__type__.name,
             canMessage: user.can_viewer_message,
@@ -144,7 +149,7 @@ export default class FacebookApi {
     private parseThread = thread => {
         const customizations = thread.customization_info
         return {
-            id: thread.thread_key.thread_fbid || thread.thread_key.other_user_id,
+            id: Number(thread.thread_key.thread_fbid || thread.thread_key.other_user_id),
             name: thread.name,
             isGroup: thread.is_group_thread,
             participants: thread.all_participants ?
@@ -152,7 +157,7 @@ export default class FacebookApi {
                     .map(user => user.messaging_actor || user)
                     .map(this.parseUser) :
                 null,
-            image: thread.image,
+            image: thread.image ? thread.image.uri : null,
             unreadCount: thread.unread_count,
             canReply: thread.can_viewer_reply,
             cannotReplyReason: thread.cannot_reply_reason,

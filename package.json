@@ -1,22 +1,15 @@
 {
   "name": "libfb",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Facebook MQTT library for Node.js",
   "main": "dist/FBMessenger.js",
   "dependencies": {
     "buffer-hexdump": "^1.0.0",
-    "chai": "^4.1.2",
-    "console-stamp": "^0.2.6",
     "debug": "^4.0.1",
     "mime-types": "^2.1.20",
-    "mocha": "^5.2.0",
     "node-fetch": "^2.2.0",
-    "node-int64": "^0.4.0",
     "stream-length": "^1.0.2",
-    "thrift": "^0.11.0",
-    "ts-node": "^7.0.1",
-    "tslib": "^1.9.3",
-    "typescript": "^3.0.3"
+    "thrift": "^0.11.0"
   },
   "devDependencies": {
     "@types/chai": "^4.1.4",
@@ -25,7 +18,13 @@
     "@types/node": "^10.9.4",
     "@types/node-fetch": "^2.1.2",
     "@types/node-int64": "^0.4.29",
-    "@types/thrift": "^0.10.7"
+    "@types/thrift": "^0.10.7",
+    "chai": "^4.2.0",
+    "console-stamp": "^0.2.7",
+    "mocha": "^5.2.0",
+    "ts-node": "^7.0.1",
+    "tslib": "^1.9.3",
+    "typescript": "^3.1.1"
   },
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.ts",

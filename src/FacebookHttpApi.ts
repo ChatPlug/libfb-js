@@ -214,10 +214,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
                 "",
                 { mid, aid }
             )
-        ).then(res => {
-            console.dir(res)
-            return res
-        })
+        )
     }
     /**
      * @todo implement unreadMessagesListQuery when we have QFacebookUid
