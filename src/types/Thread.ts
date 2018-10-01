@@ -1,7 +1,7 @@
 import User from './User'
 
 export default interface Thread {
-    id: string
+    id: number
     name: string
     isGroup: boolean
     participants: User[]
