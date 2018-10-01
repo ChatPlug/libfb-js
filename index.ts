@@ -12,9 +12,6 @@ try {
 async function main() {
     const api = await login(config.email, config.password, {})
     api.on('message', console.dir)
-    api.on('threadNameEvent', console.dir)
-    api.on('changeThreadNicknameEvent', console.dir)
-    api.on('readReceiptEvent', console.dir)
-    api.on('deliveryReceiptEvent', console.dir)
+    api.on('event', console.dir)
 }
 main()
