@@ -120,6 +120,11 @@ export default class FacebookApi {
         return attachment.redirect_uri
     }
 
+    getStickerURL = async (stickerId: number) => {
+        const sticker = await this.httpApi.getSticker(stickerId)
+        return sticker[stickerId.toString()].thread_image.uri
+    }
+
     getThreadInfo = async (threadId: number): Promise<Thread> => {
         const res = await this.httpApi.threadQuery(threadId.toString())
         const thread = res[threadId]

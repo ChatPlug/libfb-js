@@ -5,4 +5,5 @@ export default interface Message {
     threadId: number
     message: string
     attachments: string[]
+    stickerId: number
 }

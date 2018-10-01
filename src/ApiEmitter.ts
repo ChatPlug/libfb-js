@@ -1,6 +1,6 @@
 import { EventEmitter } from "events"
 import Message from "./types/Message"
-import { ThreadNameEvent, DeliveryReceiptEvent, ReadReceiptEvent, ChangeThreadNicknameEvent, AddThreadAdminsEvent, ParticipantsAddedToGroupThreadEvent, ParticipantLeftGroupThreadEvent } from "./types/Events"
+import { ThreadNameEvent, DeliveryReceiptEvent, ReadReceiptEvent, ChangeThreadNicknameEvent, AddThreadAdminsEvent, ParticipantsAddedToGroupThreadEvent, ParticipantLeftGroupThreadEvent, EventCreateEvent, FacebookEvent, EventDeleteEvent, EventUpdateLocationEvent, EventUpdateTimeEvent, EventUpdateTitleEvent, EventRsvpEvent } from "./types/Events"
 import { FacebookApiOptions } from './FacebookApi'
 import Session from './types/Session'
 export default class ApiEmitter extends EventEmitter {
@@ -22,7 +22,8 @@ export default class ApiEmitter extends EventEmitter {
         authorId: delta.messageMetadata.actorFbId,
         id: delta.messageMetadata.messageId,
         timestamp: delta.messageMetadata.timestamp,
-        message: delta.body || ""
+        message: delta.body || "",
+        stickerId: delta.stickerId
       } as Message
       if (message.authorId === this.session.tokens.uid && !this.options.selfListen) return
       this.emit("message", message)
@@ -107,6 +108,62 @@ export default class ApiEmitter extends EventEmitter {
           this.emit("event", { event: addThreadAdminsEvent, type: "addThreadAdminsEvent" })
           break
 
+        case 'lightweight_event_create':
+          const eventCreateEvent = {
+            ...this.getEventMetadata(delta),
+            ...this.getFacebookEventMetadata(delta.untypedData)
+          } as EventCreateEvent
+          this.emit('eventCreateEvent', eventCreateEvent)
+          this.emit("event", { event: eventCreateEvent, type: "eventCreateEvent" })
+          break
+
+        case 'lightweight_event_update_title':
+          const eventUpdateTitleEvent = {
+            ...this.getEventMetadata(delta),
+            ...this.getFacebookEventMetadata(delta.untypedData)
+          } as EventUpdateTitleEvent
+          this.emit('eventUpdateTitleEvent', eventUpdateTitleEvent)
+          this.emit("event", { event: eventUpdateTitleEvent, type: "eventUpdateTitleEvent" })
+          break
+
+        case 'lightweight_event_update_time':
+          const eventUpdateTimeEvent = {
+            ...this.getEventMetadata(delta),
+            ...this.getFacebookEventMetadata(delta.untypedData)
+          } as EventUpdateTimeEvent
+          this.emit('eventUpdateTimeEvent', eventUpdateTimeEvent)
+          this.emit("event", { event: eventUpdateTimeEvent, type: "eventUpdateTimeEvent" })
+          break
+
+        case 'lightweight_event_update_location':
+          const eventUpdateLocationEvent = {
+            ...this.getEventMetadata(delta),
+            ...this.getFacebookEventMetadata(delta.untypedData)
+          } as EventUpdateLocationEvent
+          this.emit('eventUpdateLocationEvent', eventUpdateLocationEvent)
+          this.emit("event", { event: eventUpdateLocationEvent, type: "eventUpdateLocationEvent" })
+          break
+
+        case 'lightweight_event_rsvp':
+          const eventRsvpEvent = {
+            ...this.getEventMetadata(delta),
+            ...this.getFacebookEventMetadata(delta.untypedData),
+            guestId: Number(delta.untypedData.guest_id),
+            status: delta.untypedData.guest_status
+          } as EventRsvpEvent
+          this.emit('eventRsvpEvent', eventRsvpEvent)
+          this.emit("event", { event: eventRsvpEvent, type: "eventRsvpEvent" })
+          break
+
+        case 'lightweight_event_delete':
+          const eventDeleteEvent = {
+            ...this.getEventMetadata(delta),
+            ...this.getFacebookEventMetadata(delta.untypedData)
+          } as EventDeleteEvent
+          this.emit('eventDeleteEvent', eventDeleteEvent)
+          this.emit("event", { event: eventDeleteEvent, type: "eventDeleteEvent" })
+          break
+
       }
     }
   }
@@ -123,5 +180,18 @@ export default class ApiEmitter extends EventEmitter {
   private getThreadId (delta: any) {
       const { threadKey } = delta.messageMetadata || delta
       return threadKey.threadFbId || threadKey.otherUserFbId
+  }
+
+  private getFacebookEventMetadata (untypedData: any) {
+    return {
+      creatorId: Number(untypedData.event_creator_id),
+      title: untypedData.event_title,
+      time: new Date(untypedData.event_time * 1000),
+      location: untypedData.event_location_name,
+      guests: JSON.parse(untypedData.guest_state_list).map(guest => ({
+        state: guest.guest_list_state,
+        id: guest.node.id
+      }))
+    }
   }
 }
