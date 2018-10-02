@@ -67,6 +67,11 @@ export default class FacebookApi {
     
             this.mqttApi.on("publish", async publish => {
                 debugLog(publish.topic)
+                if (publish.topic === "/send_message_response") {
+                    const response = JSON.parse(publish.content.toString('utf8'))
+                    debugLog(response)
+                    this.mqttApi.emitter.emit("sentMessage:" + response.msgid, response)
+                }
                 if (publish.topic === "/t_ms") this.handleMS(publish.content.toString("utf8"))
             })
     
