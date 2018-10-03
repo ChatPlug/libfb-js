@@ -4,6 +4,9 @@ import fetch from "node-fetch"
 import { Readable } from "stream"
 import streamLength from "stream-length"
 import FacebookApiHttpRequest from "./FacebookApiHttpRequest"
+import debug from "debug"
+
+const debugLog = debug('fblib')
 
 /**
  * This class wil implement making sick fucking http requests to facebook API by ZUCC.
@@ -73,6 +76,9 @@ export default class BaseFacebookHttpApi {
             )
         }
 
+        const mimeType = extension.includes('/') ? extension : mime.lookup(extension)
+        if (mimeType === extension) extension = mime.extension(mimeType)
+        debugLog({ mimeType, extension })
         const len = await streamLength(readStream)
         const resp = await fetch(
             "https://rupload.facebook.com/messenger_image/" + randId,
@@ -82,7 +88,7 @@ export default class BaseFacebookHttpApi {
                         "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.20.381;FBPN/com.facebook.orca;FBLC/en_US;FBBV/256002347743983]",
                     Authorization: "OAuth " + this.token,
                     device_id: this.deviceId,
-                    "X-Entity-Name": "mediaUpload" + extension,
+                    "X-Entity-Name": "mediaUpload." + extension,
                     is_preview: "1",
                     attempt_id: this.getRandomInt(0, (2 ^ 64) - 1),
                     send_message_by_server: "1",
@@ -91,7 +97,7 @@ export default class BaseFacebookHttpApi {
                     image_type: "FILE_ATTACHMENT",
                     offline_threading_id: this.getRandomInt(0, (2 ^ 64) - 1),
                     "X-FB-Connection-Quality": "EXCELLENT", // kek
-                    "X-Entity-Type": mime.lookup(extension),
+                    "X-Entity-Type": mimeType,
                     ttl: "0",
                     Offset: "0",
                     "X-FB-Friendly-Name": "post_resumable_upload_session",
