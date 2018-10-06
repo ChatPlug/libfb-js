@@ -5,6 +5,6 @@
 | --------- | ---- | ----------- |
 | email | [string] | Your Facebok email/username/phone number |
 | password | [string] | Your Facebook password |
-| options | [`FacebookApiOptions`](#FacebookApiOptions) | API options (optional) |
+| options | [`FacebookApiOptions`](FacebookApiOptions.md) | API options (optional) |
 
-**Returns: [`FacebookApi`](FacebookApi)**
+**Returns: [`FacebookApi`](FacebookApi.md)**

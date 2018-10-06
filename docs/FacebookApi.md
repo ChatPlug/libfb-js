@@ -24,7 +24,7 @@
 <a name="getSession"><h2>.getSession()</h2></a>
 > Gets a Facebook session.
 
-**Returns: [`Session`](#Session)**
+**Returns: [`Session`](Session.md)**
 
 <a name="getThreadList"><h2>.getThreadList(count)</h2></a>
 > Gets a list of Facebook threads.
@@ -33,7 +33,7 @@
 | --------- | ---- | ----------- |
 | count | [number] | Number of threads you want to get |
 
-**Returns: [Promise]<[Array]<[`Thread`](#Thread)>>**
+**Returns: [Promise]<[Array]<[`Thread`](Thread.md)>>**
 
 <a name="sendAttachmentFile"><h2>.sendAttachmentFile(threadId, path)</h2></a>
 > Sends an attachment from a disk.
@@ -82,7 +82,7 @@
 | --------- | ---- | ----------- |
 | threadId | [string] | ID of the thread |
 
-**Returns: [Promise]<[`Thread`](Thread)>**
+**Returns: [Promise]<[`Thread`](Thread.md)>**
 
 <a name="getUserInfo"><h2>.getUserInfo(userId)</h2></a>
 > Gets user info by user ID.
@@ -91,7 +91,7 @@
 | --------- | ---- | ----------- |
 | userId | [string] | ID of the user |
 
-**Returns: [Promise]<[`User`](User)>**
+**Returns: [Promise]<[`User`](User.md)>**
 
 
 
