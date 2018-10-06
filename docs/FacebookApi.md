@@ -19,7 +19,7 @@
 | threadId | [number] | ID of the thread you want to send a message to |
 | message | [string] | Body of the message |
 
-**Returns: [Promise]<[`SentMessageInfo`](#SentMessageInfo)>**
+**Returns: [Promise]<[`SentMessageInfo`]>**
 
 <a name="getSession"><h2>.getSession()</h2></a>
 > Gets a Facebook session.
@@ -33,7 +33,7 @@
 | --------- | ---- | ----------- |
 | count | [number] | Number of threads you want to get |
 
-**Returns: [Promise]<[Array]<[`Thread`](Thread.md)>>**
+**Returns: [Promise]<[Array]<[`Thread`]>>**
 
 <a name="sendAttachmentFile"><h2>.sendAttachmentFile(threadId, path)</h2></a>
 > Sends an attachment from a disk.
@@ -82,7 +82,7 @@
 | --------- | ---- | ----------- |
 | threadId | [string] | ID of the thread |
 
-**Returns: [Promise]<[`Thread`](Thread.md)>**
+**Returns: [Promise]<[`Thread`]>**
 
 <a name="getUserInfo"><h2>.getUserInfo(userId)</h2></a>
 > Gets user info by user ID.
@@ -91,7 +91,7 @@
 | --------- | ---- | ----------- |
 | userId | [string] | ID of the user |
 
-**Returns: [Promise]<[`User`](User.md)>**
+**Returns: [Promise]<[`User`]>**
 
 
 
@@ -101,3 +101,7 @@
 [Promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
 [Array]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
 [Readable]: https://nodejs.org/api/stream.html#stream_class_stream_readable
+
+[`SentMessageInfo`]: SentMessageInfo.md
+[`Thread`]: Thread.md
+[`User`]: User.md
