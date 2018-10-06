@@ -1,11 +1,11 @@
 import FacebookApi, { FacebookApiOptions } from "./FacebookApi"
-import AuthTokens from "./types/AuthTokens"
-import DeviceId from "./types/DeviceId"
-import Message from "./types/Message"
-import { DeliveryReceiptEvent, ReadReceiptEvent } from "./types/Events"
-import Session from "./types/Session"
-import Thread from "./types/Thread"
-import User from "./types/User"
+export { default as AuthTokens } from "./types/AuthTokens"
+export { default as DeviceId } from "./types/DeviceId"
+export { default as Message } from "./types/Message"
+export { default as Session } from "./types/Session"
+export { default as Thread } from "./types/Thread"
+export { default as User } from "./types/User"
+export * from "./types/Events"
 
 
 
@@ -17,4 +17,7 @@ const login = async (email: string, password: string, options?: FacebookApiOptio
     return api
 }
 
-export { login, AuthTokens, DeviceId, Message, DeliveryReceiptEvent, ReadReceiptEvent, Session, Thread, User }
+export {
+    login,
+    FacebookApiOptions
+}

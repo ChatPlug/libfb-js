@@ -1,7 +1,7 @@
 export default interface User {
   id: number
   name: string
-  type: UserType
+  type: string
   canMessage: boolean
   emailAddresses?: string[]
   isBlocked: boolean
@@ -10,8 +10,4 @@ export default interface User {
   profilePicLarge: string
   profilePicMedium: string
   profilePicSmall: string
-}
-
-enum UserType {
-  "User", "Page", "UnavailableMessagingActor", "ReducedMessagingActor"
 }
