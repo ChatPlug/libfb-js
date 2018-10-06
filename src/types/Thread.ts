@@ -8,15 +8,9 @@ export default interface Thread {
     image: string
     unreadCount: number
     canReply: boolean
-    cannotReplyReason: CannotReplyReason
+    cannotReplyReason: string
     isArchived: boolean
     color: string
     emoji: string
     nicknames: any
-}
-
-enum CannotReplyReason {
-    null,
-    "RECIPIENTS_NOT_LOADABLE",
-    "BLOCKED"
 }
