@@ -121,7 +121,7 @@ export default class MqttApi {
         return new Promise(async (resolve, reject) => {
             const milliseconds = Math.floor(new Date().getTime() / 1000)
             const rand = Math.floor(Math.random() * (Math.pow(2, 32) - 1))
-            const msgid = (rand & 0x3fffff) | (milliseconds << 22)
+            const msgid = Math.abs((rand & 0x3fffff) | (milliseconds << 22))
             const msg = {
                 body: message,
                 msgid,
