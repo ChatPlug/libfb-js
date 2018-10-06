@@ -18,7 +18,7 @@ api.on('message', message => {
 })
 ```
 
-# Documentation
+## Documentation
 - [`login(email, password, options)`](docs/login.md)
 - [`FacebookApi`](docs/FacebookApi.md)
 - [`FacebookApiOptions`](docs/FacebookApiOptions.md)
