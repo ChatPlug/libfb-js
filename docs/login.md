@@ -8,3 +8,5 @@
 | options | [`FacebookApiOptions`](FacebookApiOptions.md) | API options (optional) |
 
 **Returns: [`FacebookApi`](FacebookApi.md)**
+
+[string]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String
