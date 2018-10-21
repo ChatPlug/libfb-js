@@ -17,24 +17,19 @@ import debug from "debug"
 
 const debugLog = debug("fblib")
 
-class MqttApiEmitter extends EventEmitter {}
 /**
  * Handles decoding and sending all sorts of messages used by Facebook Messenger.
  * It utilizes all network primitives defined in the MqttConnection class.
  */
-export default class MqttApi {
+export default class MqttApi extends EventEmitter {
     connection: MqttConnection
-    _connected = false
     lastMsgId: number = 1
     tokens: AuthTokens
-    emitter = new MqttApiEmitter()
+    deviceId: DeviceId
 
     constructor() {
+        super()
         this.connection = new MqttConnection()
-    }
-
-    on(event, cb) {
-        this.emitter.on(event, cb)
     }
 
     sendSubscribe(msg: MqttMessage) {
@@ -42,69 +37,35 @@ export default class MqttApi {
         return this.connection.writeMessage(msg)
     }
 
-    async connect() {
-        await this.connection.connect()
-        this._connected = true
-    }
-
-    sendPing = async () => {
-        await this.connection.writeMessage(encodePing())
-        setTimeout(this.sendPing, 60 * 1000)
-    }
-
     /**
-     * Sends a CONNECT mqtt message and binds listeners for recieving messages.
+     * Connects the MQTT socket and binds listeners for receiving messages.
      * @param tokens
      * @param deviceId
      */
-    async sendConnectMessage(tokens: AuthTokens, deviceId: DeviceId) {
+    async connect(tokens: AuthTokens, deviceId: DeviceId) {
         this.tokens = tokens
-        setTimeout(this.sendPing, 60 * 1000)
-        if (!this._connected) {
-            return
-        }
-        this.connection.emitter.on("packet", async (packet: MqttPacket) => {
-            switch (packet.type) {
-                case FacebookMessageType.ConnectAck:
-                    debugLog("Packet type: ConnectAck")
-                    await this.sendPublish(
-                        "/foreground_state",
-                        '{"foreground":true,"keepalive_timeout":60}'
-                    )
-                    await this.sendSubscribe(
-                        encodeSubscribeMessage(this.lastMsgId)
-                    )
-                    await this.sendSubscribe(encodeUnsubscribe(this.lastMsgId))
-                    debugLog("Connected.")
+        this.deviceId = deviceId
+        await this.connection.connect()
+        this.connection.on("packet", this.parsePacket)
+        await this.sendConnectMessage()
+        this.connection.on("close", this.reconnect)
+    }
+    
+    reconnect = async () => {
+        await this.connection.connect()
+        await this.sendConnectMessage()
+        this.connection.emit("reconnect")
+    }
 
-                    // await this.sendMessage()
-                    this.emitter.emit("connected")
-                    break
-                case FacebookMessageType.Publish:
-                    debugLog("Packet type: Publish")
-                    const publish = decodePublish(packet)
-                    this.emitter.emit("publish", publish)
-                    this.sendPublishConfirmation(packet.flag, publish)
-                    break
-                case FacebookMessageType.SubscribeAck:
-                    debugLog("Packet type: SubscribeAck")
-                    break
-                case FacebookMessageType.PublishAck:
-                    debugLog("Packet type: PublishAck")
-                    break
-                case FacebookMessageType.UnsubscribeAck:
-                    debugLog("Packet type: UnsubscribeAck")
-                    break
-                case FacebookMessageType.Pong:
-                    debugLog("Packet type: Pong")
-                    break
-                default:
-                    debugLog("Packet type:", packet.type)
-                    debugLog(hexdump(packet.content))
-            }
-        })
+    sendPing = () => this.connection.writeMessage(encodePing())
 
-        const connectMessage = await encodeConnectMessage(tokens, deviceId)
+    /**
+     * Sends a CONNECT mqtt message
+     */
+    async sendConnectMessage() {
+        setInterval(this.sendPing, 60 * 1000)
+        if (!this.connection._connected) return
+        const connectMessage = await encodeConnectMessage(this.tokens, this.deviceId)
         await this.connection.writeMessage(connectMessage)
     }
 
@@ -128,7 +89,7 @@ export default class MqttApi {
                 sender_fbid: this.tokens.uid,
                 to: threadId
             }
-            this.emitter.once("sentMessage:" + msgid, resolve)
+            this.once("sentMessage:" + msgid, resolve)
             await this.sendPublish("/send_message2", JSON.stringify(msg))
         })
     }
@@ -146,6 +107,47 @@ export default class MqttApi {
 
         if (qos2) {
             this.connection.writeMessage(encodePublishRecorded(publish.msgId))
+        }
+    }
+
+    parsePacket = async (packet: MqttPacket) => {
+        switch (packet.type) {
+            case FacebookMessageType.ConnectAck:
+                debugLog("Packet type: ConnectAck")
+                await this.sendPublish(
+                    "/foreground_state",
+                    '{"foreground":true,"keepalive_timeout":60}'
+                )
+                await this.sendSubscribe(
+                    encodeSubscribeMessage(this.lastMsgId)
+                )
+                await this.sendSubscribe(encodeUnsubscribe(this.lastMsgId))
+                debugLog("Connected.")
+
+                // await this.sendMessage()
+                this.emit("connected")
+                break
+            case FacebookMessageType.Publish:
+                debugLog("Packet type: Publish")
+                const publish = decodePublish(packet)
+                this.emit("publish", publish)
+                this.sendPublishConfirmation(packet.flag, publish)
+                break
+            case FacebookMessageType.SubscribeAck:
+                debugLog("Packet type: SubscribeAck")
+                break
+            case FacebookMessageType.PublishAck:
+                debugLog("Packet type: PublishAck")
+                break
+            case FacebookMessageType.UnsubscribeAck:
+                debugLog("Packet type: UnsubscribeAck")
+                break
+            case FacebookMessageType.Pong:
+                debugLog("Packet type: Pong")
+                break
+            default:
+                debugLog("Packet type:", packet.type)
+                debugLog(hexdump(packet.content))
         }
     }
 }

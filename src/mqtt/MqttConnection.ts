@@ -5,18 +5,31 @@ import MqttMessage from "./MqttMessage"
 import MqttPacket, { MqttHeader } from "./MqttPacket"
 
 const debugLog = debug("fblib")
-class MqttConnectionEmitter extends EventEmitter {}
 /**
  * Represents an encrypted real-time connection with facebook servers.
  * This class encapsulates all logic which handles communication using the propietary MQTT-like protocol.
  */
-export default class MqttConnection {
+export default class MqttConnection extends EventEmitter {
     toSend: Buffer
     socket: TLSSocket | null = null
     lastHeader: MqttHeader | null = null
-    emitter = new MqttConnectionEmitter()
     decodeBuffer: Buffer = Buffer.alloc(0)
     connectMsg: any
+    _connected: boolean = false
+    queue: MqttMessage[] = []
+
+    constructor () {
+        super()
+        this.on("reconnect", () => {
+            if (this.queue.length) {
+                const s = setInterval(() => {
+                    if (!this.queue.length) return clearInterval(s)
+                    this.writeMessage(this.queue.shift())
+                }, 200)
+            }
+        })
+    }
+
     /**
      * Connects to Facebook mqtt servers. The promise is resolved when a secure TLS handshake is established. No CONNECT message is sent yet.
      */
@@ -30,15 +43,18 @@ export default class MqttConnection {
             this.socket.on("error", rej)
         })
 
+        this._connected = true
+
         this.socket!!.on("data", data => {
             debugLog("")
             debugLog("Data received!")
             this.readBuffer(data)
         })
         this.socket!!.on("close", _ => {
+            this._connected = false
             debugLog("close")
-            this.emitter.emit("close")
-            throw new Error('Connection closed.')
+            this.emit("close")
+            // throw new Error('Connection closed.')
         })
     }
 
@@ -75,10 +91,6 @@ export default class MqttConnection {
         }
     }
 
-    on(string, cb) {
-        this.emitter.on(string, cb)
-    }
-
     emitPacket() {
         const header = this.lastHeader
         const packet = {
@@ -86,11 +98,12 @@ export default class MqttConnection {
             flag: this.decodeBuffer[0] & 0x0f,
             content: this.decodeBuffer.slice(header.i, header.i + header.size)
         } as MqttPacket
-        this.emitter.emit("packet", packet)
+        this.emit("packet", packet)
         this.decodeBuffer = Buffer.alloc(0)
     }
 
     async writeMessage(message: MqttMessage) {
+        if (!this._connected) return this.queue.push(message)
         let size = message.toSend.byteLength
         let result = Buffer.alloc(1)
         let byte = ((message.type & 0x0f) << 4) | (message.flags & 0x0f)
