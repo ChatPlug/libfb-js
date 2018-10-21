@@ -70,7 +70,7 @@ export default class FacebookApi {
                 if (publish.topic === "/send_message_response") {
                     const response = JSON.parse(publish.content.toString('utf8'))
                     debugLog(response)
-                    this.mqttApi.emitter.emit("sentMessage:" + response.msgid, response)
+                    this.mqttApi.emit("sentMessage:" + response.msgid, response)
                 }
                 if (publish.topic === "/t_ms") this.handleMS(publish.content.toString("utf8"))
             })
@@ -87,9 +87,8 @@ export default class FacebookApi {
     
                 await this.createQueue(seqId)
             })
-    
-            await this.mqttApi.connect()
-            await this.mqttApi.sendConnectMessage(
+
+            await this.mqttApi.connect(
                 this.session.tokens,
                 this.session.deviceId
             )
@@ -228,7 +227,14 @@ export default class FacebookApi {
     }
 
     private async handleMS(ms: string) {
-        const data = JSON.parse(ms.replace("\u0000", ""))
+        let data
+        try {
+            data = JSON.parse(ms.replace("\u0000", ""))
+        } catch (err) {
+            console.error('Error while parsing the following message:')
+            console.error(ms)
+        }
+        
 
         // Handled on queue creation
         if (data.syncToken) {
