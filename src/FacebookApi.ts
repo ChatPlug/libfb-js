@@ -233,6 +233,7 @@ export default class FacebookApi {
         } catch (err) {
             console.error('Error while parsing the following message:')
             console.error(ms)
+            return
         }
         
 
