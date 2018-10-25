@@ -132,11 +132,15 @@ export default class FacebookApi {
     getThreadInfo = async (threadId: number): Promise<Thread> => {
         const res = await this.httpApi.threadQuery(threadId.toString())
         const thread = res[threadId]
+        if (!thread) return null
         return this.parseThread(thread)
     }
 
     getUserInfo = async (userId: number): Promise<User> => {
-        return this.parseUser((await this.httpApi.userQuery(userId.toString()))[userId.toString()])
+        const res = await this.httpApi.userQuery(userId.toString())
+        const user = res[userId.toString()]
+        if (!user) return null
+        return this.parseUser(user)
     }
 
     private parseUser(user): User {
