@@ -14,6 +14,7 @@ import MqttMessage from "./MqttMessage"
 import MqttPacket, { FacebookMessageType } from "./MqttPacket"
 import { MqttMessageFlag } from "./MqttTypes"
 import debug from "debug"
+import { debuglog } from 'util';
 
 const debugLog = debug("fblib")
 
@@ -25,6 +26,7 @@ export default class MqttApi extends EventEmitter {
     connection: MqttConnection
     lastMsgId: number = 1
     tokens: AuthTokens
+    lastPingMilis: number = -1
     deviceId: DeviceId
 
     constructor() {
@@ -48,7 +50,9 @@ export default class MqttApi extends EventEmitter {
         await this.connection.connect()
         this.connection.on("packet", this.parsePacket)
         await this.sendConnectMessage()
-        this.connection.on("close", this.reconnect)
+        this.connection.on("close", (e) => {
+            debuglog("close")
+        })
     }
     
     reconnect = async () => {
@@ -57,7 +61,14 @@ export default class MqttApi extends EventEmitter {
         this.connection.emit("reconnect")
     }
 
-    sendPing = () => this.connection.writeMessage(encodePing())
+    sendPing = () => {
+        if (this.lastPingMilis < 0 || (this.lastPingMilis) < (60 * 1000) + (new Date).getTime()) {
+            this.connection.writeMessage(encodePing())
+        } else {
+            // Attempt to reconnect
+            this.reconnect()
+        }
+    }
 
     /**
      * Sends a CONNECT mqtt message
@@ -144,6 +155,7 @@ export default class MqttApi extends EventEmitter {
                 break
             case FacebookMessageType.Pong:
                 debugLog("Packet type: Pong")
+                this.lastPingMilis  = (new Date()).getTime()
                 break
             default:
                 debugLog("Packet type:", packet.type)
