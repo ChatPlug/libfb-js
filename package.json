@@ -1,6 +1,6 @@
 {
   "name": "libfb",
-  "version": "1.3.7",
+  "version": "1.3.8",
   "description": "Facebook MQTT library for Node.js",
   "main": "dist/FBMessenger.js",
   "dependencies": {
@@ -9,7 +9,8 @@
     "mime-types": "^2.1.20",
     "node-fetch": "^2.2.0",
     "stream-length": "^1.0.2",
-    "thrift": "^0.11.0"
+    "thrift": "^0.11.0",
+    "tslib": "^1.9.3"
   },
   "devDependencies": {
     "@types/chai": "^4.1.4",
@@ -24,7 +25,6 @@
     "mocha": "^5.2.0",
     "shx": "^0.3.2",
     "ts-node": "^7.0.1",
-    "tslib": "^1.9.3",
     "typescript": "^3.1.3"
   },
   "scripts": {
