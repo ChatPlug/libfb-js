@@ -14,7 +14,6 @@ import MqttMessage from "./MqttMessage"
 import MqttPacket, { FacebookMessageType } from "./MqttPacket"
 import { MqttMessageFlag } from "./MqttTypes"
 import debug from "debug"
-import { debuglog } from 'util';
 
 const debugLog = debug("fblib")
 
@@ -51,11 +50,12 @@ export default class MqttApi extends EventEmitter {
         this.connection.on("packet", this.parsePacket)
         await this.sendConnectMessage()
         this.connection.on("close", (e) => {
-            debuglog("close")
+            this.reconnect()
         })
     }
     
     reconnect = async () => {
+        debugLog("reconnecting...")
         await this.connection.connect()
         await this.sendConnectMessage()
         this.connection.emit("reconnect")
