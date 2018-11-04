@@ -40,7 +40,7 @@ export default class MqttConnection extends EventEmitter {
                 port: 443
             })
             this.socket.on("secureConnect", res)
-            this.socket.on("error", rej)
+            this.socket.on("error", err => { throw err })
         })
 
         this._connected = true
@@ -52,6 +52,7 @@ export default class MqttConnection extends EventEmitter {
         })
         this.socket!!.on("close", _ => {
             this._connected = false
+            debugLog(this._connected)
             debugLog("close")
             this.emit("close")
             // throw new Error('Connection closed.')
@@ -120,6 +121,7 @@ export default class MqttConnection extends EventEmitter {
         } while (size > 0)
 
         return new Promise<void>((res, rej) => {
+            if (this.socket!!.destroyed) return
             this.socket!!.write(Buffer.concat([result, message.toSend]), res)
         })
     }
