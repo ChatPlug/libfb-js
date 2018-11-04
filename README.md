@@ -8,6 +8,8 @@
 
 ## Example usage
 
+### Echo bot
+
 ```js
 const { login } = require('libfb')
 const api = await login('username', 'password')
@@ -15,6 +17,17 @@ api.on('message', message => {
   console.log('Got a message!')
   console.log(message.message)
   api.sendMessage(message.threadId, message.message)
+})
+```
+
+### Chat greeting
+
+```js
+const { login } = require('libfb')
+const api = await login('username', 'password')
+api.on('participantsAddedToGroupThreadEvent', async event => {
+  const user = await api.getUserInfo(event.participantIds[0])
+  api.sendMessage(event.threadId, `Hello, ${user.name}!`)
 })
 ```
 
