@@ -67,26 +67,19 @@ export default class MqttConnection extends EventEmitter {
 
         debugLog("Last header size:", this.lastHeader.size)
         const packetSize = this.lastHeader.i + this.lastHeader.size
+        debugLog("Packet size:", packetSize)
+        debugLog("Current buffer size:", this.decodeBuffer.length)
+        debugLog("Received buffer size:", data.length)
         this.decodeBuffer = Buffer.concat([
             this.decodeBuffer,
             data.slice(0, packetSize)
         ])
-        if (packetSize > data.length) {
-            Buffer.concat([this.decodeBuffer, data])
-            return
-        } else if (packetSize < data.length) {
-            this.decodeBuffer = Buffer.concat([
-                this.decodeBuffer,
-                data.slice(0, packetSize)
-            ])
+        if (this.decodeBuffer.length < packetSize) return // current data is less than we need; wait for more
+        else if (this.decodeBuffer.length > packetSize) { // current data is more than we need; use it as another packet
             this.emitPacket()
             this.lastHeader = null
             this.readBuffer(data.slice(packetSize, data.length))
-        } else {
-            this.decodeBuffer = Buffer.concat([
-                this.decodeBuffer,
-                data.slice(0, packetSize)
-            ])
+        } else { // current data is exactly the amount of data we need; just parse it
             this.emitPacket()
             this.lastHeader = null
         }
