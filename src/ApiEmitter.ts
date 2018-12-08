@@ -1,6 +1,20 @@
 import { EventEmitter } from "events"
 import Message from "./types/Message"
-import { ThreadNameEvent, DeliveryReceiptEvent, ReadReceiptEvent, ChangeThreadNicknameEvent, AddThreadAdminsEvent, ParticipantsAddedToGroupThreadEvent, ParticipantLeftGroupThreadEvent, EventCreateEvent, FacebookEvent, EventDeleteEvent, EventUpdateLocationEvent, EventUpdateTimeEvent, EventUpdateTitleEvent, EventRsvpEvent } from "./types/Events"
+import {
+  ThreadNameEvent,
+  DeliveryReceiptEvent,
+  ReadReceiptEvent,
+  ChangeThreadNicknameEvent,
+  AddThreadAdminsEvent,
+  ParticipantsAddedToGroupThreadEvent,
+  ParticipantLeftGroupThreadEvent,
+  EventCreateEvent,
+  EventDeleteEvent,
+  EventUpdateLocationEvent,
+  EventUpdateTimeEvent,
+  EventUpdateTitleEvent,
+  EventRsvpEvent,
+} from "./types/Events"
 import { FacebookApiOptions } from './FacebookApi'
 import Session from './types/Session'
 export default class ApiEmitter extends EventEmitter {
