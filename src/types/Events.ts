@@ -27,6 +27,13 @@ export {
   EventDeleteEvent
 } from './events/FacebookEvents'
 
+export {
+  PollOption,
+  PollEvent,
+  PollCreateEvent,
+  PollUpdateVoteEvent
+} from './events/PollEvents'
+
 export interface DeliveryReceiptEvent extends Event {
   receiverId: number
 }
