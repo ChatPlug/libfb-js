@@ -1,6 +1,22 @@
 import { EventEmitter } from "events"
 import Message from "./types/Message"
-import { ThreadNameEvent, DeliveryReceiptEvent, ReadReceiptEvent, ChangeThreadNicknameEvent, AddThreadAdminsEvent, ParticipantsAddedToGroupThreadEvent, ParticipantLeftGroupThreadEvent, EventCreateEvent, FacebookEvent, EventDeleteEvent, EventUpdateLocationEvent, EventUpdateTimeEvent, EventUpdateTitleEvent, EventRsvpEvent } from "./types/Events"
+import {
+  ThreadNameEvent,
+  DeliveryReceiptEvent,
+  ReadReceiptEvent,
+  ChangeThreadNicknameEvent,
+  AddThreadAdminsEvent,
+  ParticipantsAddedToGroupThreadEvent,
+  ParticipantLeftGroupThreadEvent,
+  EventCreateEvent,
+  EventDeleteEvent,
+  EventUpdateLocationEvent,
+  EventUpdateTimeEvent,
+  EventUpdateTitleEvent,
+  EventRsvpEvent,
+  PollCreateEvent,
+  PollUpdateVoteEvent
+} from "./types/Events"
 import { FacebookApiOptions } from './FacebookApi'
 import Session from './types/Session'
 export default class ApiEmitter extends EventEmitter {
@@ -164,6 +180,26 @@ export default class ApiEmitter extends EventEmitter {
           this.emit("event", { event: eventDeleteEvent, type: "eventDeleteEvent" })
           break
 
+        case 'group_poll':
+          switch (delta.untypedData.event_type) {
+            case 'question_creation':
+              const pollCreateEvent = {
+                ...this.getEventMetadata(delta),
+                ...this.getPollMetadata(delta.untypedData)
+              } as PollCreateEvent
+              this.emit('pollCreateEvent', pollCreateEvent)
+              this.emit("event", { event: pollCreateEvent, type: "pollCreateEvent" })
+              break
+            case 'update_vote':
+              const pollUpdateVoteEvent = {
+                ...this.getEventMetadata(delta),
+                ...this.getPollMetadata(delta.untypedData)
+              } as PollUpdateVoteEvent
+              this.emit('pollUpdateVoteEvent', pollUpdateVoteEvent)
+              this.emit("event", { event: pollUpdateVoteEvent, type: "pollUpdateVoteEvent" })
+              break
+          }
+          break
       }
     }
   }
@@ -191,6 +227,20 @@ export default class ApiEmitter extends EventEmitter {
       guests: JSON.parse(untypedData.guest_state_list).map(guest => ({
         state: guest.guest_list_state,
         id: guest.node.id
+      }))
+    }
+  }
+
+  private getPollMetadata (untypedData: any) {
+    let question = JSON.parse(untypedData.question_json)
+    return {
+      title: question.text,
+      options: question.options.map(option => ({
+        id: Number(option.id),
+        title: option.text,
+        voteCount: option.total_count,
+        voters: option.voters.map(Number),
+        viewerHasVoted: option.viewer_has_voted === 'true'
       }))
     }
   }
