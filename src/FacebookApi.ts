@@ -248,10 +248,11 @@ export default class FacebookApi {
             return
         }
 
-        if (!data.deltas || !data.deltas.length) return
-        const event = data.deltas[0]
-        debugLog(event)
+        if (!data.deltas || !Array.isArray(data.deltas)) return
 
-        this.emitter.handleMessage(event)
+        data.deltas.forEach(delta => {
+            debugLog(delta)
+            this.emitter.handleMessage(delta)
+        })
     }
 }
