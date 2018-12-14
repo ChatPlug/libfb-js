@@ -248,7 +248,7 @@ export default class FacebookApi {
             return
         }
 
-        if (!data.deltas || !data.deltas.length) return
+        if (!data.deltas || !Array.isArray(data.deltas)) return
         const event = data.deltas[0]
         debugLog(event)
 
