@@ -60,7 +60,12 @@ export default class FacebookApi {
     doLogin(login: string, password: string) {
         return new Promise(async (resolve, reject) => {
             if (!this.session.tokens) {
-                const tokens = await this.httpApi.auth(login, password)
+                let tokens
+                try {
+                    tokens = await this.httpApi.auth(login, password)
+                } catch (err) {
+                    return reject(err)
+                }
                 this.httpApi.token = tokens.access_token
                 this.session.tokens = tokens
             }
