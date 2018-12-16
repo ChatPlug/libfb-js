@@ -56,7 +56,7 @@ export default class BaseFacebookHttpApi {
             compress: true
         })
         if (!resp.ok) {
-            throw new Error("Facebook get error: " + (await resp.text()))
+            throw new Error("Facebook request error:\n" + (await resp.text()))
         }
         return resp.json()
     }
