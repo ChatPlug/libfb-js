@@ -5,6 +5,7 @@ import { Readable } from "stream"
 import streamLength from "stream-length"
 import FacebookApiHttpRequest from "./FacebookApiHttpRequest"
 import debug from "debug"
+import RandomIntGenerator from "./RandomIntGenerator"
 
 const debugLog = debug('fblib')
 
@@ -90,12 +91,12 @@ export default class BaseFacebookHttpApi {
                     device_id: this.deviceId,
                     "X-Entity-Name": "mediaUpload." + extension,
                     is_preview: "1",
-                    attempt_id: this.getRandomInt(0, (2 ^ 64) - 1),
+                    attempt_id: RandomIntGenerator.generate().toString(),
                     send_message_by_server: "1",
                     app_id: "256002347743983",
                     "Content-Type": "application/octet-stream",
                     image_type: "FILE_ATTACHMENT",
-                    offline_threading_id: this.getRandomInt(0, (2 ^ 64) - 1),
+                    offline_threading_id: RandomIntGenerator.generate().toString(),
                     "X-FB-Connection-Quality": "EXCELLENT", // kek
                     "X-Entity-Type": mimeType,
                     ttl: "0",
