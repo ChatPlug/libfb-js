@@ -14,6 +14,7 @@ import MqttMessage from "./MqttMessage"
 import MqttPacket, { FacebookMessageType } from "./MqttPacket"
 import { MqttMessageFlag } from "./MqttTypes"
 import debug from "debug"
+import RandomIntGenerator from "../RandomIntGenerator"
 
 const debugLog = debug("fblib")
 
@@ -92,7 +93,7 @@ export default class MqttApi extends EventEmitter {
     sendMessage(threadId: string, message: string) {
         return new Promise(async (resolve, reject) => {
             const milliseconds = Math.floor(new Date().getTime() / 1000)
-            const rand = Math.floor(Math.random() * (Math.pow(2, 32) - 1))
+            const rand = RandomIntGenerator.generate()
             const msgid = Math.abs((rand & 0x3fffff) | (milliseconds << 22))
             const msg = {
                 body: message,

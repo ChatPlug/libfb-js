@@ -1,4 +1,5 @@
 import DeviceId from "./types/DeviceId"
+import RandomIntGenerator from "./RandomIntGenerator"
 
 const makeUuidv4 = () => {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
@@ -12,6 +13,6 @@ export default () => {
     const uuid = makeUuidv4()
     const deviceId = uuid
     const clientId = uuid.substring(0, 19)
-    const mqttId = Math.floor(Math.random() * (2 ^ 32))
+    const mqttId = RandomIntGenerator.generate()
     return { clientId, deviceId, mqttId } as DeviceId
 }
