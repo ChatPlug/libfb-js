@@ -81,7 +81,12 @@ export default class FacebookApi {
             })
     
             this.mqttApi.on("connected", async () => {
-                const { viewer } = await this.httpApi.querySeqId()
+                let viewer
+                try {
+                    ({ viewer } = await this.httpApi.querySeqId())
+                } catch (err) {
+                    return reject(err)
+                }
                 const seqId = viewer.message_threads.sync_sequence_id
                 this.seqId = seqId
                 resolve()
@@ -93,10 +98,14 @@ export default class FacebookApi {
                 await this.createQueue(seqId)
             })
 
-            await this.mqttApi.connect(
-                this.session.tokens,
-                this.session.deviceId
-            )
+            try {
+                await this.mqttApi.connect(
+                    this.session.tokens,
+                    this.session.deviceId
+                )
+            } catch (err) {
+                return reject(err)
+            }
         })
     }
 
