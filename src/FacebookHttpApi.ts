@@ -1,6 +1,7 @@
 import BaseFacebookHttpApi from "./BaseFacebookHttpApi"
 import FacebookApiHttpRequest from "./FacebookApiHttpRequest"
 import AuthTokens from "./types/AuthTokens"
+import * as util from 'util'
 
 /**
  * This class will make specific requests to the facebook API utilizing their sick http logic implemented by BaseFacebookHttpApi.
@@ -21,8 +22,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
             )
         ).then(res => {
             if (!res.access_token) {
-                console.dir(res)
-                throw new Error("Access token missing!")
+                throw new Error("Access token missing!\n" + util.inspect(res))
             }
             this.token = res.access_token
             return res
