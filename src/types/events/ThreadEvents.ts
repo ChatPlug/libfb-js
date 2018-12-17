@@ -12,11 +12,6 @@ export interface ThreadNameEvent extends MessageEvent {
   name: string
 }
 
-export interface ChangeThreadNicknameEvent extends MessageEvent {
-  participantId: number
-  nickname: string
-}
-
 export interface AddThreadAdminsEvent extends MessageEvent {
   participantId: number
 }
