@@ -115,13 +115,16 @@ export default class MqttApi extends EventEmitter {
 
         const qos1 = (flags & MqttMessageFlag.QoS1) == MqttMessageFlag.QoS1
         const qos2 = (flags & MqttMessageFlag.QoS2) == MqttMessageFlag.QoS2
+        let message: MqttMessage
         if (qos1) {
-            this.connection.writeMessage(encodePublishAck(publish.msgId))
+            message = encodePublishAck(publish.msgId)
         }
 
         if (qos2) {
-            this.connection.writeMessage(encodePublishRecorded(publish.msgId))
+            message = encodePublishRecorded(publish.msgId)
         }
+
+        return this.connection.writeMessage(message)
     }
 
     parsePacket = async (packet: MqttPacket) => {
