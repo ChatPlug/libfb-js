@@ -12,7 +12,6 @@ export {
   ParticipantsAddedToGroupThreadEvent,
   ParticipantLeftGroupThreadEvent,
   ThreadNameEvent,
-  ChangeThreadNicknameEvent,
   AddThreadAdminsEvent
 } from './events/ThreadEvents'
 
@@ -33,6 +32,12 @@ export {
   PollCreateEvent,
   PollUpdateVoteEvent
 } from './events/PollEvents'
+
+export {
+  ChangeThreadNicknameEvent,
+  ChangeThreadIconEvent,
+  ChangeThreadThemeEvent
+} from './events/ThreadCustomizationEvents'
 
 export interface DeliveryReceiptEvent extends Event {
   receiverId: number

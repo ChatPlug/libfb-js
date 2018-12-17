@@ -5,6 +5,8 @@ import {
   DeliveryReceiptEvent,
   ReadReceiptEvent,
   ChangeThreadNicknameEvent,
+  ChangeThreadIconEvent,
+  ChangeThreadThemeEvent,
   AddThreadAdminsEvent,
   ParticipantsAddedToGroupThreadEvent,
   ParticipantLeftGroupThreadEvent,
@@ -199,6 +201,25 @@ export default class ApiEmitter extends EventEmitter {
               this.emit("event", { event: pollUpdateVoteEvent, type: "pollUpdateVoteEvent" })
               break
           }
+          break
+
+        case 'change_thread_icon':
+          const changeThreadIconEvent = {
+            ...this.getEventMetadata(delta),
+            threadIcon: delta.untypedData.thread_icon,
+            threadIconURL: delta.untypedData.thread_icon_url
+          } as ChangeThreadIconEvent
+          this.emit('changeThreadIconEvent', changeThreadIconEvent)
+          this.emit("event", { event: changeThreadIconEvent, type: "changeThreadIconEvent" })
+          break
+
+        case 'change_thread_theme':
+          const changeThreadThemeEvent = {
+            ...this.getEventMetadata(delta),
+            color: delta.untypedData.theme_color
+          } as ChangeThreadThemeEvent
+          this.emit('changeThreadThemeEvent', changeThreadThemeEvent)
+          this.emit("event", { event: changeThreadThemeEvent, type: "changeThreadThemeEvent" })
           break
       }
     }
