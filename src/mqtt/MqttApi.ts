@@ -4,7 +4,7 @@ import AuthTokens from "../types/AuthTokens"
 import DeviceId from "../types/DeviceId"
 import { encodeConnectMessage } from "./messages/Connect"
 import { encodePing } from "./messages/Ping"
-import { decodePublish, encodePublish } from "./messages/Publish"
+import { decodePublish, encodePublish, PublishPacket } from "./messages/Publish"
 import { encodePublishAck } from "./messages/PublishAck"
 import { encodePublishRecorded } from "./messages/PublishRecorded"
 import { encodeSubscribeMessage } from "./messages/Subscribe"
@@ -50,9 +50,7 @@ export default class MqttApi extends EventEmitter {
         await this.connection.connect()
         this.connection.on("packet", this.parsePacket)
         await this.sendConnectMessage()
-        this.connection.on("close", (e) => {
-            this.reconnect()
-        })
+        this.connection.on("close", () => this.reconnect())
     }
     
     reconnect = async () => {
@@ -76,15 +74,44 @@ export default class MqttApi extends EventEmitter {
      */
     async sendConnectMessage() {
         setInterval(this.sendPing, 60 * 1000)
-        if (!this.connection._connected) return
+        debugLog('sending connect message')
+        if (!this.connection._connected) throw new Error('MQTT could not connect')
         const connectMessage = await encodeConnectMessage(this.tokens, this.deviceId)
+
         await this.connection.writeMessage(connectMessage)
+        await this.waitForAck('Connect')
+
+        await this.sendPublish(
+            '/foreground_state',
+            '{"foreground":true,"keepalive_timeout":60}'
+        )
+
+        await this.sendSubscribe(encodeSubscribeMessage(this.lastMsgId))
+        await this.waitForAck('Subscribe')
+
+        await this.sendSubscribe(encodeUnsubscribe(this.lastMsgId))
+        await this.waitForAck('Unsubscribe')
+
+        debugLog("Connected.")
+        this.emit("connected")
     }
 
-    sendPublish(topic: string, data: string) {
-        const packet = encodePublish(this.lastMsgId, topic, data)
+    async sendPublish(topic: string, data: string) {
+        const packet = encodePublish({
+            msgId: this.lastMsgId,
+            topic,
+            data: Buffer.from(data)
+        })
         this.lastMsgId += 1
-        return this.connection.writeMessage(packet)
+        await this.connection.writeMessage(packet)
+        await this.waitForAck('Publish')
+    }
+
+    async waitForAck(type: string) {
+        return new Promise((resolve, reject) => {
+            this.once(type + 'Ack', resolve)
+            this.connection.once('failed', () => reject('MQTT connection failed'))
+        })
     }
 
     /**
@@ -106,38 +133,28 @@ export default class MqttApi extends EventEmitter {
         })
     }
 
-    async sendPublishConfirmation(flags: number, publish) {
-        if (publish.msgId === 0) {
-            return
-        }
+    async sendPublishConfirmation(flags: number, publish: PublishPacket) {
+        if (publish.msgId === 0) return
 
         const qos1 = (flags & MqttMessageFlag.QoS1) == MqttMessageFlag.QoS1
         const qos2 = (flags & MqttMessageFlag.QoS2) == MqttMessageFlag.QoS2
+        let message: MqttMessage
         if (qos1) {
-            this.connection.writeMessage(encodePublishAck(publish.msgId))
+            message = encodePublishAck(publish.msgId)
         }
 
         if (qos2) {
-            this.connection.writeMessage(encodePublishRecorded(publish.msgId))
+            message = encodePublishRecorded(publish.msgId)
         }
+
+        return this.connection.writeMessage(message)
     }
 
     parsePacket = async (packet: MqttPacket) => {
         switch (packet.type) {
             case FacebookMessageType.ConnectAck:
                 debugLog("Packet type: ConnectAck")
-                await this.sendPublish(
-                    "/foreground_state",
-                    '{"foreground":true,"keepalive_timeout":60}'
-                )
-                await this.sendSubscribe(
-                    encodeSubscribeMessage(this.lastMsgId)
-                )
-                await this.sendSubscribe(encodeUnsubscribe(this.lastMsgId))
-                debugLog("Connected.")
-
-                // await this.sendMessage()
-                this.emit("connected")
+                this.emit('ConnectAck')
                 break
             case FacebookMessageType.Publish:
                 debugLog("Packet type: Publish")
@@ -147,12 +164,15 @@ export default class MqttApi extends EventEmitter {
                 break
             case FacebookMessageType.SubscribeAck:
                 debugLog("Packet type: SubscribeAck")
+                this.emit('SubscribeAck')
                 break
             case FacebookMessageType.PublishAck:
                 debugLog("Packet type: PublishAck")
+                this.emit('PublishAck')
                 break
             case FacebookMessageType.UnsubscribeAck:
                 debugLog("Packet type: UnsubscribeAck")
+                this.emit('UnsubscribeAck')
                 break
             case FacebookMessageType.Pong:
                 debugLog("Packet type: Pong")

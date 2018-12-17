@@ -17,6 +17,7 @@ export default class MqttConnection extends EventEmitter {
     connectMsg: any
     _connected: boolean = false
     queue: MqttMessage[] = []
+    lastConnectTimestamp: Date
 
     constructor () {
         super()
@@ -34,16 +35,17 @@ export default class MqttConnection extends EventEmitter {
      * Connects to Facebook mqtt servers. The promise is resolved when a secure TLS handshake is established. No CONNECT message is sent yet.
      */
     async connect() {
-        await new Promise((res, rej) => {
+        await new Promise((resolve, reject) => {
             this.socket = TLSConnect({
                 host: "mqtt.facebook.com",
                 port: 443
             })
-            this.socket.on("secureConnect", res)
-            this.socket.on("error", err => { throw err })
+            this.socket.on("secureConnect", resolve)
+            this.socket.on("error", reject)
         })
 
         this._connected = true
+        this.lastConnectTimestamp = new Date()
 
         this.socket!!.on("data", data => {
             debugLog("")
@@ -52,8 +54,13 @@ export default class MqttConnection extends EventEmitter {
         })
         this.socket!!.on("close", _ => {
             this._connected = false
-            debugLog(this._connected)
             debugLog("close")
+            debugLog(Date.now() - this.lastConnectTimestamp.getTime())
+            if (Date.now() - this.lastConnectTimestamp.getTime() < 1000) {
+                debugLog("failed")
+                this.emit('failed')
+                return
+            }
             this.emit("close")
             // throw new Error('Connection closed.')
         })

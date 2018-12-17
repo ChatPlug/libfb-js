@@ -5,24 +5,28 @@ import { MqttMessageFlag } from "../MqttTypes"
 import PacketReader from "../PacketReader"
 import { FacebookMessageType } from "./MessageTypes"
 
+export interface PublishPacket {
+    msgId: number
+    topic: string
+    data: Buffer
+}
+
 /**
  * Assembles a mqtt publish message.
  */
-export const encodePublish = (msgId, topic, content): MqttMessage => {
+export const encodePublish = (packet: PublishPacket): MqttMessage => {
     const message = new MqttMessage()
-    message.writeString(topic)
-    message.writeU16(msgId)
-    message.writeRaw(zlib.deflateSync(Buffer.from(content)))
+    message.writeString(packet.topic)
+    message.writeU16(packet.msgId)
+    message.writeRaw(zlib.deflateSync(packet.data))
     message.flags = 2
     message.type = FacebookMessageType.Publish
     return message
 }
 
-export const decodePublish = (
-    mqttPacket: MqttPacket
-): { msgId; topic; content } => {
+export const decodePublish = (mqttPacket: MqttPacket): PublishPacket => {
     const reader = new PacketReader(mqttPacket)
-    const result = {} as { topic: string; msgId: number; content: any }
+    const result = {} as PublishPacket
     result.topic = reader.readData().toString("utf8")
 
     result.msgId = 0
@@ -33,7 +37,7 @@ export const decodePublish = (
         result.msgId = reader.readU16()
     }
 
-    result.content = zlib.inflateSync(reader.readRaw())
+    result.data = zlib.inflateSync(reader.readRaw())
 
     return result
 }

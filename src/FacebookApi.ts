@@ -9,6 +9,7 @@ import Thread from "./types/Thread"
 import User from "./types/User"
 import debug from "debug"
 import { Readable } from 'stream';
+import { PublishPacket } from './mqtt/messages/Publish';
 
 const debugLog = debug("fblib")
 
@@ -70,14 +71,14 @@ export default class FacebookApi {
                 this.session.tokens = tokens
             }
     
-            this.mqttApi.on("publish", async publish => {
+            this.mqttApi.on("publish", async (publish: PublishPacket) => {
                 debugLog(publish.topic)
                 if (publish.topic === "/send_message_response") {
-                    const response = JSON.parse(publish.content.toString('utf8'))
+                    const response = JSON.parse(publish.data.toString('utf8'))
                     debugLog(response)
                     this.mqttApi.emit("sentMessage:" + response.msgid, response)
                 }
-                if (publish.topic === "/t_ms") this.handleMS(publish.content.toString("utf8"))
+                if (publish.topic === "/t_ms") this.handleMS(publish.data.toString("utf8"))
             })
     
             this.mqttApi.on("connected", async () => {
