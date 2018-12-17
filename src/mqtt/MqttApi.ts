@@ -4,7 +4,7 @@ import AuthTokens from "../types/AuthTokens"
 import DeviceId from "../types/DeviceId"
 import { encodeConnectMessage } from "./messages/Connect"
 import { encodePing } from "./messages/Ping"
-import { decodePublish, encodePublish } from "./messages/Publish"
+import { decodePublish, encodePublish, PublishPacket } from "./messages/Publish"
 import { encodePublishAck } from "./messages/PublishAck"
 import { encodePublishRecorded } from "./messages/PublishRecorded"
 import { encodeSubscribeMessage } from "./messages/Subscribe"
@@ -82,7 +82,11 @@ export default class MqttApi extends EventEmitter {
     }
 
     sendPublish(topic: string, data: string) {
-        const packet = encodePublish(this.lastMsgId, topic, data)
+        const packet = encodePublish({
+            msgId: this.lastMsgId,
+            topic,
+            data: Buffer.from(data)
+        })
         this.lastMsgId += 1
         return this.connection.writeMessage(packet)
     }
@@ -106,10 +110,8 @@ export default class MqttApi extends EventEmitter {
         })
     }
 
-    async sendPublishConfirmation(flags: number, publish) {
-        if (publish.msgId === 0) {
-            return
-        }
+    async sendPublishConfirmation(flags: number, publish: PublishPacket) {
+        if (publish.msgId === 0) return
 
         const qos1 = (flags & MqttMessageFlag.QoS1) == MqttMessageFlag.QoS1
         const qos2 = (flags & MqttMessageFlag.QoS2) == MqttMessageFlag.QoS2
