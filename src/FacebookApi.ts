@@ -9,7 +9,8 @@ import Thread from "./types/Thread"
 import User from "./types/User"
 import debug from "debug"
 import { Readable } from 'stream';
-import { PublishPacket } from './mqtt/messages/Publish';
+import { PublishPacket } from './mqtt/messages/Publish'
+import * as util from 'util'
 
 const debugLog = debug("fblib")
 
@@ -136,6 +137,7 @@ export default class FacebookApi {
     
     getAttachmentURL = async (messageId: string, attachmentId: string) => {
         const attachment = await this.httpApi.getAttachment(messageId, attachmentId)
+        if (!attachment.redirect_uri) throw new Error('Could not get attachment URL! Attachment:\n' + util.inspect(attachment))
         return attachment.redirect_uri
     }
 
