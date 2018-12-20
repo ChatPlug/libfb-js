@@ -141,6 +141,11 @@ export default class FacebookApi {
         return attachment.redirect_uri
     }
 
+    getAttachmentInfo = async (messageId: string, attachmentId: string) => {
+        const attachment = await this.httpApi.getAttachment(messageId, attachmentId)
+        return attachment
+    }
+
     getStickerURL = async (stickerId: number) => {
         const sticker = await this.httpApi.getSticker(stickerId)
         return sticker[stickerId.toString()].thread_image.uri
