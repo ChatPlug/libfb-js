@@ -5,8 +5,8 @@
   "main": "dist/FBMessenger.js",
   "dependencies": {
     "buffer-hexdump": "^1.0.0",
-    "stream-length": "^1.0.2",
     "debug": "^4.1.1",
+    "length-stream": "^0.1.1",
     "mime-types": "^2.1.21",
     "node-fetch": "^2.3.0",
     "thrift": "^0.11.0",
