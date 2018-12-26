@@ -2,7 +2,7 @@ import { createHash } from "crypto"
 import mime from "mime-types"
 import fetch from "node-fetch"
 import { Readable } from "stream"
-import streamLength from "stream-length"
+import lengthStream from "length-stream"
 import FacebookApiHttpRequest from "./FacebookApiHttpRequest"
 import debug from "debug"
 import RandomIntGenerator from "./RandomIntGenerator"
@@ -80,7 +80,7 @@ export default class BaseFacebookHttpApi {
         const mimeType = extension.includes('/') ? extension : mime.lookup(extension)
         if (mimeType === extension) extension = mime.extension(mimeType)
         debugLog({ mimeType, extension })
-        const len = await streamLength(readStream)
+        const len = await this.streamLength(readStream)
         const resp = await fetch(
             "https://rupload.facebook.com/messenger_image/" + randId,
             {
@@ -124,5 +124,10 @@ export default class BaseFacebookHttpApi {
 
     getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min
+    }
+
+    streamLength (stream): Promise<string> {
+        // it's actually number but node-fetch enforces strings and Facebook doesn't handle them properly?? what
+        return new Promise(resolve => stream.pipe(lengthStream(resolve)))
     }
 }
