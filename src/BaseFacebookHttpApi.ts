@@ -65,7 +65,8 @@ export default class BaseFacebookHttpApi {
         readStream: Readable,
         extension: string,
         from: number,
-        to: number
+        to: number,
+        streamLength?: string
     ) {
         let randId = ""
         const possible =
@@ -80,7 +81,7 @@ export default class BaseFacebookHttpApi {
         const mimeType = extension.includes('/') ? extension : mime.lookup(extension)
         if (mimeType === extension) extension = mime.extension(mimeType)
         debugLog({ mimeType, extension })
-        const len = await this.streamLength(readStream)
+        const len = streamLength || await this.streamLength(readStream)
         const resp = await fetch(
             "https://rupload.facebook.com/messenger_image/" + randId,
             {

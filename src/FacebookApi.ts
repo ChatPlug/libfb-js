@@ -125,10 +125,11 @@ export default class FacebookApi {
     }
 
     sendAttachmentFile = (threadId: number, attachmentPath: string, extension?: string) => {
-        if (!fs.existsSync(attachmentPath)) throw new Error('Attachment missing!')
+        if (!fs.existsSync(attachmentPath)) throw new Error('Attachment missing! ' + attachmentPath)
         const stream = fs.createReadStream(attachmentPath)
         if (!extension) extension = path.parse(attachmentPath).ext
-        return this.httpApi.sendImage(stream, extension, this.session.tokens.uid, threadId)
+        const length = fs.statSync(attachmentPath).size.toString()
+        return this.httpApi.sendImage(stream, extension, this.session.tokens.uid, threadId, length)
     }
 
     sendAttachmentStream = (threadId: number, extension: string, attachment: Readable) => {
