@@ -109,7 +109,7 @@ export default class MqttApi extends EventEmitter {
 
     async waitForAck(type: string) {
         return new Promise((resolve, reject) => {
-            function onFailed() { reject('MQTT connection failed') }
+            function onFailed() { reject(new Error('MQTT connection failed')) }
             this.connection.once('failed', onFailed)
             this.once(type + 'Ack', () => {
                 this.connection.removeListener('failed', onFailed)
