@@ -1,7 +1,12 @@
 import BaseFacebookHttpApi from "./BaseFacebookHttpApi"
 import FacebookApiHttpRequest from "./FacebookApiHttpRequest"
 import AuthTokens from "./types/AuthTokens"
-import * as util from 'util'
+
+class APIError extends Error {
+    code?: number
+    errorData?: any
+    requestArgs?: any
+}
 
 /**
  * This class will make specific requests to the facebook API utilizing their sick http logic implemented by BaseFacebookHttpApi.
@@ -22,7 +27,11 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
             )
         ).then(res => {
             if (!res.access_token) {
-                throw new Error("Access token missing!\n" + util.inspect(res))
+                const error = new APIError(res.error_msg)
+                error.code = res.error_code
+                error.errorData = JSON.parse(res.error_data)
+                error.requestArgs = res.request_args.reduce((prev, current) => ({ ...prev, [current.key]: current.value }), {})
+                throw error
             }
             this.token = res.access_token
             return res
@@ -52,7 +61,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
     /**
      * @see QFacebookHttpApi::usersQuery
      */
-    async usersQuery(userId: string, count: number) {
+    async usersQuery(userIds: [ string ]) {
         return this.get(
             new FacebookApiHttpRequest(
                 "https://graph.facebook.com/graphql",
@@ -61,8 +70,8 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
                 {
                     query_id: "10154444360806729",
                     query_params: JSON.stringify({
-                        "0": [ userId ],
-                        "1": count
+                        "0": userIds,
+                        "1": userIds.length
                     })
                 }
             )
@@ -73,7 +82,7 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
      * @see QFacebookHttpApi::usersQueryAfter
      * @param cursor
      */
-    async usersQueryAfter(userId: string, count: number, cursor: string) {
+    async usersQueryAfter(userIds: [ string ], cursor: string) {
         return this.get(
             new FacebookApiHttpRequest(
                 "https://graph.facebook.com/graphql",
@@ -82,9 +91,9 @@ export default class FacebookHttpApi extends BaseFacebookHttpApi {
                 {
                     query_id: "10154444360816729",
                     query_params: JSON.stringify({
-                        "0": [ userId ],
+                        "0": userIds,
                         "1": cursor,
-                        "2": count
+                        "2": userIds.length
                     })
                 }
             )
