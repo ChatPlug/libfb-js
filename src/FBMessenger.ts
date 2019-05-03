@@ -7,8 +7,6 @@ export { default as Thread } from "./types/Thread"
 export { default as User } from "./types/User"
 export * from "./types/Events"
 
-
-
 const login = async (email: string, password: string, options?: FacebookApiOptions): Promise<FacebookApi> => {
     if (!email || !email.trim() || !password || !password.trim())
         throw new Error("Wrong username/password!") // trim to check for spaces (which are truthy)
@@ -19,5 +17,6 @@ const login = async (email: string, password: string, options?: FacebookApiOptio
 
 export {
     login,
-    FacebookApiOptions
+    FacebookApiOptions,
+    FacebookApi
 }

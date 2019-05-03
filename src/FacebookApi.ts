@@ -2,7 +2,7 @@ import fs from "fs"
 import path from "path"
 import ApiEmitter from "./ApiEmitter"
 import makeDeviceId from "./FacebookDeviceId"
-import FacebookHttpApi from "./FacebookHttpApi"
+import HttpApi from "./http/HttpApi"
 import MqttApi from "./mqtt/MqttApi"
 import Session from "./types/Session"
 import Thread from "./types/Thread"
@@ -22,7 +22,7 @@ export interface FacebookApiOptions {
 // 🥖
 export default class FacebookApi {
     mqttApi: MqttApi
-    httpApi: FacebookHttpApi
+    httpApi: HttpApi
     emitter: ApiEmitter
     session: Session | null
     seqId = ""
@@ -30,7 +30,7 @@ export default class FacebookApi {
 
     constructor(options: FacebookApiOptions = { selfListen: false, session: null }) {
         this.mqttApi = new MqttApi()
-        this.httpApi = new FacebookHttpApi()
+        this.httpApi = new HttpApi()
 
         let session = options.session
         if (!session) {
@@ -40,7 +40,7 @@ export default class FacebookApi {
         if (!session.deviceId) {
             const deviceId = makeDeviceId()
             session.deviceId = deviceId
-            session = { deviceId, tokens: null }
+            this.httpApi.deviceId = deviceId.deviceId
         }
 
         if (session.tokens) {
@@ -119,7 +119,7 @@ export default class FacebookApi {
         return this.mqttApi.sendMessage(threadId.toString(), message)
     }
 
-    getThreadList = async (count: number) => {
+    getThreadList = async (count: number): Promise<Thread[]> => {
         const threads = await this.httpApi.threadListQuery(count)
         return threads.viewer.message_threads.nodes.map(this.parseThread)
     }
@@ -136,7 +136,7 @@ export default class FacebookApi {
         return this.httpApi.sendImage(attachment, extension, this.session.tokens.uid, threadId)
     }
     
-    getAttachmentURL = async (messageId: string, attachmentId: string) => {
+    getAttachmentURL = async (messageId: string, attachmentId: string): Promise<string> => {
         const attachment = await this.httpApi.getAttachment(messageId, attachmentId)
         if (!attachment.redirect_uri) throw new Error('Could not get attachment URL! Attachment:\n' + util.inspect(attachment))
         return attachment.redirect_uri
@@ -147,7 +147,7 @@ export default class FacebookApi {
         return attachment
     }
 
-    getStickerURL = async (stickerId: number) => {
+    getStickerURL = async (stickerId: number): Promise<string> => {
         const sticker = await this.httpApi.getSticker(stickerId)
         return sticker[stickerId.toString()].thread_image.uri
     }
