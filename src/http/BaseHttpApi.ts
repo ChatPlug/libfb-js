@@ -3,9 +3,9 @@ import mime from "mime-types"
 import fetch from "node-fetch"
 import { Readable } from "stream"
 import lengthStream from "length-stream"
-import FacebookApiHttpRequest from "./FacebookApiHttpRequest"
+import HttpApiRequest from "./HttpApiRequest"
 import debug from "debug"
-import RandomIntGenerator from "./RandomIntGenerator"
+import RandomIntGenerator from "../RandomIntGenerator"
 
 const debugLog = debug('fblib')
 
@@ -17,34 +17,29 @@ const debugLog = debug('fblib')
 
 const USER_AGENT =
     "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.20.381;FBPN/com.facebook.orca;FBLC/en_US;FBBV/256002347743983]"
+const APP_ID = "256002347743983"
 
-export default class BaseFacebookHttpApi {
+export default class BaseHttpApi {
     deviceId: string
     token: string
 
-    async get(request: FacebookApiHttpRequest) {
-        request.params["api_key"] = "256002347743983"
-        request.params["device_id"] = this.deviceId
-        request.params["fb_api_req_friendly_name"] = request.friendlyName
-        request.params["format"] = "json"
-        request.params["method"] = request.method
-        request.params["local"] = "pl_PL"
-        let dataToHash = request
-            .sortedKeys()
-            .map(k => k + "=" + request.params[k])
-            .join("") // This isn't the same as request.serializeParams(), because no & sign and no escaping. Thanks ZUCC
-        dataToHash += "374e60f8b9bb6b8cbb30f78030438895" // ??? xDDDDDD wtf XD
-        const sig = createHash("md5")
-            .update(dataToHash)
-            .digest("hex")
-        request.params["sig"] = sig
+    async post(request: HttpApiRequest) {
+        request.params = {
+            ...request.params,
+            api_key: APP_ID,
+            device_id: this.deviceId,
+            fb_api_req_friendly_name: request.friendlyName,
+            format: 'json',
+            method: request.method,
+            locale: 'en_EN'
+        }
+        request.sign()
 
-        const resultingUrl = request.url
         let extraHeaders = {}
         if (this.token) {
             extraHeaders["Authorization"] = "OAuth " + this.token
         }
-        const resp = await fetch(resultingUrl, {
+        const resp = await fetch(request.url, {
             headers: {
                 "User-Agent": USER_AGENT,
                 "Content-Type":
@@ -59,6 +54,10 @@ export default class BaseFacebookHttpApi {
             throw new Error("Facebook request error:\n" + (await resp.text()))
         }
         return resp.json()
+    }
+
+    async request() {
+
     }
 
     async sendImage(
@@ -86,15 +85,14 @@ export default class BaseFacebookHttpApi {
             "https://rupload.facebook.com/messenger_image/" + randId,
             {
                 headers: {
-                    "User-Agent":
-                        "Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.20.381;FBPN/com.facebook.orca;FBLC/en_US;FBBV/256002347743983]",
+                    "User-Agent": USER_AGENT,
                     Authorization: "OAuth " + this.token,
                     device_id: this.deviceId,
                     "X-Entity-Name": "mediaUpload." + extension,
                     is_preview: "1",
                     attempt_id: RandomIntGenerator.generate().toString(),
                     send_message_by_server: "1",
-                    app_id: "256002347743983",
+                    app_id: APP_ID,
                     "Content-Type": "application/octet-stream",
                     image_type: "FILE_ATTACHMENT",
                     offline_threading_id: RandomIntGenerator.generate().toString(),
