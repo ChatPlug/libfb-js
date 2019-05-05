@@ -1,8 +1,8 @@
-import { MqttMessageFlag } from "./MqttTypes"
+import { MqttMessageFlag } from './MqttTypes'
 
 export interface MqttHeader {
-    size: number
-    i: number
+  size: number
+  i: number
 }
 
 export enum FacebookMessageType {
@@ -23,8 +23,8 @@ export enum FacebookMessageType {
 }
 
 export default interface MqttPacket {
-    header: MqttHeader
-    type: FacebookMessageType
-    content: Buffer
-    flag: MqttMessageFlag
+  header: MqttHeader
+  type: FacebookMessageType
+  content: Buffer
+  flag: MqttMessageFlag
 }

@@ -1,10 +1,34 @@
-interface Event {
-  threadId: number
+export type EventType = (
+  'participantsAddedToGroupThreadEvent' |
+  'participantLeftGroupThreadEvent' |
+  'threadNameEvent' |
+  'addThreadAdminsEvent' |
+
+  'planCreateEvent' |
+  'planUpdateTitleEvent' |
+  'planUpdateTimeEvent' |
+  'planUpdateLocationEvent' |
+  'planRsvpEvent' |
+  'planDeleteEvent' |
+
+  'pollCreateEvent' |
+  'pollUpdateVoteEvent' |
+
+  'changeThreadNicknameEvent' |
+  'changeThreadIconEvent' |
+  'changeThreadThemeEvent' |
+
+  'deliveryReceiptEvent' |
+  'readReceiptEvent'
+)
+
+export interface Event {
+  threadId: string
 }
 
 export interface MessageEvent extends Event {
   id: string
-  authorId: number
+  authorId: string
   message: string
 }
 
@@ -16,15 +40,15 @@ export {
 } from './events/ThreadEvents'
 
 export {
-  FacebookEventGuest,
-  FacebookEvent,
-  EventCreateEvent,
-  EventUpdateTitleEvent,
-  EventUpdateTimeEvent,
-  EventUpdateLocationEvent,
-  EventRsvpEvent,
-  EventDeleteEvent
-} from './events/FacebookEvents'
+  PlanGuest,
+  PlanEvent,
+  PlanCreateEvent,
+  PlanUpdateTitleEvent,
+  PlanUpdateTimeEvent,
+  PlanUpdateLocationEvent,
+  PlanRsvpEvent,
+  PlanDeleteEvent
+} from './events/PlanEvents'
 
 export {
   PollOption,
@@ -40,9 +64,9 @@ export {
 } from './events/ThreadCustomizationEvents'
 
 export interface DeliveryReceiptEvent extends Event {
-  receiverId: number
+  receiverId: string
 }
 
 export interface ReadReceiptEvent extends Event {
-  receiverId: number
+  receiverId: string
 }

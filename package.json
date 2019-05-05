@@ -1,14 +1,28 @@
 {
   "name": "libfb",
-  "version": "1.4.12",
+  "version": "2.0.2",
   "description": "Facebook MQTT library for Node.js",
-  "main": "dist/FBMessenger.js",
+  "repository": "https://github.com/ChatPlug/libfb-js",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "tslint -c tslint.json 'src/**/*.ts' && mocha -r ts-node/register test/**/*.ts",
+    "clean": "shx rm -rf dist/",
+    "compile": "tsc",
+    "generateDocs": "typedoc",
+    "prepare": "npm run clean && npm run compile"
+  },
+  "contributors": [
+    "alufers <alufers@wp.pl>",
+    "Filip Grzywok <rj23@protonmail.com>",
+    "Bjornskjald <github@bjorn.ml>"
+  ],
   "dependencies": {
     "buffer-hexdump": "^1.0.0",
     "debug": "^4.1.1",
     "length-stream": "^0.1.1",
     "mime-types": "^2.1.21",
     "node-fetch": "^2.3.0",
+    "strict-event-emitter-types": "^2.0.0",
     "thrift": "^0.11.0",
     "tslib": "^1.9.3"
   },
@@ -16,7 +30,7 @@
     "@types/chai": "^4.1.7",
     "@types/debug": "0.0.31",
     "@types/mocha": "^5.2.5",
-    "@types/node": "^10.12.18",
+    "@types/node": "^10.14.6",
     "@types/node-fetch": "^2.1.4",
     "@types/node-int64": "^0.4.29",
     "@types/thrift": "^0.10.7",
@@ -25,18 +39,12 @@
     "mocha": "^5.2.0",
     "shx": "^0.3.2",
     "ts-node": "^7.0.1",
+    "tslint": "^5.16.0",
+    "tslint-config-standard": "^8.0.1",
+    "typedoc": "^0.14.2",
+    "typedoc-plugin-as-member-of": "^1.0.2",
+    "typedoc-plugin-sourcefile-url": "^1.0.4",
     "typescript": "^3.2.2"
   },
-  "scripts": {
-    "test": "mocha -r ts-node/register test/**/*.ts",
-    "clean": "shx rm -rf dist/",
-    "compile": "tsc",
-    "prepare": "npm run clean && npm run compile"
-  },
-  "contributors": [
-    "alufers <alufers@wp.pl>",
-    "Filip Grzywok <rj23@protonmail.com>",
-    "Bjornskjald <github@bjorn.ml>"
-  ],
   "license": "MIT"
 }

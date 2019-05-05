@@ -1,10 +1,10 @@
 import { MessageEvent } from '../Events'
 
 export interface PollOption {
-  id: number
+  id: string
   title: string
   voteCount: number
-  voters: number[]
+  voters: string[]
   viewerHasVoted: boolean
 }
 
