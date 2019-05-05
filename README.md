@@ -11,51 +11,32 @@
 ### Echo bot
 
 ```js
-const { login } = require('libfb')
-const api = await login('username', 'password')
-api.on('message', message => {
-  console.log('Got a message!')
-  console.log(message.message)
-  api.sendMessage(message.threadId, message.message)
+const { Client } = require('libfb')
+const client = new Client()
+client.login('username', 'password').then(() => {
+  client.on('message', message => {
+    console.log('Got a message!')
+    console.log(message.message)
+    client.sendMessage(message.threadId, message.message)
+  })
 })
 ```
 
 ### Chat greeting
 
 ```js
-const { login } = require('libfb')
-const api = await login('username', 'password')
-api.on('participantsAddedToGroupThreadEvent', async event => {
-  const user = await api.getUserInfo(event.participantIds[0])
-  api.sendMessage(event.threadId, `Hello, ${user.name}!`)
+const { Client } = require('libfb')
+const client = new Client()
+client.login('username', 'password').then(() => {
+  client.on('participantsAddedToGroupThreadEvent', async event => {
+    const user = await client.getUserInfo(event.participantIds[0])
+    client.sendMessage(event.threadId, `Hello, ${user.name}!`)
+  })
 })
 ```
 
 ## Documentation
-- [`login(email, password, options)`](docs/login.md)
-- [`FacebookApi`](docs/FacebookApi.md)
-- [`FacebookApiOptions`](docs/FacebookApiOptions.md)
-- [`AuthTokens`](docs/AuthTokens.md)
-- [`DeviceId`](docs/DeviceId.md)
-- [`Session`](docs/Session.md)
-- [`Thread`](docs/Thread.md)
-- [`User`](docs/User.md)
-- [`Message`](docs/Message.md)
-- [`ParticipantsAddedToGroupThreadEvent`](docs/ParticipantsAddedToGroupThreadEvent.md)
-- [`ParticipantLeftGroupThreadEvent`](docs/ParticipantLeftGroupThreadEvent.md)
-- [`ThreadNameEvent`](docs/ThreadNameEvent.md)
-- [`ChangeThreadNicknameEvent`](docs/ChangeThreadNicknameEvent.md)
-- [`AddThreadAdminsEvent`](docs/AddThreadAdminsEvent.md)
-- [`FacebookEventGuest`](docs/FacebookEventGuest.md)
-- [`FacebookEvent`](docs/FacebookEvent.md)
-- [`EventCreateEvent`](docs/EventCreateEvent.md)
-- [`EventUpdateTitleEvent`](docs/EventUpdateTitleEvent.md)
-- [`EventUpdateTimeEvent`](docs/EventUpdateTimeEvent.md)
-- [`EventUpdateLocationEvent`](docs/EventUpdateLocationEvent.md)
-- [`EventRsvpEvent`](docs/EventRsvpEvent.md)
-- [`EventDeleteEvent`](docs/EventDeleteEvent.md)
-- [`DeliveryReceiptEvent`](docs/DeliveryReceiptEvent.md)
-- [`ReadReceiptEvent`](docs/ReadReceiptEvent.md)
+See [here](https://chatplug.github.io/libfb-js/)
 
 
 ## Disclaimer

@@ -1,5 +1,5 @@
 export default interface User {
-  id: number
+  id: string
   name: string
   type: string
   canMessage: boolean
@@ -11,3 +11,4 @@ export default interface User {
   profilePicMedium: string
   profilePicSmall: string
 }
+export { default as parseUser } from './user/parseUser'

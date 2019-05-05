@@ -5,13 +5,12 @@
         "strictNullChecks": false,
         "importHelpers": true,
         "target": "es6",
-        "noImplicitAny": false,
         "moduleResolution": "node",
         "sourceMap": true,
         "outDir": "dist",
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "lib": ["es2017", "dom"],
+        "lib": ["esnext", "dom"],
         "baseUrl": ".",
         "paths": {
             "*": ["node_modules/*"]

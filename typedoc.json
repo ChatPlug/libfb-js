@@ -1,0 +1,11 @@
+{
+  "mode": "file",
+  "out": "docs/",
+  "excludeNotExported": true,
+  "include": "src/",
+  "exclude": [
+    "src/mqtt/**/*.ts",
+    "src/http/**/*.ts",
+    "src/types/**/[a-z]*.ts"
+  ]
+}

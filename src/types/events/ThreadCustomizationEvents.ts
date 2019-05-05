@@ -1,6 +1,5 @@
 import { MessageEvent } from '../Events'
 
-
 export interface ChangeThreadNicknameEvent extends MessageEvent {
   participantId: number
   nickname: string
