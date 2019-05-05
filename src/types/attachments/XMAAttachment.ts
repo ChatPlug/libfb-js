@@ -3,21 +3,25 @@ import Attachment from '../Attachment'
 // XMA - ExtensibleMessageAttachment
 export interface XMAAttachment extends Attachment {
   type: (
-        'UnavailableXMA' |
-        'StoryXMA' |
-        'ExternalUrlXMA' |
-        'AdvertXMA' |
-        'EventReminderXMA' |
-        'LeaderboardUpdateXMA' |
-        'LiveLocationXMA' |
-        'LocationXMA' |
-        'GroupXMA' |
-        'LightweightActionXMA' |
-        'PageXMA' |
-        'ProductXMA' |
-        'MontageXMA' |
-        'InstagramXMA'
-    )
+    'UnavailableXMA' |
+    'StoryXMA' |
+    'ExternalUrlXMA' |
+    'AdvertXMA' |
+    'EventReminderXMA' |
+    'LeaderboardUpdateXMA' |
+    'LiveLocationXMA' |
+    'LocationXMA' |
+    'GroupXMA' |
+    'LightweightActionXMA' |
+    'PageXMA' |
+    'ProductXMA' |
+    'MontageXMA' |
+    'InstagramXMA'
+  )
+  message?: string
+  description?: string
+  url?: string
+  imageURL?: string
 }
 export interface UnavailableXMA extends XMAAttachment {
   type: 'UnavailableXMA'
