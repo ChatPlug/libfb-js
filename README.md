@@ -38,6 +38,21 @@ client.login('username', 'password').then(() => {
 ## Documentation
 See [here](https://chatplug.github.io/libfb-js/)
 
+## Updating from 1.x.x
+```js
+const { login } = require('libfb')
+login('username', 'password').then(client => {
+  ...
+})
+```
+becomes
+```js
+const { Client } = require('libfb')
+const client = new Client()
+client.login('username', 'password').then(() => {
+  ...
+})
+```
 
 ## Disclaimer
 
