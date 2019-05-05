@@ -13,7 +13,7 @@ export default function parseDeltaMessage (delta: any) {
   } as Message
 }
 
-function getThreadId (delta: any) {
+export function getThreadId (delta: any) {
   const { threadKey } = delta.messageMetadata || delta
   return threadKey.threadFbId || threadKey.otherUserFbId
 }

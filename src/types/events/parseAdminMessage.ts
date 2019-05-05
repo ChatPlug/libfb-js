@@ -23,7 +23,7 @@ export default function parseAdminMessage (delta: any): { type: EventType, event
     return {
       type: 'addThreadAdminsEvent',
       event: {
-        ...this.getEventMetadata(delta),
+        ...getEventMetadata(delta),
         participantId: delta.untypedData.TARGET_ID
       } as AddThreadAdminsEvent
     }
