@@ -13,6 +13,7 @@ export default function parseFileAttachment (attachment: any) {
     return {
       ...attach,
       type: 'ImageAttachment',
+      url: attachment.imageMetadata.rawImageURI,
       metadata: attachment.imageMetadata
     } as ImageAttachment
   }
