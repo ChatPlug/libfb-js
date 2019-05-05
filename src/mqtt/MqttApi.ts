@@ -121,7 +121,7 @@ export default class MqttApi extends EventEmitter {
     /**
      * Sends a facebook messenger message to someone.
      */
-  sendMessage (threadId: string, message: string) {
+  sendMessage (threadId: string, message: string): Promise<{ succeeded: boolean, errStr?: string }> {
     return new Promise(async (resolve, reject) => {
       const milliseconds = Math.floor(new Date().getTime() / 1000)
       const rand = RandomIntGenerator.generate()
