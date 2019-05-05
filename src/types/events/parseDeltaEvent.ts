@@ -10,6 +10,7 @@ import {
     EventType
 } from '../Events'
 import parseAdminMessage from './parseAdminMessage'
+import { getThreadId } from '../message/parseDeltaMessage'
 
 export default function parseDeltaEvent (event: any): { type: EventType, event: Event } {
   if (event.deltaAdminTextMessage) return parseAdminMessage(event.deltaAdminTextMessage)
@@ -19,7 +20,7 @@ export default function parseDeltaEvent (event: any): { type: EventType, event: 
     return {
       type: 'threadNameEvent',
       event: {
-        ...this.getEventMetadata(delta),
+        ...getEventMetadata(delta),
         name: delta.name
       } as ThreadNameEvent
     }
@@ -30,8 +31,8 @@ export default function parseDeltaEvent (event: any): { type: EventType, event: 
     return {
       type: 'deliveryReceiptEvent',
       event: {
-        threadId: this.getThreadId(delta),
-        receiverId: delta.actorFbId || this.getThreadId(delta)
+        threadId: getThreadId(delta),
+        receiverId: delta.actorFbId || getThreadId(delta)
       } as DeliveryReceiptEvent
     }
   }
@@ -41,8 +42,8 @@ export default function parseDeltaEvent (event: any): { type: EventType, event: 
     return {
       type: 'readReceiptEvent',
       event: {
-        threadId: this.getThreadId(delta),
-        receiverId: delta.actorFbId || this.getThreadId(delta)
+        threadId: getThreadId(delta),
+        receiverId: delta.actorFbId || getThreadId(delta)
       } as ReadReceiptEvent
     }
   }
@@ -72,7 +73,7 @@ export default function parseDeltaEvent (event: any): { type: EventType, event: 
 export function getEventMetadata (delta: any) {
   return {
     id: delta.messageMetadata.messageId,
-    threadId: this.getThreadId(delta),
+    threadId: getThreadId(delta),
     authorId: delta.messageMetadata.actorFbId,
     message: delta.messageMetadata.adminText
   }

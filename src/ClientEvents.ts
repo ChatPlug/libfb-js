@@ -17,12 +17,13 @@ import {
   ChangeThreadIconEvent,
   ChangeThreadThemeEvent,
   DeliveryReceiptEvent,
-  ReadReceiptEvent
+  ReadReceiptEvent,
+  EventType
 } from './types/Events'
 
 export default interface ClientEvents {
   message: (message: Message) => void,
-  event: (event: { type: string, event: Event }) => void,
+  event: (event: { type: EventType, event: Event }) => void,
 
   participantsAddedToGroupThreadEvent: (participantsAddedToGroupThreadEvent: ParticipantsAddedToGroupThreadEvent) => void,
   participantLeftGroupThreadEvent: (participantLeftGroupThreadEvent: ParticipantLeftGroupThreadEvent) => void,
