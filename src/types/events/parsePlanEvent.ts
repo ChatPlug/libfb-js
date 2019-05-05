@@ -11,7 +11,7 @@ export default function parsePlanEvent (delta: any): { type: EventType, event: E
   const { untypedData } = delta
   const event = {
     ...getEventMetadata(delta),
-    creatorId: Number(untypedData.event_creator_id),
+    creatorId: untypedData.event_creator_id,
     title: untypedData.event_title,
     time: new Date(untypedData.event_time * 1000),
     location: untypedData.event_location_name,
@@ -49,7 +49,7 @@ export default function parsePlanEvent (delta: any): { type: EventType, event: E
       type: 'planRsvpEvent',
       event: {
         ...event,
-        guestId: Number(delta.untypedData.guest_id),
+        guestId: delta.untypedData.guest_id,
         status: delta.untypedData.guest_status
       } as PlanRsvpEvent
     }

@@ -2,11 +2,11 @@ import { MessageEvent } from '../Events'
 
 export interface PlanGuest {
   state: string
-  id: number
+  id: string
 }
 
 export interface PlanEvent extends MessageEvent {
-  creatorId: number
+  creatorId: string
   title: string
   time: Date
   location: string
@@ -18,7 +18,7 @@ export interface PlanUpdateTitleEvent extends PlanEvent {}
 export interface PlanUpdateTimeEvent extends PlanEvent {}
 export interface PlanUpdateLocationEvent extends PlanEvent {}
 export interface PlanRsvpEvent extends PlanEvent {
-  guestId: number
+  guestId: string
   status: string
 }
 export interface PlanDeleteEvent extends PlanEvent {}

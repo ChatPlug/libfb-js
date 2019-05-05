@@ -1,11 +1,11 @@
 import { MessageEvent } from '../Events'
 
 export interface ParticipantsAddedToGroupThreadEvent extends MessageEvent {
-  participantIds: number[]
+  participantIds: string[]
 }
 
 export interface ParticipantLeftGroupThreadEvent extends MessageEvent {
-  participantId: number
+  participantId: string
 }
 
 export interface ThreadNameEvent extends MessageEvent {
@@ -13,5 +13,5 @@ export interface ThreadNameEvent extends MessageEvent {
 }
 
 export interface AddThreadAdminsEvent extends MessageEvent {
-  participantId: number
+  participantId: string
 }

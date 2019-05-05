@@ -11,10 +11,10 @@ export default function parsePollEvent (delta: any): { type: EventType, event: E
     ...getEventMetadata(delta),
     title: question.text,
     options: question.options.map(option => ({
-      id: Number(option.id),
+      id: option.id,
       title: option.text,
       voteCount: option.total_count,
-      voters: option.voters.map(Number),
+      voters: option.voters,
       viewerHasVoted: option.viewer_has_voted === 'true'
     }))
   }
