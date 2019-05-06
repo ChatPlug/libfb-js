@@ -122,7 +122,10 @@ export default class MqttConnection extends EventEmitter {
 
     return new Promise<void>((resolve, reject) => {
       if (this.socket!!.destroyed) return
-      this.socket!!.write(Buffer.concat([result, message.toSend]), resolve)
+      this.socket!!.write(Buffer.concat([result, message.toSend]), err => {
+        if (err) return reject(err)
+        resolve()
+      })
     })
   }
 
