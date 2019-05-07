@@ -40,6 +40,9 @@ export default class Client extends (EventEmitter as { new(): ClientEmitter }) {
 
   constructor (options: ClientOptions = { selfListen: false, session: null }) {
     super()
+
+    this.options = options
+
     this.mqttApi = new MqttApi()
     this.httpApi = new HttpApi()
 
@@ -258,7 +261,7 @@ export default class Client extends (EventEmitter as { new(): ClientEmitter }) {
     })
   }
 
-  handleMessage (event: any) {
+  private handleMessage (event: any) {
     if (event.deltaNewMessage) {
       const message = parseDeltaMessage(event.deltaNewMessage)
       if (!message || message.authorId === this.session.tokens.uid && !this.options.selfListen) return
