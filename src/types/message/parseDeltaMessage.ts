@@ -15,5 +15,5 @@ export default function parseDeltaMessage (delta: any) {
 
 export function getThreadId (delta: any) {
   const { threadKey } = delta.messageMetadata || delta
-  return threadKey.threadFbId || threadKey.otherUserFbId
+  return (threadKey.threadFbId || threadKey.otherUserFbId).toString()
 }
