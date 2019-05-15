@@ -1,6 +1,6 @@
 {
   "name": "libfb",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "Facebook MQTT library for Node.js",
   "repository": "https://github.com/ChatPlug/libfb-js",
   "main": "dist/index.js",

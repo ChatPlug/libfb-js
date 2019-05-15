@@ -74,7 +74,7 @@ export function getEventMetadata (delta: any) {
   return {
     id: delta.messageMetadata.messageId,
     threadId: getThreadId(delta),
-    authorId: delta.messageMetadata.actorFbId,
+    authorId: delta.messageMetadata.actorFbId.toString(),
     message: delta.messageMetadata.adminText
   }
 }
