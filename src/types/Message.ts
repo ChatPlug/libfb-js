@@ -7,7 +7,8 @@ export default interface Message {
   threadId: string
   message: string
   attachments: Attachment[]
-  stickerId?: number
+  stickerId?: number,
+  mentions?: Mention[]
 }
 export interface Mention {
   offset: number
