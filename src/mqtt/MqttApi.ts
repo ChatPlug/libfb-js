@@ -2,6 +2,7 @@ import hexdump from 'buffer-hexdump'
 import { EventEmitter } from 'events'
 import AuthTokens from '../types/AuthTokens'
 import DeviceId from '../types/DeviceId'
+import { MessageType } from './messages/MessageTypes'
 import { encodeConnectMessage } from './messages/Connect'
 import { encodePing } from './messages/Ping'
 import { decodePublish, encodePublish, PublishPacket } from './messages/Publish'
@@ -11,7 +12,7 @@ import { encodeSubscribeMessage } from './messages/Subscribe'
 import { encodeUnsubscribe } from './messages/Unsubscribe'
 import MqttConnection from './MqttConnection'
 import MqttMessage from './MqttMessage'
-import MqttPacket, { FacebookMessageType } from './MqttPacket'
+import MqttPacket from './MqttPacket'
 import { MqttMessageFlag } from './MqttTypes'
 import debug from 'debug'
 import RandomIntGenerator from '../RandomIntGenerator'
@@ -167,29 +168,29 @@ export default class MqttApi extends EventEmitter {
 
   parsePacket = async (packet: MqttPacket) => {
     switch (packet.type) {
-      case FacebookMessageType.ConnectAck:
+      case MessageType.ConnectAck:
         debugLog('Packet type: ConnectAck')
         this.emit('ConnectAck')
         break
-      case FacebookMessageType.Publish:
+      case MessageType.Publish:
         debugLog('Packet type: Publish')
         const publish = decodePublish(packet)
         this.emit('publish', publish)
         await this.sendPublishConfirmation(packet.flag, publish)
         break
-      case FacebookMessageType.SubscribeAck:
+      case MessageType.SubscribeAck:
         debugLog('Packet type: SubscribeAck')
         this.emit('SubscribeAck')
         break
-      case FacebookMessageType.PublishAck:
+      case MessageType.PublishAck:
         debugLog('Packet type: PublishAck')
         this.emit('PublishAck')
         break
-      case FacebookMessageType.UnsubscribeAck:
+      case MessageType.UnsubscribeAck:
         debugLog('Packet type: UnsubscribeAck')
         this.emit('UnsubscribeAck')
         break
-      case FacebookMessageType.Pong:
+      case MessageType.Pong:
         debugLog('Packet type: Pong')
         this.lastPingMilis = new Date().getTime()
         break

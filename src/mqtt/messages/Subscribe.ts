@@ -1,6 +1,6 @@
 import MqttMessage from '../MqttMessage'
-import { MqttConnectFlag } from '../MqttTypes'
-import { FacebookMessageType } from './MessageTypes'
+import { MqttMessageFlag } from '../MqttTypes'
+import { MessageType } from './MessageTypes'
 
 /**
  * Assembles a subscribe message sent just after mqtt connection that subscribes to given topics.
@@ -14,14 +14,14 @@ export const encodeSubscribeMessage = (msgId): MqttMessage => {
     '/webrtc',
     '/webrtc_response'
   ]
-  const message = new MqttMessage()
+  const message = new MqttMessage(MessageType.Subscribe)
+    .setFlags(MqttMessageFlag.Dup)
+    .writeU16(msgId)
 
-  message.writeU16(msgId)
   for (const topic of topics) {
-    message.writeString(topic)
-    message.writeU8(0)
+    message
+      .writeString(topic)
+      .writeU8(0)
   }
-  message.flags = MqttConnectFlag.QoS1
-  message.type = FacebookMessageType.Subscribe
   return message
 }
