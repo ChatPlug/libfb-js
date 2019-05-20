@@ -9,7 +9,7 @@ import User, { parseUser } from './types/User'
 import debug from 'debug'
 import { Readable } from 'stream'
 import { PublishPacket } from './mqtt/messages/Publish'
-import Message, { parseThreadMessage } from './types/Message'
+import Message, { MessageOptions, parseThreadMessage } from './types/Message'
 import parseDeltaMessage from './types/message/parseDeltaMessage'
 import parseDeltaEvent from './types/events/parseDeltaEvent'
 import EventEmitter from 'events'
@@ -131,8 +131,8 @@ export default class Client extends (EventEmitter as { new(): ClientEmitter }) {
     return this.session
   }
 
-  sendMessage (threadId: string, message: string) {
-    return this.mqttApi.sendMessage(threadId, message)
+  sendMessage (threadId: string, message: string, options?: MessageOptions) {
+    return this.mqttApi.sendMessage(threadId, message, options)
   }
 
   getThreadList = async (count: number): Promise<Thread[]> => {

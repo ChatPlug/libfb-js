@@ -9,5 +9,13 @@ export default interface Message {
   attachments: Attachment[]
   stickerId?: number
 }
+export interface Mention {
+  offset: number
+  length: number
+  id: string
+}
+export interface MessageOptions {
+  mentions?: Mention[]
+}
 export { default as parseDeltaMessage } from './message/parseDeltaMessage'
 export { default as parseThreadMessage } from './message/parseThreadMessage'
