@@ -16,6 +16,7 @@ import EventEmitter from 'events'
 import { AttachmentNotFoundError, AttachmentURLMissingError } from './types/Errors'
 import StrictEventEmitter from 'strict-event-emitter-types'
 import ClientEvents from './ClientEvents'
+import * as Payloads from './mqtt/payloads'
 
 const debugLog = debug('fblib')
 
@@ -133,6 +134,32 @@ export default class Client extends (EventEmitter as { new(): ClientEmitter }) {
 
   sendMessage (threadId: string, message: string, options?: MessageOptions) {
     return this.mqttApi.sendMessage(threadId, message, options)
+  }
+
+  /**
+   * Indicate that the user is currently present in the conversation.
+   * Only relevant for non-group conversations
+   */
+  sendPresenceState = async (recipientUserId: string, present: boolean) => {
+    const payload = new Payloads.PresenceState(recipientUserId, present)
+    this.mqttApi.sendPublish(payload.getTopic(), await Payloads.encodePayload(payload))
+  }
+
+  /**
+   * Send "User is typing" message.
+   * In a non-group conversation, sendPresenceState() must be called first.
+   */
+  sendTypingState = async (threadOrRecipientUserId: string, present: boolean) => {
+    const payload = new Payloads.TypingState(this.session.tokens.uid, present, threadOrRecipientUserId)
+    this.mqttApi.sendPublish(payload.getTopic(), await Payloads.encodePayload(payload))
+  }
+
+  /**
+   * Mark a message as read.
+   */
+  sendReadReceipt = async (message: Message) => {
+    const payload = new Payloads.ReadReceipt(message)
+    this.mqttApi.sendPublish(payload.getTopic(), await Payloads.encodePayload(payload))
   }
 
   getThreadList = async (count: number): Promise<Thread[]> => {
