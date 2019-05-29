@@ -98,11 +98,18 @@ export default class MqttApi extends EventEmitter {
     this.emit('connected')
   }
 
-  async sendPublish (topic: string, data: string) {
+  async sendPublish (topic: string, data: Buffer | string) {
+    let dataBuffer: Buffer
+    if (data instanceof Buffer) {
+      dataBuffer = data
+    } else {
+      dataBuffer = Buffer.from(data)
+    }
+
     const packet = encodePublish({
       msgId: this.lastMsgId,
       topic,
-      data: Buffer.from(data)
+      data: dataBuffer
     })
     this.lastMsgId += 1
     await this.connection.writeMessage(packet)
