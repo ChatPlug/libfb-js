@@ -12,7 +12,7 @@ const makeUuidv4 = () => {
 export default () => {
   const uuid = makeUuidv4()
   const deviceId = uuid
-  const clientId = uuid.substring(0, 19)
+  const clientId = uuid.substring(0, 20)
   const mqttId = RandomIntGenerator.generate()
   return { clientId, deviceId, mqttId } as DeviceId
 }
