@@ -50,7 +50,7 @@ export default class MqttApi extends EventEmitter {
     this.tokens = tokens
     this.deviceId = deviceId
     await this.connection.connect()
-    this.connection.on('packet', this.parsePacket)
+    this.connection.on('packet', packet => this.parsePacket(packet))
     await this.sendConnectMessage()
     this.connection.on('close', () => this.reconnect())
   }
