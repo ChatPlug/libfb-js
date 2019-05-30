@@ -16,7 +16,7 @@ import MqttPacket from './MqttPacket'
 import { MqttMessageFlag } from './MqttTypes'
 import debug from 'debug'
 import RandomIntGenerator from '../RandomIntGenerator'
-import { MessageOptions } from '../types/Message'
+import { MessageOptions } from '..'
 
 const debugLog = debug('fblib')
 

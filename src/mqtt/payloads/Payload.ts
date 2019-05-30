@@ -1,4 +1,4 @@
-import { Thrift, TCompactProtocol, TBufferedTransport } from 'thrift'
+import { TCompactProtocol, TBufferedTransport } from 'thrift'
 
 export default abstract class Payload {
  /**
