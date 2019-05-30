@@ -96,20 +96,20 @@ export default class ConnectRequest extends Payload {
     proto.writeString('')
 
     // Meaning of value not known
-    proto.writeFieldBegin('regionPreference', Thrift.Type.STRING, 19)
-    proto.writeString('ATN')
+    // proto.writeFieldBegin('regionPreference', Thrift.Type.STRING, 19)
+    // proto.writeString('ATN')
 
     // Meaning of value not known
     proto.writeFieldBegin('deviceSecret', Thrift.Type.STRING, 20)
     proto.writeString('')
 
     // Meaning of value not known
-    proto.writeFieldBegin('clientStack', Thrift.Type.BYTE, 21)
-    proto.writeByte(4)
+    // proto.writeFieldBegin('clientStack', Thrift.Type.BYTE, 21)
+    // proto.writeByte(4)
 
     // Meaning of value not known
-    proto.writeFieldBegin('networkTypeInfo', Thrift.Type.I32, 27)
-    proto.writeI32(7)
+    // proto.writeFieldBegin('networkTypeInfo', Thrift.Type.I32, 27)
+    // proto.writeI32(7)
 
     // End of object
     proto.writeByte(0)
