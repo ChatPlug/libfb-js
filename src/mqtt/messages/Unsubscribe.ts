@@ -1,17 +1,13 @@
 import MqttMessage from '../MqttMessage'
-import { MqttConnectFlag } from '../MqttTypes'
-import { FacebookMessageType } from './MessageTypes'
+import { MqttMessageFlag } from '../MqttTypes'
+import { MessageType } from './MessageTypes'
 
 /**
  * Assembles a subscribe message sent just after mqtt connection that subscribes to given topics.
  */
-export const encodeUnsubscribe = (msgId): MqttMessage => {
-  const message = new MqttMessage()
-
-  message.writeU16(msgId)
-  message.writeString('/orca_message_notifications')
-
-  message.flags = MqttConnectFlag.QoS1
-  message.type = FacebookMessageType.Unsubscribe
-  return message
+export const encodeUnsubscribe = (msgId: number): MqttMessage => {
+  return new MqttMessage(MessageType.Unsubscribe)
+    .setFlags(MqttMessageFlag.Dup)
+    .writeU16(msgId)
+    .writeString('/orca_message_notifications')
 }

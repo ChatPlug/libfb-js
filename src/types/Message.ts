@@ -7,7 +7,16 @@ export default interface Message {
   threadId: string
   message: string
   attachments: Attachment[]
-  stickerId?: number
+  stickerId?: number,
+  mentions?: Mention[]
+}
+export interface Mention {
+  offset: number
+  length: number
+  id: string
+}
+export interface MessageOptions {
+  mentions?: Mention[]
 }
 export { default as parseDeltaMessage } from './message/parseDeltaMessage'
 export { default as parseThreadMessage } from './message/parseThreadMessage'

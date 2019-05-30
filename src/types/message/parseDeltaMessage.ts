@@ -1,5 +1,5 @@
 import { parseAttachment } from '../Attachment'
-import Message from '../Message'
+import Message, { Mention } from '../Message'
 
 export default function parseDeltaMessage (delta: any) {
   return {
@@ -9,8 +9,17 @@ export default function parseDeltaMessage (delta: any) {
     id: delta.messageMetadata.messageId,
     timestamp: delta.messageMetadata.timestamp,
     message: delta.body || '',
-    stickerId: delta.stickerId
+    stickerId: delta.stickerId,
+    mentions: (delta.data && delta.data.prng) ? parseMentions(delta.data.prng) : []
   } as Message
+}
+
+function parseMentions (prng): Mention[] {
+  return JSON.parse(prng).map(mention => ({
+    offset: mention.o,
+    length: mention.l,
+    id: mention.i
+  }))
 }
 
 export function getThreadId (delta: any) {

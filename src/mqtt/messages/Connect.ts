@@ -3,8 +3,8 @@ import * as zlib from 'zlib'
 import AuthTokens from '../../types/AuthTokens'
 import DeviceId from '../../types/DeviceId'
 import MqttMessage from '../MqttMessage'
-import { MqttConnectFlag } from '../MqttTypes'
-import { FacebookMessageType } from './MessageTypes'
+import { MqttConnectFlag, MqttMessageFlag } from '../MqttTypes'
+import { MessageType } from './MessageTypes'
 
 const USER_AGENT =
     'Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.5.83;FBPN/com.facebook.orca;FBLC/en_US;FBBV/26040814]'
@@ -33,19 +33,18 @@ export const encodeConnectMessage = (
   return new Promise<MqttMessage>((resolve, reject) => {
     const trans = new TBufferedTransport() as any
     trans.onFlush = d => {
-      const message = new MqttMessage()
       const flags =
                 MqttConnectFlag.User |
                 MqttConnectFlag.Pass |
                 MqttConnectFlag.Clr |
                 MqttConnectFlag.QoS1
-      message.writeString('MQTToT')
-      message.writeU8(3)
-      message.writeU8(flags)
-      message.writeU16(60) // KEEP ALIVE
-      message.writeRaw(zlib.deflateSync(d))
-      message.flags = 0
-      message.type = FacebookMessageType.Connect
+      const message = new MqttMessage(MessageType.Connect)
+        .setFlags(MqttMessageFlag.QoS0)
+        .writeString('MQTToT')
+        .writeU8(3)
+        .writeU8(flags)
+        .writeU16(60) // KEEP ALIVE
+        .writeRaw(zlib.deflateSync(d))
       resolve(message)
     }
 

@@ -1,4 +1,4 @@
-export enum FacebookMessageType {
+export enum MessageType {
     Connect = 1,
     ConnectAck = 2,
     Publish = 3,

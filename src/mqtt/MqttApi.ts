@@ -2,6 +2,7 @@ import hexdump from 'buffer-hexdump'
 import { EventEmitter } from 'events'
 import AuthTokens from '../types/AuthTokens'
 import DeviceId from '../types/DeviceId'
+import { MessageType } from './messages/MessageTypes'
 import { encodeConnectMessage } from './messages/Connect'
 import { encodePing } from './messages/Ping'
 import { decodePublish, encodePublish, PublishPacket } from './messages/Publish'
@@ -11,10 +12,11 @@ import { encodeSubscribeMessage } from './messages/Subscribe'
 import { encodeUnsubscribe } from './messages/Unsubscribe'
 import MqttConnection from './MqttConnection'
 import MqttMessage from './MqttMessage'
-import MqttPacket, { FacebookMessageType } from './MqttPacket'
+import MqttPacket from './MqttPacket'
 import { MqttMessageFlag } from './MqttTypes'
 import debug from 'debug'
 import RandomIntGenerator from '../RandomIntGenerator'
+import { MessageOptions } from '../types/Message'
 
 const debugLog = debug('fblib')
 
@@ -39,11 +41,11 @@ export default class MqttApi extends EventEmitter {
     return this.connection.writeMessage(msg)
   }
 
-    /**
-     * Connects the MQTT socket and binds listeners for receiving messages.
-     * @param tokens
-     * @param deviceId
-     */
+  /**
+   * Connects the MQTT socket and binds listeners for receiving messages.
+   * @param tokens
+   * @param deviceId
+   */
   async connect (tokens: AuthTokens, deviceId: DeviceId) {
     this.tokens = tokens
     this.deviceId = deviceId
@@ -64,14 +66,14 @@ export default class MqttApi extends EventEmitter {
     if (this.lastPingMilis < 0 || (this.lastPingMilis) < (60 * 1000) + new Date().getTime()) {
       return this.connection.writeMessage(encodePing())
     } else {
-            // Attempt to reconnect
+      // Attempt to reconnect
       return this.reconnect()
     }
   }
 
-    /**
-     * Sends a CONNECT mqtt message
-     */
+  /**
+   * Sends a CONNECT mqtt message
+   */
   async sendConnectMessage () {
     setInterval(this.sendPing, 60 * 1000)
     debugLog('sending connect message')
@@ -82,9 +84,9 @@ export default class MqttApi extends EventEmitter {
     await this.waitForAck('Connect')
 
     await this.sendPublish(
-            '/foreground_state',
-            '{"foreground":true,"keepalive_timeout":60}'
-        )
+      '/foreground_state',
+      '{"foreground":true,"keepalive_timeout":60}'
+    )
 
     await this.sendSubscribe(encodeSubscribeMessage(this.lastMsgId))
     await this.waitForAck('Subscribe')
@@ -118,21 +120,31 @@ export default class MqttApi extends EventEmitter {
     })
   }
 
-    /**
-     * Sends a facebook messenger message to someone.
-     */
-  sendMessage (threadId: string, message: string): Promise<{ succeeded: boolean, errStr?: string }> {
+  /**
+   * Sends a facebook messenger message to someone.
+   */
+  sendMessage (threadId: string, message: string, options?: MessageOptions): Promise<{ succeeded: boolean, errStr?: string }> {
     return new Promise(async (resolve, reject) => {
       const milliseconds = Math.floor(new Date().getTime() / 1000)
       const rand = RandomIntGenerator.generate()
       const msgid = Math.abs((rand & 0x3fffff) | (milliseconds << 22))
-      const msg = {
+      const msg: any = {
         body: message,
         msgid,
         sender_fbid: this.tokens.uid,
-        to: threadId
+        to: (threadId.startsWith('100') || threadId.length < 16) ? threadId : `tfbid_${threadId}`
       }
-      this.once('sentMessage:' + msgid, resolve)
+      if (options && options.mentions && options.mentions.length) {
+        msg.generic_metadata = {
+          prng: JSON.stringify(options.mentions.map(mention => ({
+            o: mention.offset,
+            l: mention.length,
+            i: mention.id,
+            t: 'p'
+          })))
+        }
+      }
+      this.once('sentMessage:' + msgid.toString(), resolve)
       await this.sendPublish('/send_message2', JSON.stringify(msg))
     })
   }
@@ -156,29 +168,29 @@ export default class MqttApi extends EventEmitter {
 
   parsePacket = async (packet: MqttPacket) => {
     switch (packet.type) {
-      case FacebookMessageType.ConnectAck:
+      case MessageType.ConnectAck:
         debugLog('Packet type: ConnectAck')
         this.emit('ConnectAck')
         break
-      case FacebookMessageType.Publish:
+      case MessageType.Publish:
         debugLog('Packet type: Publish')
         const publish = decodePublish(packet)
         this.emit('publish', publish)
         await this.sendPublishConfirmation(packet.flag, publish)
         break
-      case FacebookMessageType.SubscribeAck:
+      case MessageType.SubscribeAck:
         debugLog('Packet type: SubscribeAck')
         this.emit('SubscribeAck')
         break
-      case FacebookMessageType.PublishAck:
+      case MessageType.PublishAck:
         debugLog('Packet type: PublishAck')
         this.emit('PublishAck')
         break
-      case FacebookMessageType.UnsubscribeAck:
+      case MessageType.UnsubscribeAck:
         debugLog('Packet type: UnsubscribeAck')
         this.emit('UnsubscribeAck')
         break
-      case FacebookMessageType.Pong:
+      case MessageType.Pong:
         debugLog('Packet type: Pong')
         this.lastPingMilis = new Date().getTime()
         break

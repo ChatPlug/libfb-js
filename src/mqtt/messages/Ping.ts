@@ -1,12 +1,11 @@
 import MqttMessage from '../MqttMessage'
-import { FacebookMessageType } from '../MqttPacket'
+import { MessageType } from './MessageTypes'
+import { MqttMessageFlag } from '../MqttTypes'
 
 /**
  * Assembles a ping message.
  */
 export const encodePing = (): MqttMessage => {
-  const message = new MqttMessage()
-  message.flags = 0
-  message.type = FacebookMessageType.Ping
-  return message
+  return new MqttMessage(MessageType.Ping)
+    .setFlags(MqttMessageFlag.QoS0)
 }
