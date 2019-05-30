@@ -55,7 +55,7 @@ export default class MqttApi extends EventEmitter {
     this.connection.on('close', () => this.reconnect())
   }
 
-  reconnect = async () => {
+  async reconnect () {
     debugLog('reconnecting...')
     await this.connection.connect()
     await this.sendConnectMessage()
@@ -173,7 +173,7 @@ export default class MqttApi extends EventEmitter {
     return this.connection.writeMessage(message)
   }
 
-  parsePacket = async (packet: MqttPacket) => {
+  async parsePacket (packet: MqttPacket) {
     switch (packet.type) {
       case MessageType.ConnectAck:
         debugLog('Packet type: ConnectAck')
