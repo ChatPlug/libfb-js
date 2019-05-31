@@ -10,7 +10,7 @@ import {
     EventType
 } from '../Events'
 import parseAdminMessage from './parseAdminMessage'
-import { getThreadId } from '../message/parseDeltaMessage'
+import { getThreadId } from '../Message'
 
 export default function parseDeltaEvent (event: any): { type: EventType, event: Event } {
   if (event.deltaAdminTextMessage) return parseAdminMessage(event.deltaAdminTextMessage)
