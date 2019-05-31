@@ -91,6 +91,17 @@ client.login(<span class="hljs-string">'username'</span>, <span class="hljs-stri
 })</code></pre>
 				<h2 id="documentation">Documentation</h2>
 				<p>See <a href="https://chatplug.github.io/libfb-js/">here</a></p>
+				<h2 id="updating-from-1-x-x">Updating from 1.x.x</h2>
+				<pre><code class="language-js"><span class="hljs-keyword">const</span> { login } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'libfb'</span>)
+login(<span class="hljs-string">'username'</span>, <span class="hljs-string">'password'</span>).then(<span class="hljs-function"><span class="hljs-params">client</span> =&gt;</span> {
+  ...
+})</code></pre>
+				<p>becomes</p>
+				<pre><code class="language-js"><span class="hljs-keyword">const</span> { Client } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'libfb'</span>)
+<span class="hljs-keyword">const</span> client = <span class="hljs-keyword">new</span> Client()
+client.login(<span class="hljs-string">'username'</span>, <span class="hljs-string">'password'</span>).then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  ...
+})</code></pre>
 				<h2 id="disclaimer">Disclaimer</h2>
 				<blockquote>
 					<p>We do not guarantee that this product will work correctly. Use only with <a href="https://www.facebook.com/whitehat/accounts/">whitehat accounts</a> for research/educational purposes. We are not responsible for getting banned on Facebook.<br>MQTT connection logic was based on <a href="https://github.com/bitlbee-facebook">bitlbee-facebook</a>.<br>All product and company names are trademarks™ or registered® trademarks of their respective holders. Use of them does not imply any affiliation with or endorsement by them.<br>&quot;Facebook&quot; is a registered trademark of Facebook, Inc., used under license agreement.</p>
@@ -196,9 +207,6 @@ client.login(<span class="hljs-string">'username'</span>, <span class="hljs-stri
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/locationxma.html" class="tsd-kind-icon">LocationXMA</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/message.html" class="tsd-kind-icon">Message</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/messageevent.html" class="tsd-kind-icon">Message<wbr>Event</a>

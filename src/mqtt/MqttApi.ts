@@ -16,7 +16,7 @@ import MqttPacket from './MqttPacket'
 import { MqttMessageFlag } from './MqttTypes'
 import debug from 'debug'
 import RandomIntGenerator from '../RandomIntGenerator'
-import { MessageOptions } from '../types/Message'
+import { MessageOptions } from '..'
 
 const debugLog = debug('fblib')
 
@@ -50,12 +50,12 @@ export default class MqttApi extends EventEmitter {
     this.tokens = tokens
     this.deviceId = deviceId
     await this.connection.connect()
-    this.connection.on('packet', this.parsePacket)
+    this.connection.on('packet', packet => this.parsePacket(packet))
     await this.sendConnectMessage()
     this.connection.on('close', () => this.reconnect())
   }
 
-  reconnect = async () => {
+  async reconnect () {
     debugLog('reconnecting...')
     await this.connection.connect()
     await this.sendConnectMessage()
@@ -98,11 +98,18 @@ export default class MqttApi extends EventEmitter {
     this.emit('connected')
   }
 
-  async sendPublish (topic: string, data: string) {
+  async sendPublish (topic: string, data: Buffer | string) {
+    let dataBuffer: Buffer
+    if (data instanceof Buffer) {
+      dataBuffer = data
+    } else {
+      dataBuffer = Buffer.from(data)
+    }
+
     const packet = encodePublish({
       msgId: this.lastMsgId,
       topic,
-      data: Buffer.from(data)
+      data: dataBuffer
     })
     this.lastMsgId += 1
     await this.connection.writeMessage(packet)
@@ -166,7 +173,7 @@ export default class MqttApi extends EventEmitter {
     return this.connection.writeMessage(message)
   }
 
-  parsePacket = async (packet: MqttPacket) => {
+  async parsePacket (packet: MqttPacket) {
     switch (packet.type) {
       case MessageType.ConnectAck:
         debugLog('Packet type: ConnectAck')
