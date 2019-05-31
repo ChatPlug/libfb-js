@@ -1,6 +1,6 @@
 import Payload from './Payload'
 import { Thrift, TCompactProtocol, Int64 } from 'thrift'
-import Message from '../../types/message'
+import Message from '../../types/Message'
 import RandomIntGenerator from '../../RandomIntGenerator'
 import Long from 'long'
 

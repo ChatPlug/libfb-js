@@ -18,5 +18,5 @@ export interface Mention {
 export interface MessageOptions {
   mentions?: Mention[]
 }
-export { default as parseDeltaMessage } from './message/parseDeltaMessage'
+export { default as parseDeltaMessage, getThreadId } from './message/parseDeltaMessage'
 export { default as parseThreadMessage } from './message/parseThreadMessage'
