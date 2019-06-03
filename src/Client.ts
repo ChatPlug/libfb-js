@@ -215,29 +215,62 @@ export default class Client extends (EventEmitter as { new(): ClientEmitter }) {
   }
 
   private async createQueue (seqId: number) {
-    const obj = {
-      delta_batch_size: 125,
-      max_deltas_able_to_process: 1250,
-      sync_api_version: 3,
-      encoding: 'JSON',
 
+    // sync_api_version 3: You receive /t_ms payloads as json
+    // sync_api_version 10: You receiove /t_ms payloads as thrift,
+    // and connectQueue() does not have to be called.
+    // Note that connectQueue() should always use 10 instead.
+
+    const obj = (
+    {
       initial_titan_sequence_id: seqId,
-      device_id: this.session.deviceId.deviceId,
-      entity_fbid: this.session.tokens.uid,
-
-      queue_params: {
-        buzz_on_deltas_enabled: 'false',
-        graphql_query_hashes: {
-          xma_query_id: '10153919431161729'
+      delta_batch_size: 125,
+      device_params: {
+        image_sizes: {
+          0: '4096x4096',
+          4: '312x312',
+          1: '768x768',
+          2: '420x420',
+          3: '312x312'
         },
-
+        animated_image_format: 'WEBP,GIF',
+        animated_image_sizes: {
+          0: '4096x4096',
+          4: '312x312',
+          1: '768x768',
+          2: '420x420',
+          3: '312x312'
+        }
+      },
+      entity_fbid: this.session.tokens.uid,
+      sync_api_version: 3,   // Must be 3 instead of 10 to receive json payloads
+      encoding: 'JSON',      // Must be removed if using sync_api_version 10
+      queue_params: {
+        // Array of numbers -> Some bitwise encoding scheme -> base64. Numbers range from 0 to 67
+        // Decides what type of /t_ms delta messages you get. Flags unknown, copy-pasted from app.
+        client_delta_sync_bitmask: 'Amvr2dBlf7PNgA',
+        graphql_query_hashes: {
+          xma_query_id: '306810703252313'
+        },
         graphql_query_params: {
-          '10153919431161729': {
-            xma_id: '<ID>'
+          306810703252313: {
+            xma_id: '<ID>',
+            small_preview_width: 624,
+            small_preview_height: 312,
+            large_preview_width: 1536,
+            large_preview_height: 768,
+            full_screen_width: 4096,
+            full_screen_height: 4096,
+            blur: 0.0,
+            nt_context: {
+              styles_id: 'fe1fd5357bb40c81777dc915dfbd6aa4',
+              pixel_ratio: 3.0
+            }
           }
         }
       }
     }
+  )
 
     await this.mqttApi.sendPublish(
       '/messenger_sync_create_queue',
@@ -246,10 +279,15 @@ export default class Client extends (EventEmitter as { new(): ClientEmitter }) {
   }
 
   private async connectQueue (seqId) {
+
+    // If createQueue() uses sync_api_version 10, this does not need to be called, and you will not receive json payloads.
+    // If this does not use sync_api_version 10, you will not receive all messages (e.g. reactions )
+    // Send the thrift-equivalent payload to /t_ms_gd and you will receive mostly thrift-encoded payloads instead.
+
     const obj = {
       delta_batch_size: 125,
       max_deltas_able_to_process: 1250,
-      sync_api_version: 3,
+      sync_api_version: 10, // Must be 10 to receive some messages
       encoding: 'JSON',
 
       last_seq_id: seqId,
