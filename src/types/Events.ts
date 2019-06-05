@@ -19,7 +19,8 @@ export type EventType = (
   'changeThreadThemeEvent' |
 
   'deliveryReceiptEvent' |
-  'readReceiptEvent'
+  'readReceiptEvent' |
+  'messageRemoveEvent'
 )
 
 export interface Event {
@@ -70,3 +71,5 @@ export interface DeliveryReceiptEvent extends Event {
 export interface ReadReceiptEvent extends Event {
   receiverId: string
 }
+
+export interface MessageRemoveEvent extends MessageEvent {}
