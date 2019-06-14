@@ -4,16 +4,27 @@ import {
     ThreadNameEvent
 } from './ThreadEvents'
 import {
-    Event,
-    DeliveryReceiptEvent,
-    ReadReceiptEvent,
-    EventType
+  Event,
+  DeliveryReceiptEvent,
+  ReadReceiptEvent,
+  EventType,
+  MessageRemoveEvent
 } from '../Events'
 import parseAdminMessage from './parseAdminMessage'
 import { getThreadId } from '../Message'
 
 export default function parseDeltaEvent (event: any): { type: EventType, event: Event } {
   if (event.deltaAdminTextMessage) return parseAdminMessage(event.deltaAdminTextMessage)
+
+  if (event.deltaReplaceMessage) {
+    const delta = event.deltaReplaceMessage
+    if (delta.newMessage.messageMetadata.unsendType) {
+      return {
+        type: 'messageRemoveEvent',
+        event: getEventMetadata(delta.newMessage) as MessageRemoveEvent
+      }
+    }
+  }
 
   if (event.deltaThreadName) {
     const delta = event.deltaThreadName
@@ -32,7 +43,7 @@ export default function parseDeltaEvent (event: any): { type: EventType, event: 
       type: 'deliveryReceiptEvent',
       event: {
         threadId: getThreadId(delta),
-        receiverId: delta.actorFbId || getThreadId(delta)
+        receiverId: delta.actorFbId.toString() || getThreadId(delta)
       } as DeliveryReceiptEvent
     }
   }
@@ -43,7 +54,7 @@ export default function parseDeltaEvent (event: any): { type: EventType, event: 
       type: 'readReceiptEvent',
       event: {
         threadId: getThreadId(delta),
-        receiverId: delta.actorFbId || getThreadId(delta)
+        receiverId: delta.actorFbId.toString() || getThreadId(delta)
       } as ReadReceiptEvent
     }
   }

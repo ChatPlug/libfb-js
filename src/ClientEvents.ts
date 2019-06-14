@@ -18,7 +18,8 @@ import {
   ChangeThreadThemeEvent,
   DeliveryReceiptEvent,
   ReadReceiptEvent,
-  EventType
+  EventType,
+  MessageRemoveEvent
 } from './types/Events'
 
 export default interface ClientEvents {
@@ -46,4 +47,6 @@ export default interface ClientEvents {
 
   deliveryReceiptEvent: (deliveryReceiptEvent: DeliveryReceiptEvent) => void,
   readReceiptEvent: (readReceiptEvent: ReadReceiptEvent) => void
+
+  messageRemoveEvent: (messageRemoveEvent: MessageRemoveEvent) => void
 }
