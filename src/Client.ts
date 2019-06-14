@@ -16,12 +16,14 @@ import { AttachmentNotFoundError, AttachmentURLMissingError } from './types/Erro
 import StrictEventEmitter from 'strict-event-emitter-types'
 import ClientEvents from './ClientEvents'
 import * as Payloads from './mqtt/payloads'
+import DeviceId from './types/DeviceId'
 
 const debugLog = debug('fblib')
 
 export interface ClientOptions {
   selfListen?: boolean
   session?: Session
+  deviceId?: DeviceId
 }
 
 type ClientEmitter = StrictEventEmitter<EventEmitter, ClientEvents>
@@ -49,6 +51,10 @@ export default class Client extends (EventEmitter as { new(): ClientEmitter }) {
     let session = options.session
     if (!session) {
       session = { tokens: null, deviceId: null }
+    }
+
+    if (options.deviceId) {
+      session.deviceId = options.deviceId
     }
 
     if (!session.deviceId) {
