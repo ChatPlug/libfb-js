@@ -26,6 +26,7 @@ export interface XMAAttachment extends Attachment {
 export interface UnavailableXMA extends XMAAttachment {
   type: 'UnavailableXMA'
   message: string
+  attach: any
 }
 export interface StoryXMA extends XMAAttachment {
   type: 'StoryXMA'
