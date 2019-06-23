@@ -11,10 +11,11 @@ import vm from 'vm'
 
 export default function parseXMAAttachment (attach: any) {
   attach = attach[Object.keys(attach)[0]].story_attachment
-  if (!attach.target) {
+  if (!attach.target || !attach.target.__type__) {
     return {
       type: 'UnavailableXMA',
-      message: attach.description.text
+      message: attach.description.text,
+      attach
     } as UnavailableXMA
   }
   const type = attach.target.__type__.name

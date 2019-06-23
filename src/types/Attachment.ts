@@ -3,4 +3,4 @@ export default interface Attachment {
 }
 export * from './attachments/XMAAttachment'
 export * from './attachments/FileAttachment'
-export { default as parseAttachment } from './attachments/parseAttachment'
+export { default as parseAttachments } from './attachments/parseAttachments'
