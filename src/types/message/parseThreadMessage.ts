@@ -1,23 +1,27 @@
 import Message from '../Message'
-import Attachment from '../Attachment'
 import parseXMAAttachment from '../attachments/parseXMAAttachment'
 import parseBlobAttachment from '../attachments/parseBlobAttachment'
+import { Attachments } from '../attachments/parseAttachments'
 
 export default function parseThreadMessage (threadId: string, message: any) {
+  const { fileAttachments, mediaAttachments } = parseAttachments(message)
   return {
     id: message.message_id,
     timestamp: Number(message.timestamp_precise),
     authorId: message.message_sender ? message.message_sender.messaging_actor.id : '',
     threadId,
     message: message.message ? message.message.text : '',
-    attachments: parseAttachments(message),
+    fileAttachments,
+    mediaAttachments,
     stickerId: message.sticker
   } as Message
 }
-function parseAttachments (message: any): Attachment[] {
-  const attachments = message.blob_attachments ? message.blob_attachments.map(parseBlobAttachment) : []
+
+function parseAttachments (message: any): Attachments {
+  const fileAttachments = message.blob_attachments ? message.blob_attachments.map(parseBlobAttachment) : []
   // const attachments = message.blob_attachments ? message.blob_attachments : []
   const xma = message.extensible_attachment
-  if (xma) attachments.push(parseXMAAttachment({ [xma.id]: xma }))
-  return attachments
+  const mediaAttachments = []
+  if (xma) mediaAttachments.push(parseXMAAttachment({ [xma.id]: xma }))
+  return { fileAttachments, mediaAttachments }
 }
