@@ -2,9 +2,11 @@ import { parseAttachments } from '../Attachment'
 import Message, { Mention } from '../Message'
 
 export default function parseDeltaMessage (delta: any) {
+  const { fileAttachments, mediaAttachments } = parseAttachments(delta.attachments || [])
   return {
     threadId: getThreadId(delta),
-    attachments: delta.attachments ? parseAttachments(delta.attachments) : [],
+    fileAttachments,
+    mediaAttachments,
     authorId: delta.messageMetadata.actorFbId,
     id: delta.messageMetadata.messageId,
     timestamp: delta.messageMetadata.timestamp,

@@ -3,7 +3,7 @@ import parseBlobAttachment from './parseBlobAttachment'
 import parseXMAAttachment from './parseXMAAttachment'
 import { FileAttachment, XMAAttachment } from '../Attachment'
 
-interface Attachments {
+export interface Attachments {
   fileAttachments: FileAttachment[],
   mediaAttachments: XMAAttachment[]
 }

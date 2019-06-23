@@ -1,4 +1,4 @@
-import Attachment from './Attachment'
+import { FileAttachment, XMAAttachment } from './Attachment'
 
 export default interface Message {
   id: string
@@ -6,7 +6,8 @@ export default interface Message {
   authorId: string
   threadId: string
   message: string
-  attachments: Attachment[]
+  fileAttachments: FileAttachment[],
+  mediaAttachments: XMAAttachment[]
   stickerId?: number,
   mentions?: Mention[]
 }
