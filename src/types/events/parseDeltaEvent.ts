@@ -43,7 +43,7 @@ export default function parseDeltaEvent (event: any): { type: EventType, event: 
       type: 'deliveryReceiptEvent',
       event: {
         threadId: getThreadId(delta),
-        receiverId: delta.actorFbId.toString() || getThreadId(delta)
+        receiverId: delta.actorFbId ? delta.actorFbId.toString() : getThreadId(delta)
       } as DeliveryReceiptEvent
     }
   }
@@ -54,7 +54,7 @@ export default function parseDeltaEvent (event: any): { type: EventType, event: 
       type: 'readReceiptEvent',
       event: {
         threadId: getThreadId(delta),
-        receiverId: delta.actorFbId.toString() || getThreadId(delta)
+        receiverId: delta.actorFbId ? delta.actorFbId.toString() : getThreadId(delta)
       } as ReadReceiptEvent
     }
   }
