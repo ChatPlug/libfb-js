@@ -9,13 +9,13 @@ import {
 import { parse } from 'url'
 import vm from 'vm'
 
-export default function parseXMAAttachment (attach: any) {
-  attach = attach[Object.keys(attach)[0]].story_attachment
+export default function parseXMAAttachment (xma: any) {
+  const attach = xma[Object.keys(xma)[0]].story_attachment
   if (!attach.target || !attach.target.__type__) {
     return {
       type: 'UnavailableXMA',
-      message: attach.description.text,
-      attach
+      message: attach.description ? attach.description.text : 'Attachment unavailable',
+      attach: xma
     } as UnavailableXMA
   }
   const type = attach.target.__type__.name
