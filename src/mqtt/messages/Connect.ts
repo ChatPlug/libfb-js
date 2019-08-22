@@ -6,8 +6,7 @@ import { MqttConnectFlag } from '../MqttTypes'
 import * as Payloads from '../payloads'
 import { MessageType } from './MessageTypes'
 
-const USER_AGENT =
-    'Facebook plugin / LIBFB-JS / [FBAN/Orca-Android;FBAV/148.0.0.5.83;FBPN/com.facebook.orca;FBLC/en_US;FBBV/26040814]'
+const USER_AGENT = '[FBAN/Orca-Android;FBAV/220.0.0.20.121;]'
 
 /**
  * Assembles a connect messages sent just after a TLS connection is established.
