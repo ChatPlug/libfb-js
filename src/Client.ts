@@ -309,6 +309,7 @@ export default class Client extends (EventEmitter as { new(): ClientEmitter }) {
   private async handleMS (ms: string) {
     let data
     try {
+      ms = ((ms.indexOf('{"deltas"') > 0) ? ms.substr(ms.indexOf('{"deltas"')) : ms)
       data = JSON.parse(ms.replace('\u0000', ''))
     } catch (err) {
       console.error('Error while parsing the following message:')
