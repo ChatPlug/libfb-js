@@ -6,6 +6,8 @@
 [![npm](https://img.shields.io/npm/dt/libfb.svg?style=for-the-badge)](https://npmjs.com/package/libfb) &nbsp;
 ![love](https://img.shields.io/badge/Built%20with-%E2%9D%A4%20LOVE-red.svg?longCache=true&style=for-the-badge)
 
+:warning: Disclaimer: this library is abandoned and seems to ignore some incoming messages due to Facebook introducing the new Lightspeed clients. Fixes are welcome.
+
 ## Example usage
 
 ### Echo bot
